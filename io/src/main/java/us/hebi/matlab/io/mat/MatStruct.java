@@ -1,0 +1,129 @@
+package us.hebi.matlab.io.mat;
+
+import us.hebi.matlab.io.types.AbstractStruct;
+import us.hebi.matlab.io.types.Array;
+import us.hebi.matlab.io.types.MatlabType;
+import us.hebi.matlab.io.types.Sink;
+import us.hebi.matlab.common.util.Charsets;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.io.mat.Mat5.*;
+import static us.hebi.matlab.io.mat.Mat5Type.*;
+
+/**
+ * @author Florian Enner < florian @ hebirobotics.com >
+ * @since 29 Aug 2018
+ */
+class MatStruct extends AbstractStruct implements Mat5Serializable {
+
+    MatStruct(int[] dims, boolean global) {
+        super(dims, global);
+    }
+
+    MatStruct(int[] dims, boolean isGlobal, String[] names, Array[][] values) {
+        super(dims, isGlobal);
+        checkArgument(getNumDimensions() == 2, "Structures are limited to two dimensions");
+        int numElements = getNumElements();
+        for (int field = 0; field < names.length; field++) {
+            for (int i = 0; i < numElements; i++) {
+                set(names[field], i, values[field][i]);
+            }
+        }
+    }
+
+    @Override
+    protected Array getEmptyValue() {
+        return Mat5.EMPTY_MATRIX;
+    }
+
+    protected String getClassName() {
+        return "";
+    }
+
+    protected int getLongestFieldName() {
+        int length = 0;
+        for (String name : getFieldNames()) {
+            length = Math.max(length, name.length());
+        }
+        return length;
+    }
+
+    @Override
+    public int getMat5Size(String name) {
+        final List<String> fieldNames = getFieldNames();
+        final int numElements = getNumElements();
+        final int numFields = fieldNames.size();
+
+        // Common fields
+        int size = MATRIX_TAG_SIZE;
+        size += Mat5Writer.computeArrayHeaderSize(name, this);
+
+        // Subfield -/4: Object only. Not struct
+        if (getType() == MatlabType.Object) {
+            String objectClassName = getClassName();
+            size += Int8.computeSerializedSize(objectClassName.length());
+        }
+
+        // Subfield 4/5: Field Name Length
+        size += Int32.computeSerializedSize(1);
+
+        // Subfield 5/6: Field Names
+        int numChars = getLongestFieldName() * numFields;
+        size += Int8.computeSerializedSize(numChars); // ascii
+
+        // Subfield 6/7: Fields
+        for (int i = 0; i < numElements; i++) {
+            for (int field = 0; field < numFields; field++) {
+                size += Mat5Writer.computeArraySize(get(fieldNames.get(field), i));
+            }
+        }
+
+        return size;
+    }
+
+    @Override
+    public void writeMat5(String name, Sink sink) throws IOException {
+        final List<String> fieldNames = getFieldNames();
+        final int numElements = getNumElements();
+        final int numFields = fieldNames.size();
+
+        // Common fields
+        Mat5Writer.writeMatrixTag(name, this, sink);
+        Mat5Writer.writeArrayHeader(name, this, sink);
+
+        // Subfield -/4: Object only. Not struct
+        if (getType() == MatlabType.Object) {
+            String objectClassName = getClassName();
+            Int8.writeBytesWithTag(objectClassName.getBytes(Charsets.US_ASCII), sink);
+        }
+
+        // Subfield 4/5: Field Name Length
+        int longestName = getLongestFieldName();
+        int numChars = longestName * numFields;
+        Int32.writeIntsWithTag(new int[]{longestName}, sink);
+
+        // Subfield 5/6: Field Names
+        byte[] ascii = new byte[numChars];
+        Arrays.fill(ascii, (byte) '\0');
+        for (int i = 0; i < numFields; i++) {
+            String fieldName = getFieldNames().get(i);
+            byte[] bytes = fieldName.getBytes(Charsets.US_ASCII);
+            System.arraycopy(bytes, 0, ascii, i * longestName, bytes.length);
+        }
+        Int8.writeBytesWithTag(ascii, sink);
+
+        // Subfield 6/7: Fields
+        checkArgument(getNumDimensions() == 2, "Structures are limited to two dimensions");
+        for (int i = 0; i < numElements; i++) {
+            for (int field = 0; field < numFields; field++) {
+                Mat5Writer.writeArrayWithTag(get(fieldNames.get(field), i), sink);
+            }
+        }
+
+    }
+
+}
