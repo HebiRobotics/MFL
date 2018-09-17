@@ -1,0 +1,44 @@
+# MatlabTools :: IO
+
+`MatlabTools::IO` is a library that allows importing and exporting MATLAB's Level 5 MAT-File format as documented in the official https://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf[matfile_format.pdf].
+
+The Level 5 format is also known as `MAT-File Version 7` and has been the default format for `.mat` and `.fig` files since `MATLAB R14` which was released in https://en.wikipedia.org/wiki/MATLAB#Release_history[2004]. For more information please refer to https://de.mathworks.com/help/matlab/import_export/mat-file-versions.html[MAT-File Versions].
+
+## TL;DR
+
+For usage examples see link:./src/test/java/us/hebi/matlab/io/Mat5Examples.java[Mat5Examples.java]
+
+## Why a new library?
+
+At https://www.hebirobotics.com/[HEBI Robotics] we maintain a Java based http://docs.hebi.us/tools.html#matlab-api[MATLAB API] for real-time control of robotic systems that needs to be able to efficiently write large (>2GB) MAT files while also supporting constrained heap spaces (<128MB).
+
+Additionally, we wanted a way to add custom serialization schemes in order to save data streams with unknown amounts of data, without having to allocate large temporary matrices.
+
+Since https://github.com/diffplug/matfilerw[MatFileRW] (maintained fork of https://github.com/gradusnikov/jmatio[JMatIO]) didn't support either use case, we ended up writing an internal library that was limited to serializing double matrices.  As sort of a learning experience, we recently spent some time to make the library full featured and decided to open source it.
+
+Considering that there are many features that we don't have an internal use case for (e.g. reading MAT files), we welcome any feedback regarding missing features or suggested API changes.
+
+## Highlights / Features
+
+TODO:
+
+* Overloaded interfaces to reduce casting
+* Size calculated beforehand to avoid temporary buffers
+* Concurrent decompression
+* Concurrent compression
+* Custom serialization
+** EJML Dense & Sparse
+** Streaming row-major matrix
+* Pluggable Source/Sink interfaces
+** read/write to buffer
+** Memory-mapped file writes w/ file truncate on close
+* MCOS
+** Changes subsystem location correctly after changing the file
+** Supports `string`, `table`, etc. types
+* Reading `.fig` files
+
+## Acknowledgements
+
+A significant portion of the unit tests were copied from https://github.com/gradusnikov/jmatio[JMatIO] and https://github.com/diffplug/matfilerw[MatFileRW].
+
+The implementation for reading the undocumented `MCOS` (MATLAB Class Object System) format is based on https://github.com/mbauman[Matt Bauman]'s http://nbviewer.jupyter.org/gist/mbauman/9121961[reverse engineering efforts] as well as MatFileRW's implementation by https://github.com/MJDSys[Matthew Dawson].
