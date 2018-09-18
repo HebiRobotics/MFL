@@ -1,0 +1,6 @@
+= MatlabTools
+Java libraries for interfacing with MATLAB
+
+== MatlabTools :: IO
+
+Library that allows importing and exporting MAT files. For more information, see link:./io[MatlabTools::IO].

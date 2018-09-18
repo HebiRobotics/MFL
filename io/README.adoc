@@ -1,14 +1,14 @@
-# MatlabTools :: IO
+= MatlabTools :: IO
 
 `MatlabTools::IO` is a library that allows importing and exporting MATLAB's Level 5 MAT-File format as documented in the official https://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf[matfile_format.pdf].
 
 The Level 5 format is also known as `MAT-File Version 7` and has been the default format for `.mat` and `.fig` files since `MATLAB R14` which was released in https://en.wikipedia.org/wiki/MATLAB#Release_history[2004]. For more information please refer to https://de.mathworks.com/help/matlab/import_export/mat-file-versions.html[MAT-File Versions].
 
-## TL;DR
+== TL;DR
 
 For usage examples see link:./src/test/java/us/hebi/matlab/io/Mat5Examples.java[Mat5Examples.java]
 
-## Why a new library?
+== Why a new library?
 
 At https://www.hebirobotics.com/[HEBI Robotics] we maintain a Java based http://docs.hebi.us/tools.html#matlab-api[MATLAB API] for real-time control of robotic systems that needs to be able to efficiently write large (>2GB) MAT files while also supporting constrained heap spaces (<128MB).
 
@@ -18,27 +18,120 @@ Since https://github.com/diffplug/matfilerw[MatFileRW] (maintained fork of https
 
 Considering that there are many features that we don't have an internal use case for (e.g. reading MAT files), we welcome any feedback regarding missing features or suggested API changes.
 
-## Highlights / Features
+== Highlights
 
-TODO:
+Below is an overview of some of the highlights that may be of interest. The library is Java 6 compliant to support older versions of MATLAB, but it was developed with Java 8 syntax in mind.
 
-* Overloaded interfaces to reduce casting
-* Size calculated beforehand to avoid temporary buffers
-* Concurrent decompression
-* Concurrent compression
-* Custom serialization
-** EJML Dense & Sparse
-** Streaming row-major matrix
-* Pluggable Source/Sink interfaces
-** read/write to buffer
-** Memory-mapped file writes w/ file truncate on close
-* MCOS
-** Changes subsystem location correctly after changing the file
-** Supports `string`, `table`, etc. types
-* Reading `.fig` files
+=== Fluent API
 
-## Acknowledgements
+All API classes have multiple overloads for the most commonly used methods in order to reduce clutter related to casting or temporary variables.
 
-A significant portion of the unit tests were copied from https://github.com/gradusnikov/jmatio[JMatIO] and https://github.com/diffplug/matfilerw[MatFileRW].
+```Java
+// Create MAT file with a scalar in a nested struct
+try(Sink sink = Sinks.newStreamingFile("data.mat")){
+    Mat5.newMatFile()
+        .addArray("var1", Mat5.newString("Test"))
+        .addArray("var2", Mat5.newScalar(7))
+        .addArray("var3", Mat5.newStruct().set("x", Mat5.newScalar(42)))
+        .writeTo(sink);
+}
+```
 
-The implementation for reading the undocumented `MCOS` (MATLAB Class Object System) format is based on https://github.com/mbauman[Matt Bauman]'s http://nbviewer.jupyter.org/gist/mbauman/9121961[reverse engineering efforts] as well as MatFileRW's implementation by https://github.com/MJDSys[Matthew Dawson].
+```Java
+// Read scalar from nested struct
+try(Source source = Sources.openFile("data.mat"){
+    double value = Mat5.newReader(source).readFile()
+        .getStruct("var3")
+        .getMatrix("x")
+        .getDouble(0);
+}
+```
+
+More usage examples can be found in link:./src/test/java/us/hebi/matlab/io/Mat5Examples.java[Mat5Examples] and the various unit tests.
+
+=== Advanced Filtering
+
+In some cases we may only care about a subset of arrays, so there is no need to parse all of the content.
+
+```Java
+// Filter arrays that follow some criteria based on the name, type, dimension, or global/logical flags
+try(Source source = Sources.openFile("data.mat"){
+    MatFile mat = Mat5.newReader(source)
+        .setArrayFilter(header -> header.isGlobal())
+        .readFile();
+}
+```
+
+Note that the filtering only gets applied on the root level, so e.g. matrices inside a struct won't be filtered.
+
+=== Concurrent Decompression
+
+By far the most CPU time when reading MAT files is spent on decompression. If the source supports position seeking (e.g. byte buffers or memory mapped files), the data may be decompressed concurrently.
+
+```Java
+// Decompress concurrently
+ExecutorService executor = Executors.newFixedThreadPool(numThreads);
+try(Source source = Sources.openFile("data.mat"){
+    MatFile mat = Mat5.newReader(source)
+        .enableAsyncDecompression(executor)
+        .readFile()
+} finally {
+    executor.shutdown();
+}
+```
+
+The table below shows a rough performance comparison of reading one of our data logs on an Intel NUC6i7kyk (quad core w/ ht). The data was first loaded into memory (native buffer), and the data was very multi-threading friendly.
+
+[width="100%",options="header",cols="1a,1a,1a,1a"]
+|====================
+| Compression | Input Size | Threads | Time
+| BEST_COMPRESSION | 144 MB | 1 | 3.5 sec
+| BEST_COMPRESSION | 144 MB | 8 | 0.8 sec
+| BEST_SPEED | 156 MB | 1 | 3.6 sec
+| BEST_SPEED | 156 MB | 8 | 800 ms
+| NO_COMPRESSION | 422 MB | 1 | 200 ms
+|====================
+
+=== Concurrent Compression
+
+Compression is an even more significant issue when writing files. Unfortunately, writing concurrently requires allocation of temporary buffers because the compressed size isn't known beforehand. It is currently an experimental part of the API, but link:./src/test/java/us/hebi/matlab/io/experimental/ConcurrentMat5Writer.java[ConcurrentMat5Writer.java] shows how this could be implemented.
+
+Below is comparison data for writing the same data set as above.
+
+[width="100%",options="header",cols="1a,1a,1a,1a"]
+|====================
+| Compression | Output Size | Threads | Time
+| BEST_COMPRESSION | 144 MB | 1 | 280 sec
+| BEST_COMPRESSION | 144 MB | 8 | 47 sec
+| BEST_SPEED | 156 MB | 1 | 7.2 sec
+| BEST_SPEED | 156 MB | 8 | 1.5 sec
+| NO_COMPRESSION | 422 MB | 1 | 70 ms
+|====================
+
+=== Memory Efficient Serialization
+
+The MAT 5 format stores all data fields with a header tag that contains the number of bytes and how they should be interpreted. Rather than writing into temporary buffers to determine the serialized size, we added ways to pre-compute all deterministic sizes beforehand.
+
+The only non-deterministic case is compressing data at the root level, which we can work around by writing a dummy size and overwriting it once the final size is known. Thus, enabling compression requires the root level sink to support position seeking (i.e. in-memory buffers, memory mapped files, or random access files).
+
+==== Serializing Custom Classes
+
+In order for a class to be serializable, it needs to implement the `Array` (or extend `AbstractArray`) and the `Mat5Serializable` interfaces. Below are examples:
+
+* link:./src/test/java/us/hebi/matlab/io/experimental/EjmlSparseWrapper.java[EjmlDMatrixWrapper] serializes link:http://ejml.org[EJML]'s `DMatrix` type
+
+* link:./src/test/java/us/hebi/matlab/io/experimental/EjmlSparseWrapper.java[EjmlSparseWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
+
+* link:./src/test/java/us/hebi/matlab/io/experimental/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
+
+=== Support for Undocumented Features
+
+Unfortunately, MAT 5 files have several features that aren't covered in the official documentation. This includes most (all?) of the recently added types (`table`, `timeseries`, `string`, ...), `handle` classes, `function handles`, `.fig` files, `Simulink` outputs, etc.
+
+The current implementation supports reading all of the `.mat` and `.fig` files we were able to generate. It also supports editing and saving of the loaded MAT files, e.g., adding entries, changing matrices, or using a different compression level. However, changes to the undocumented parts, e.g., setting a property on a `handle` class, will not be picked up.
+
+== Acknowledgements
+
+https://github.com/diffplug/matfilerw[MatFileRW] (maintained fork of https://github.com/gradusnikov/jmatio[JMatIO]) served as an inspiration for parts of the implementation as well as a great source for test data. We ended up porting all of their unit tests with the exception of `Base64 MDL` decoding (all of the `MDL` files we found online were clear text and we couldn't figure out when that format is ever used).
+
+The implementation for reading the undocumented `MCOS` (MATLAB Class Object System) data is based on https://github.com/mbauman[Matt Bauman]'s http://nbviewer.jupyter.org/gist/mbauman/9121961[reverse engineering efforts] as well as MatFileRW's implementation by https://github.com/MJDSys[Matthew Dawson].
