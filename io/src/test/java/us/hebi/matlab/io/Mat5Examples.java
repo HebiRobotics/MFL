@@ -2,12 +2,14 @@ package us.hebi.matlab.io;
 
 import org.junit.Test;
 import us.hebi.matlab.io.mat.Mat5;
+import us.hebi.matlab.io.mat.Mat5Reader;
 import us.hebi.matlab.io.mat.Mat5Writer;
 import us.hebi.matlab.io.types.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.zip.Deflater;
 
 import static org.junit.Assert.*;
@@ -22,7 +24,7 @@ import static us.hebi.matlab.common.util.Casts.*;
 public class Mat5Examples {
 
     @Test
-    public void testMatrixWriteRead() {
+    public void testMatrixWriteRead() throws IOException {
 
         // Create arbitrary data
         Matrix eye3 = Mat5.newMatrix(3, 3, MatlabType.Int64);
@@ -34,12 +36,17 @@ public class Mat5Examples {
         MatFile mat = Mat5.newMatFile();
         mat.addArray("identityMatrix", eye3);
 
+        // Create buffer for storage
+        int bufferSize = sint32(mat.getUncompressedSerializedSize());
+        ByteBuffer buffer = ByteBuffer.allocate(bufferSize);
+        buffer.order(ByteOrder.nativeOrder());
+
         // Write to buffer
-        ByteBuffer buffer = Mat5.writeToBuffer(mat);
+        mat.writeTo(Sinks.wrap(buffer));
 
         // Read from buffer
         buffer.flip();
-        MatFile result = Mat5.readFromBuffer(buffer);
+        MatFile result = Mat5.newReader(Sources.wrap(buffer)).readFile();
 
         // Access data
         assertEquals(2, result.getMatrix("identityMatrix").getLong(1, 1));
@@ -95,7 +102,7 @@ public class Mat5Examples {
 
             // Write header and add individual arrays with mixed compression (tested loading w/ R2017b)
             Mat5.newWriter(sink)
-                    .writeFile(Mat5.newMatFile()) // creates header
+                    .writeFile(Mat5.newMatFile()) // new file has no content, so this just writes the header
                     .setDeflateLevel(Deflater.NO_COMPRESSION).writeRootArray("var1", var1)
                     .setDeflateLevel(Deflater.BEST_SPEED).writeRootArray("var2", var2)
                     .setDeflateLevel(Deflater.NO_COMPRESSION).writeRootArray("var3", var3)
@@ -178,13 +185,57 @@ public class Mat5Examples {
         MatFile matFile = Mat5.newMatFile().addArray("root", struct);
 
         // Write/Read to file
-        File file = Mat5.writeToFile(matFile, "./temp-test-file.mat");
-        MatFile result = Mat5.readFromFile(file);
+        File file = new File("./temp-test-file.mat");
+        Sink sink = Sinks.newStreamingFile(file);
+        matFile.writeTo(sink);
+        sink.close();
+
+        Source source = Sources.openFile(file);
+        MatFile result = Mat5.newReader(source).readFile();
+        source.close();
+
         assertTrue("Could not delete temporary file", file.delete());
 
         // Access content. Nested classes have overloads to avoid boiler plate casting
         String actual = result.getStruct("root").getChar("name").getString();
         assertEquals("single quoted string", actual);
+
+    }
+
+    @Test
+    public void testReadFilter() throws IOException {
+        // Write dummy data with several root entries to buffer
+        MatFile matFile = Mat5.newMatFile()
+                .addArray("matrix", Mat5.newMatrix(Mat5.dims(2, 2, 1, 3)))
+                .addArray("name", Mat5.newString("single quoted string"))
+                .addArray("scalar", Mat5.newScalar(27))
+                .addArray("complexScalar", Mat5.newComplexScalar(27, 16));
+
+        ByteBuffer buffer = ByteBuffer.allocate(sint32(matFile.getUncompressedSerializedSize()));
+        matFile.writeTo(Sinks.wrap(buffer).setByteOrder(ByteOrder.nativeOrder()));
+        buffer.flip();
+
+        // Setup filter that only allows arrays that fulfill a certain criteria
+        // Note that the filter only gets applied to the root entries, so entries
+        // inside structs/cell arrays etc. don't get filtered.
+        Mat5Reader.ArrayFilter filter = new Mat5Reader.ArrayFilter() {
+            @Override
+            public boolean isAccepted(Mat5Reader.ArrayHeader header) {
+                // 2D arrays with an "x" or "n" in the name
+                String name = header.getName();
+                return (name.contains("x") || name.contains("a"))
+                        && header.getDimensions().length == 2;
+            }
+        };
+
+        MatFile result = Mat5.newReader(Sources.wrap(buffer))
+                .setArrayFilter(filter)
+                .readFile();
+
+        assertEquals(3, result.size());
+        result.getChar("name");
+        result.getMatrix("scalar");
+        result.getMatrix("complexScalar");
 
     }
 

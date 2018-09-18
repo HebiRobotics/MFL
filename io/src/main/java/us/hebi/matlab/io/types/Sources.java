@@ -18,6 +18,10 @@ import static us.hebi.matlab.common.util.Preconditions.*;
  */
 public class Sources {
 
+    public static Source openFile(String file) throws IOException {
+        return openFile(new File((file)));
+    }
+
     public static Source openFile(File file) throws IOException {
         checkNotNull(file);
         checkArgument(file.exists() && file.isFile(), "must be an existing file");

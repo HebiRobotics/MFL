@@ -44,7 +44,11 @@ public class ConcurrentMat5Writer {
         for (NamedArray entry : matFile) {
             writeRootArray(entry.getName(), entry.getValue());
         }
-        finish();
+        try {
+            finish();
+        } finally {
+            releaseBuffers();
+        }
     }
 
     private void writeRootArray(final String name, final Array array) {
@@ -54,7 +58,8 @@ public class ConcurrentMat5Writer {
 
                 // Create temporary sink
                 int maxExpectedSize = Mat5Writer.computeArraySize(name, array) + 256;
-                ByteBuffer buffer = ByteBuffer.allocateDirect(maxExpectedSize);
+                ByteBuffer buffer = allocateBuffer(maxExpectedSize);
+                buffer.order(sink.getByteOrder());
 
                 // Write compressed data to buffer
                 Mat5Writer writer = Mat5.newWriter(Sinks.wrap(buffer))
@@ -89,15 +94,26 @@ public class ConcurrentMat5Writer {
                 ie.printStackTrace();
                 throw new IOException(ie);
 
-            } finally {
-                // Deallocate native memory if needed
-                Resources.release(buffer);
             }
 
         }
         tasks.clear();
     }
 
+    protected void releaseBuffers() throws IOException {
+        for (ByteBuffer buffer : buffers) {
+            Resources.release(buffer);
+        }
+        buffers.clear();
+    }
+
+    protected ByteBuffer allocateBuffer(int numBytes) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(numBytes);
+        buffers.add(buffer);
+        return buffer;
+    }
+
+    private final List<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
     private final List<Future<ByteBuffer>> tasks = new ArrayList<Future<ByteBuffer>>(64);
     private final Sink sink;
     private final int deflateLevel;

@@ -20,65 +20,6 @@ import static us.hebi.matlab.io.types.AbstractArray.*;
  */
 public class Mat5 {
 
-    // ------------------------- Common methods for omitting sources/sinks with default configurations
-
-    public static File writeToFile(MatFile matFile, String fileName) throws IOException {
-        return writeToFile(matFile, new File(fileName));
-    }
-
-    public static File writeToFile(MatFile matFile, File file) throws IOException {
-        writeToSink(matFile, Sinks.newStreamingFile(file));
-        return file;
-    }
-
-    public static ByteBuffer writeToBuffer(MatFile matFile) {
-        // Allocate a reasonably sized buffer
-        long capacity = Mat5Writer.computeUncompressedSize(matFile);
-        capacity += 1024; // safety margin in case compressed files end up larger (small matrices!)
-        ByteBuffer buffer = allocateBuffer(Casts.sint32(capacity));
-        buffer.order(DEFAULT_ORDER);
-
-        // Write to buffer
-        try {
-            writeToSink(matFile, Sinks.wrap(buffer));
-            return buffer;
-        } catch (IOException ioe) {
-            throw new RuntimeException("Encountered IOException when writing to buffer", ioe);
-        }
-    }
-
-    private static void writeToSink(MatFile matFile, Sink sink) throws IOException {
-        try {
-            matFile.writeTo(sink);
-        } finally {
-            sink.close();
-        }
-    }
-
-    public static Mat5File readFromFile(String fileName) throws IOException {
-        return readFromFile(new File(fileName));
-    }
-
-    public static Mat5File readFromFile(File file) throws IOException {
-        return readFromSource(Sources.openFile(file));
-    }
-
-    public static Mat5File readFromBuffer(ByteBuffer buffer) {
-        try {
-            return readFromSource(Sources.wrap(buffer));
-        } catch (IOException ioe) {
-            throw new RuntimeException("Encountered IOException when reading from buffer", ioe);
-        }
-    }
-
-    private static Mat5File readFromSource(Source source) throws IOException {
-        try {
-            return newReader(source).readFile();
-        } finally {
-            source.close();
-        }
-    }
-
     // ------------------------- User-facing Factory API
 
     public static Mat5File newMatFile() {

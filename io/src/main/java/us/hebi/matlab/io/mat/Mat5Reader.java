@@ -44,7 +44,7 @@ public class Mat5Reader implements Closeable {
         this.source = checkNotNull(source);
     }
 
-    public Mat5Reader setFilter(ArrayFilter filter) {
+    public Mat5Reader setArrayFilter(ArrayFilter filter) {
         this.filter = checkNotNull(filter);
         return this;
     }
@@ -174,7 +174,6 @@ public class Mat5Reader implements Closeable {
                     public NamedArray call() throws IOException {
                         try {
                             return createReader(inflated)
-                                    .setMcosRegistry(mcos)
                                     .atRoot(atSubsys)
                                     .readNamedArray();
                         } finally {
@@ -216,7 +215,9 @@ public class Mat5Reader implements Closeable {
 
     private boolean isAccepted(ArrayHeader header) {
         try {
-            return !mayFilterNext || filter == null || nextIsSubsys || filter.isAccepted(header);
+            if (filter == null || !mayFilterNext || nextIsSubsys)
+                return true;
+            return filter.isAccepted(header);
         } finally {
             mayFilterNext = false;
         }
@@ -551,7 +552,10 @@ public class Mat5Reader implements Closeable {
     // ------------------------- Overridable factory methods
 
     protected Mat5Reader createReader(Source source) {
-        return new Mat5Reader(source);
+        Mat5Reader reader = new Mat5Reader(source);
+        reader.filter = this.filter;
+        reader.mcos = this.mcos;
+        return reader;
     }
 
     protected Matrix createMatrix(int[] dimensions, MatlabType type, boolean global, boolean logical, NumberStore real, NumberStore imaginary) {

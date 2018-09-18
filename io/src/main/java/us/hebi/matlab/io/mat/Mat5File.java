@@ -239,6 +239,9 @@ public class Mat5File extends AbstractMatFile {
     }
 
     public Mat5File addArray(NamedArray entry) {
+        if (reduced && size() >= 2)
+            throw new IllegalStateException("Reduced MAT 5 files may not contain more than 2 entries");
+
         // Make sure that the optional subsystem is
         // located at the end of the file
         if (getLast() instanceof Mat5Subsystem) {

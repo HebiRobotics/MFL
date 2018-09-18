@@ -10,8 +10,8 @@ import java.nio.ByteOrder;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
 import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.common.util.Preconditions.*;
 
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
@@ -20,8 +20,9 @@ import static us.hebi.matlab.common.memory.Bytes.*;
 public abstract class AbstractSink implements Sink {
 
     @Override
-    public void setByteOrder(ByteOrder byteOrder) {
+    public AbstractSink setByteOrder(ByteOrder byteOrder) {
         this.byteOrder = checkNotNull(byteOrder);
+        return this;
     }
 
     @Override
