@@ -3,9 +3,9 @@ package us.hebi.matlab.io.experimental;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.types.*;
-import us.hebi.matlab.common.util.Silencer;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -58,7 +58,7 @@ public class StreamingDoubleMatrix2DTest {
 
         // Read from memory
         buffer.flip();
-        Matrix actual = Mat5.readFromBuffer(buffer).getMatrix("position");
+        Matrix actual = Mat5.newReader(Sources.wrap(buffer)).readFile().getMatrix("position");
         assertArrayEquals(new int[]{numRows, numCols}, actual.getDimensions());
 
         // Check data

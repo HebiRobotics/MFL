@@ -17,7 +17,7 @@ import java.util.zip.Deflater;
  */
 public interface Sink extends Closeable {
 
-    void setByteOrder(ByteOrder byteOrder);
+    Sink setByteOrder(ByteOrder byteOrder);
 
     ByteOrder getByteOrder();
 

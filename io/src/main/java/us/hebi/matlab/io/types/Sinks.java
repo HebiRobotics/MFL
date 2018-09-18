@@ -56,6 +56,10 @@ public class Sinks {
         };
     }
 
+    public static Sink newStreamingFile(String file) throws IOException {
+        return newStreamingFile(new File(file));
+    }
+
     /**
      * Creates a memory mapped byte buffer with the maximum expected size that
      * truncates the backing file to the actual size once closed. Supports a
@@ -167,8 +171,9 @@ public class Sinks {
         }
 
         @Override
-        public void setByteOrder(ByteOrder order) {
+        public AbstractSink setByteOrder(ByteOrder order) {
             out.order(order);
+            return this;
         }
 
         @Override

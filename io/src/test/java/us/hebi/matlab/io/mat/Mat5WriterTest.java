@@ -112,7 +112,7 @@ public class Mat5WriterTest {
         MatFile input = MatTestUtil.readMat("arrays/multiDimMatrix.mat");
         compressedWriter.writeFile(input);
         buffer.flip();
-        MatFile output = Mat5.readFromBuffer(buffer);
+        MatFile output = Mat5.newReader(Sources.wrap(buffer)).readFile();
 
         Matrix expected = input.getArray("in");
         Matrix actual = output.getArray("in");
