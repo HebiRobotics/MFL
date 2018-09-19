@@ -1,5 +1,6 @@
 = MatlabTools
-Java libraries for interfacing with MATLAB
+
+This `MatlabTools` repo is intended to be an open source collection of some of our MATLAB related Java libraries. This is an ongoing effort, so we will be adding more as we go.
 
 == MatlabTools :: IO
 
