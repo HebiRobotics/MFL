@@ -3,4 +3,6 @@ Java libraries for interfacing with MATLAB
 
 == MatlabTools :: IO
 
-Library that allows importing and exporting MAT files. For more information, see link:./io[MatlabTools::IO].
+`MatlabTools::IO` is a library that allows importing and exporting MATLAB's Level 5 MAT-Files. The Level 5 format is also known as `MAT-File Version 7` and has been the default format for `.mat` and `.fig` files since `MATLAB R14` which was released in https://en.wikipedia.org/wiki/MATLAB#Release_history[2004].
+
+For more information and usage examples, please refer to the sub-readme at link:./io[MatlabTools::IO].

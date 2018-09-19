@@ -6,7 +6,18 @@ The Level 5 format is also known as `MAT-File Version 7` and has been the defaul
 
 == TL;DR
 
-For usage examples see link:./src/test/java/us/hebi/matlab/io/Mat5Examples.java[Mat5Examples.java]
+* Fluent API
+* Advanced Filtering
+* Concurrent Compression
+* Memory Efficient Serialization
+* Customized Serialization
+* Undocumented MAT 5 Features
+** `.fig` files
+** `function handles`
+** `handle` classes and new `string`, `table`, etc. types
+** `Simulink` generated files with reduced header
+
+For usage examples see link:./src/test/java/us/hebi/matlab/io/Mat5Examples.java[Mat5Examples] as well as other unit tests.
 
 == Why a new library?
 
@@ -62,14 +73,16 @@ try(Source source = Sources.openFile("data.mat"){
 }
 ```
 
-Note that the filtering only gets applied on the root level, so e.g. matrices inside a struct won't be filtered.
+Note that the filtering only gets applied on the root level, so nested arrays (e.g. inside a struct) won't be filtered separately.
 
-=== Concurrent Decompression
+=== Concurrent Compression
 
-By far the most CPU time when reading MAT files is spent on decompression. If the source supports position seeking (e.g. byte buffers or memory mapped files), the data may be decompressed concurrently.
+Almost all of the CPU time when reading or writing MAT files is spent on data compression. Fortunately, root entries are compressed independently from one another, so it's possible to do the work multi-threaded.
+
+You can enable concurrent reading by passing an executor service into the reader. Doing this also requires a data source that supports sub-views on the underlying data, i.e., byte buffers or memory mapped files.
 
 ```Java
-// Decompress concurrently
+// Concurrent Decompression
 ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 try(Source source = Sources.openFile("data.mat"){
     MatFile mat = Mat5.newReader(source)
@@ -80,32 +93,18 @@ try(Source source = Sources.openFile("data.mat"){
 }
 ```
 
-The table below shows a rough performance comparison of reading one of our data logs on an Intel NUC6i7kyk (quad core w/ ht). The data was first loaded into memory (native buffer), and the data was very multi-threading friendly.
+Concurrent writing unfortunately requires allocation of temporary buffers due to the size not being known beforehand. link:./src/main/java/us/hebi/matlab/io/experimental/ConcurrentMat5Writer.java[ConcurrentMat5Writer] is an experimental feature that shows how this could be implemented.
 
-[width="100%",options="header",cols="1a,1a,1a,1a"]
+The table below shows a rough performance comparison of working with one of our production data logs. The data set was very multi-threading friendly (33x [95946x18] double matrices on the root level) and first loaded into memory to avoid disk access bottlenecks. The tests were done on a quad core with hyper-threading (Intel NUC6i7kyk).
+
+[width="100%",options="header",cols="a,a,a,a,a"]
 |====================
-| Compression | Input Size | Threads | Time
-| BEST_COMPRESSION | 144 MB | 1 | 3.5 sec
-| BEST_COMPRESSION | 144 MB | 8 | 0.8 sec
-| BEST_SPEED | 156 MB | 1 | 3.6 sec
-| BEST_SPEED | 156 MB | 8 | 0.8 sec
-| NO_COMPRESSION | 422 MB | 1 | 0.2 sec
-|====================
-
-=== Concurrent Compression
-
-Compression is an even more significant issue when writing files. Unfortunately, writing concurrently requires allocation of temporary buffers because the compressed size isn't known beforehand. It is currently an experimental part of the API, but link:./src/main/java/us/hebi/matlab/io/experimental/ConcurrentMat5Writer.java[ConcurrentMat5Writer.java] shows how this could be implemented.
-
-Below is comparison data for writing the same data set as above.
-
-[width="100%",options="header",cols="1a,1a,1a,1a"]
-|====================
-| Compression | Output Size | Threads | Time
-| BEST_COMPRESSION | 144 MB | 1 | 280 sec
-| BEST_COMPRESSION | 144 MB | 8 | 47 sec
-| BEST_SPEED | 156 MB | 1 | 7.2 sec
-| BEST_SPEED | 156 MB | 8 | 1.5 sec
-| NO_COMPRESSION | 422 MB | 1 | 0.07 sec
+| Compression | Size | Threads | Write Time | Read Time
+| BEST_COMPRESSION | 144 MB | 1 | 280 sec | 3.5 sec
+| BEST_COMPRESSION | 144 MB | 8 | 47 sec | 0.8 sec
+| BEST_SPEED | 156 MB | 1 | 7.2 sec | 3.6 sec
+| BEST_SPEED | 156 MB | 8 | 1.5 sec | 0.8 sec
+| NO_COMPRESSION | 422 MB | 1 | 0.07 sec | 0.2 sec
 |====================
 
 === Memory Efficient Serialization
@@ -128,7 +127,7 @@ In order for a class to be serializable, it needs to implement the `Array` (or e
 
 Unfortunately, MAT 5 files have several features that aren't covered in the official documentation. This includes most (all?) of the recently added types (`table`, `timeseries`, `string`, ...), `handle` classes, `function handles`, `.fig` files, `Simulink` outputs, etc.
 
-The current implementation supports reading all of the `.mat` and `.fig` files we were able to generate. It also supports editing and saving of the loaded MAT files, e.g., adding entries, changing matrices, or using a different compression level. However, changes to the undocumented parts, e.g., setting a property on a `handle` class, will not be picked up.
+The current implementation supports reading all of the `.mat` and `.fig` files we were able to generate. It also supports editing and saving of the loaded MAT files, e.g., adding entries, changing matrices, or using a different compression level. However, changes to the undocumented parts, such as setting a property on a `handle` class, will not be saved.
 
 == Acknowledgements
 
