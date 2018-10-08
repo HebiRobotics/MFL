@@ -1,7 +1,5 @@
 package us.hebi.matlab.io.mat;
 
-import lombok.Getter;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +13,10 @@ class McosRegistry {
         return reference;
     }
 
-    @Getter
+    List<McosReference> getReferences() {
+        return references;
+    }
+
     private final List<McosReference> references = new ArrayList<McosReference>();
 
 }

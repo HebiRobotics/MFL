@@ -1,10 +1,8 @@
 package us.hebi.matlab.io.mat.mat5test;
 
 import org.junit.Test;
-import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.mat.Mat5File;
 import us.hebi.matlab.io.types.ObjectStruct;
-import us.hebi.matlab.io.types.Source;
 import us.hebi.matlab.io.types.Struct;
 
 import static org.junit.Assert.*;
@@ -60,6 +58,24 @@ public class SimulinkTest {
         assertEquals("a == 0", grid2.getObject("cells").getChar("cond_text", 0).getString());
         assertEquals("a ~= 0", grid2.getObject("cells").getChar("cond_text", 1).getString());
 
+    }
+
+    /**
+     * Data supplied by Github::br1egel (MatFileRW issue #18)
+     */
+    @Test
+    public void testStatespaceObject() throws Exception {
+        Mat5File mat = MatTestUtil.readMat("simulink/statespace.mat", false, false);
+        assertEquals(19, mat
+                .getObject("test_ss")
+                .getMatrix("Version_")
+                .getInt(0));
+        assertEquals(0, mat
+                .getObject("test_ss")
+                .getObject("Data_")
+                .getStruct("Delay")
+                .getMatrix("Input")
+                .getDouble(1), 0);
     }
 
 }
