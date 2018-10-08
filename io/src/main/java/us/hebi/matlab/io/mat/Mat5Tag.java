@@ -1,7 +1,5 @@
 package us.hebi.matlab.io.mat;
 
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import us.hebi.matlab.io.types.Source;
 
 import java.io.EOFException;
@@ -36,8 +34,6 @@ import static us.hebi.matlab.io.mat.Mat5Reader.*;
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 30 Apr 2018
  */
-@ToString
-@RequiredArgsConstructor
 public class Mat5Tag {
 
     public Mat5Type getType() {
@@ -148,6 +144,23 @@ public class Mat5Tag {
         if (getNumBytes() % bytes != 0) {
             throw readError("Tag with %d bytes cannot be read as %s", bytes, target);
         }
+    }
+
+
+    @Override
+    public String toString() {
+        return "Mat5Tag{" +
+                "type=" + type +
+                ", numBytes=" + numBytes +
+                (packed ? " (packed)" : "") +
+                '}';
+    }
+
+    private Mat5Tag(Mat5Type type, int numBytes, boolean packed, Source source) {
+        this.type = type;
+        this.numBytes = numBytes;
+        this.packed = packed;
+        this.source = source;
     }
 
     private final Mat5Type type;

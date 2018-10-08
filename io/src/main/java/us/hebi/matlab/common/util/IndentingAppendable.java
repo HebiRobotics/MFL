@@ -1,9 +1,5 @@
 package us.hebi.matlab.common.util;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-
 import java.io.IOException;
 
 /**
@@ -12,10 +8,35 @@ import java.io.IOException;
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 03 Sep 2018
  */
-@Getter
-@Setter
-@RequiredArgsConstructor
 public class IndentingAppendable implements Appendable {
+
+    public IndentingAppendable(Appendable appendable) {
+        this.appendable = appendable;
+    }
+
+    public String getIndentString() {
+        return indentString;
+    }
+
+    public void setIndentString(String indentString) {
+        this.indentString = indentString;
+    }
+
+    public int getMaxLineWidth() {
+        return maxLineWidth;
+    }
+
+    public void setMaxLineWidth(int maxLineWidth) {
+        this.maxLineWidth = maxLineWidth;
+    }
+
+    public String getOverflowString() {
+        return overflowString;
+    }
+
+    public void setOverflowString(String overflowString) {
+        this.overflowString = overflowString;
+    }
 
     public IndentingAppendable indent() {
         numIndents++;

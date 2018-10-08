@@ -1,7 +1,5 @@
 package us.hebi.matlab.io.mat;
 
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import us.hebi.matlab.io.types.*;
 
 import java.io.IOException;
@@ -231,7 +229,7 @@ class McosFileWrapper extends MatOpaque {
                 Array value;
                 switch (flag) {
                     case 0:
-                        // Stored in names array
+                        // Stored in strings array
                         value = Mat5.newString(getString(heapIndex));
                         break;
                     case 1:
@@ -350,25 +348,36 @@ class McosFileWrapper extends MatOpaque {
             throw new IllegalStateException("MAT file's MCOS data has different byte values for unknown fields!  Aborting!");
     }
 
-    @ToString
-    @RequiredArgsConstructor
     private static class ClassInfo {
+        ClassInfo(String packageName, String className) {
+            this.packageName = packageName;
+            this.className = className;
+        }
+
         final String packageName;
         final String className;
     }
 
-    @ToString
-    @RequiredArgsConstructor
     private static class ObjectInfo {
+        ObjectInfo(int objectId, int classId, int segment2PropertiesIndex, int segment4PropertiesIndex) {
+            this.objectId = objectId;
+            this.classId = classId;
+            this.segment2PropertiesIndex = segment2PropertiesIndex;
+            this.segment4PropertiesIndex = segment4PropertiesIndex;
+        }
+
         final int objectId;
         final int classId;
         final int segment2PropertiesIndex;
         final int segment4PropertiesIndex;
     }
 
-    @ToString
-    @RequiredArgsConstructor
     private static class Property {
+        Property(String name, Array value) {
+            this.name = name;
+            this.value = value;
+        }
+
         final String name;
         final Array value;
     }

@@ -1,7 +1,5 @@
 package us.hebi.matlab.io.mat;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.common.util.Tasks;
 import us.hebi.matlab.common.util.Tasks.IoTask;
@@ -484,12 +482,23 @@ public class Mat5Reader implements Closeable {
         boolean isAccepted(ArrayHeader header);
     }
 
-    @RequiredArgsConstructor
     public static class ArrayHeader {
 
         public int getNumElements() {
             // [int32] as a single Mat5 element can't be larger
             return AbstractArray.getNumElements(dimensions);
+        }
+
+        public MatlabType getType() {
+            return type;
+        }
+
+        public int[] getDimensions() {
+            return dimensions;
+        }
+
+        public String getName() {
+            return name;
         }
 
         public boolean isLogical() {
@@ -508,15 +517,19 @@ public class Mat5Reader implements Closeable {
             return Mat5ArrayFlags.getNzMax(arrayFlags);
         }
 
+        private ArrayHeader(int[] arrayFlags, MatlabType type, int[] dimensions, String name) {
+            this.arrayFlags = arrayFlags;
+            this.type = type;
+            this.dimensions = dimensions;
+            this.name = name;
+        }
+
         final int[] arrayFlags;
 
-        @Getter
         final MatlabType type;
 
-        @Getter
         final int[] dimensions;
 
-        @Getter
         final String name;
 
     }

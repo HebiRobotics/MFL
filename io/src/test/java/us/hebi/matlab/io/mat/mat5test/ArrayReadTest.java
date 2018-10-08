@@ -1,8 +1,5 @@
 package us.hebi.matlab.io.mat.mat5test;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
 import org.junit.Test;
 import us.hebi.matlab.io.types.*;
 
@@ -351,10 +348,27 @@ public class ArrayReadTest {
         return new SparseValue(r - 1, c - 1, v, 0);
     }
 
-    @AllArgsConstructor
-    @EqualsAndHashCode
-    @ToString
     private static final class SparseValue {
+        public SparseValue(int row, int col, double real, double imag) {
+            this.row = row;
+            this.col = col;
+            this.real = real;
+            this.imag = imag;
+        }
+
+        @Override
+        public int hashCode() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof SparseValue))
+                return false;
+            final SparseValue other = (SparseValue) obj;
+            return row == other.row && col == other.col && real == other.real && imag == other.imag;
+        }
+
         int row, col;
         double real, imag;
     }
