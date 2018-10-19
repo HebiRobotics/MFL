@@ -1,7 +1,5 @@
 package us.hebi.matlab.common.util;
 
-import com.sun.istack.internal.Nullable;
-
 /**
  * Copied from Guava's Preconditions
  */
@@ -62,9 +60,9 @@ import com.sun.istack.internal.Nullable;
  *
  * <h3>{@code java.util.Objects.requireNonNull()}</h3>
  *
- * <p>Projects which use {@code com.google.common} should generally avoid the use of {@link
- * java.util.Objects#requireNonNull(Object)}. Instead, use whichever of {@link
- * #checkNotNull(Object)} or {@link Verify#verifyNotNull(Object)} is appropriate to the situation.
+ * <p>Projects which use {@code com.google.common} should generally avoid the use of
+ * java.util.Objects#requireNonNull(Object). Instead, use whichever of {@link
+ * #checkNotNull(Object)} or Verify#verifyNotNull(Object) is appropriate to the situation.
  * (The same goes for the message-accepting overloads.)
  *
  * <h3>Only {@code %s} is supported</h3>
@@ -105,7 +103,7 @@ public class Preconditions {
      *     string using {@link String#valueOf(Object)}
      * @throws IllegalArgumentException if {@code expression} is false
      */
-    public static void checkArgument(boolean expression, @Nullable Object errorMessage) {
+    public static void checkArgument(boolean expression,  Object errorMessage) {
         if (!expression) {
             throw new IllegalArgumentException(String.valueOf(errorMessage));
         }
@@ -127,8 +125,8 @@ public class Preconditions {
      *     {@code errorMessageArgs} is null (don't let this happen)
      */
     public static void checkArgument(boolean expression,
-                                     @Nullable String errorMessageTemplate,
-                                     @Nullable Object... errorMessageArgs) {
+                                      String errorMessageTemplate,
+                                      Object... errorMessageArgs) {
         if (!expression) {
             throw new IllegalArgumentException(format(errorMessageTemplate, errorMessageArgs));
         }
@@ -156,7 +154,7 @@ public class Preconditions {
      *     string using {@link String#valueOf(Object)}
      * @throws IllegalStateException if {@code expression} is false
      */
-    public static void checkState(boolean expression, @Nullable Object errorMessage) {
+    public static void checkState(boolean expression,  Object errorMessage) {
         if (!expression) {
             throw new IllegalStateException(String.valueOf(errorMessage));
         }
@@ -179,8 +177,8 @@ public class Preconditions {
      *     {@code errorMessageArgs} is null (don't let this happen)
      */
     public static void checkState(boolean expression,
-                                  @Nullable String errorMessageTemplate,
-                                  @Nullable Object... errorMessageArgs) {
+                                   String errorMessageTemplate,
+                                   Object... errorMessageArgs) {
         if (!expression) {
             throw new IllegalStateException(format(errorMessageTemplate, errorMessageArgs));
         }
@@ -209,7 +207,7 @@ public class Preconditions {
      * @return the non-null reference that was validated
      * @throws NullPointerException if {@code reference} is null
      */
-    public static <T> T checkNotNull(T reference, @Nullable Object errorMessage) {
+    public static <T> T checkNotNull(T reference,  Object errorMessage) {
         if (reference == null) {
             throw new NullPointerException(String.valueOf(errorMessage));
         }
@@ -231,8 +229,8 @@ public class Preconditions {
      * @throws NullPointerException if {@code reference} is null
      */
     public static <T> T checkNotNull(T reference,
-                                     @Nullable String errorMessageTemplate,
-                                     @Nullable Object... errorMessageArgs) {
+                                      String errorMessageTemplate,
+                                      Object... errorMessageArgs) {
         if (reference == null) {
             // If either of these parameters is null, the right thing happens anyway
             throw new NullPointerException(format(errorMessageTemplate, errorMessageArgs));
@@ -292,7 +290,7 @@ public class Preconditions {
      * @throws IllegalArgumentException if {@code size} is negative
      */
     public static int checkElementIndex(
-            int index, int size, @Nullable String desc) {
+            int index, int size,  String desc) {
         // Carefully optimized for execution by hotspot (explanatory comment above)
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException(badElementIndex(index, size, desc));
@@ -335,7 +333,7 @@ public class Preconditions {
      * @throws IndexOutOfBoundsException if {@code index} is negative or is greater than {@code size}
      * @throws IllegalArgumentException if {@code size} is negative
      */
-    public static int checkPositionIndex(int index, int size, @Nullable String desc) {
+    public static int checkPositionIndex(int index, int size,  String desc) {
         // Carefully optimized for execution by hotspot (explanatory comment above)
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException(badPositionIndex(index, size, desc));
@@ -394,7 +392,7 @@ public class Preconditions {
      *     to strings using {@link String#valueOf(Object)}. Arguments can be null.
      */
     // Note that this is somewhat-improperly used from Verify.java as well.
-    static String format(String template, @Nullable Object... args) {
+    static String format(String template,  Object... args) {
         template = String.valueOf(template); // null -> "null"
 
         // start substituting the arguments into the '%s' placeholders
