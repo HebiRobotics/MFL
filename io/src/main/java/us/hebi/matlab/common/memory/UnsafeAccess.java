@@ -13,9 +13,9 @@ import java.security.PrivilegedExceptionAction;
  */
 class UnsafeAccess {
 
-    public static void requireUnsafe(){
+    public static void requireUnsafe() {
         // throws an exception if not available
-        if(!isAvailable())
+        if (!isAvailable())
             throw new AssertionError("Unsafe is not available on this platform");
     }
 
@@ -51,6 +51,5 @@ class UnsafeAccess {
     final static ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
     final static Unsafe UNSAFE;
     final static long BYTE_ARRAY_OFFSET;
-
 
 }

@@ -7,3 +7,17 @@ This `MatlabTools` repo is intended to be an open source collection of some of o
 `MatlabTools::IO` is a library that allows importing and exporting MATLAB's Level 5 MAT-Files. The Level 5 format is also known as `MAT-File Version 7` and has been the default format for `.mat` and `.fig` files since `MATLAB R14` which was released in https://en.wikipedia.org/wiki/MATLAB#Release_history[2004].
 
 For more information and usage examples, please refer to the sub-readme at link:./io[MatlabTools::IO].
+
+== Building Sources
+
+The created sources include Java 9's `module-info.java`, but are otherwise backwards compatible with Java 6. The contained unit tests may use Java 8 syntax, so the project needs to be compiled with at least JDK 8.
+
+Building with JDK 9 and above
+
+    mvn package
+
+Building with JDK 8
+
+    mvn package -PnoJava9
+
+For more information, please check the CI build-script link:Jenkinsfile[]

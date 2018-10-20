@@ -2,7 +2,6 @@ package us.hebi.matlab.io.mat;
 
 import us.hebi.matlab.io.types.AbstractCharBase;
 import us.hebi.matlab.io.types.Sink;
-import us.hebi.matlab.common.memory.Resources;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
@@ -47,7 +46,6 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
 
     @Override
     public void close() {
-        Resources.release(buffer);
     }
 
     @Override
