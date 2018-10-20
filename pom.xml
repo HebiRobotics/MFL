@@ -9,7 +9,7 @@
 
     <name>MatlabTools Parent</name>
     <description>
-    Contains Java libraries for interfacing with MATLAB
+        Contains Java libraries for interfacing with MATLAB
     </description>
 
     <!-- Modules -->
@@ -25,11 +25,14 @@
         <!-- Other Properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Default to minimum Java version compatible with Matlab >2009a -->
-        <maven.compiler.source>1.6</maven.compiler.source>
-        <maven.compiler.target>1.6</maven.compiler.target>
-        <maven.compiler.testSource>1.8</maven.compiler.testSource>
-        <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
+        <!-- Set Syntax level to Java9 so that IDEs don't complain about the module-info.java
+         and so we can use try-with-resources and Lambdas in test Syntax -->
+        <maven.compiler.source>9</maven.compiler.source>
+        <maven.compiler.target>9</maven.compiler.target>
+
+        <!-- Set the actual target to minimum Java version compatible with Matlab >2009a -->
+        <matlab.target>1.6</matlab.target>
+
     </properties>
 
     <!-- Dependency management. KEEP IN ALPHABETICAL ORDER-->
@@ -49,9 +52,83 @@
     <!-- Source code and distribution management -->
     <scm>
         <developerConnection>
-          https://github.com/ennerf/MatlabTools
+            https://github.com/ennerf/MatlabTools
         </developerConnection>
         <url>https://github.com/ennerf/MatlabTools</url>
     </scm>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <!-- Compile in 2 stages so we can get Java9 module-info w/ target sources -->
+                <!-- https://maven.apache.org/plugins/maven-compiler-plugin/examples/module-info.html -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <executions>
+
+                        <!-- 1) default-compile: Compile everything w/ Java 9 to make sure the module-info is correct -->
+                        <!-- (called implicitly) -->
+
+                        <!-- 2) default-testCompile: Compile tests w/ Java 9 so we can use advanced syntax -->
+                        <!-- (called implicitly) -->
+
+                        <!-- 3) Re-compile everything for target VM except the module-info.java -->
+                        <execution>
+                            <id>target-compile</id>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                            <configuration>
+                                <!-- Note:
+                                Do not set "<release>6</release>" as that disables jdk.unsupported! It will also
+                                ignore the module-info.java file as well as disable the manual 'add-module' compiler
+                                argument, which makes it impossible to use sun.misc.Unsafe. After a lot of tinkering,
+                                the only way I got it to work was to have an existing module-info from the previous
+                                compilation step, and to revert to just using the 'target' & 'source' options. -->
+                                <source>${matlab.target}</source>
+                                <target>${matlab.target}</target>
+                                <excludes>
+                                    <exclude>module-info.java</exclude>
+                                </excludes>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <profiles>
+        <!-- Java < 9: ignore module-info-->
+        <profile>
+            <id>noJava9</id>
+            <activation>
+                <!-- https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html -->
+                <!--<jdk>(,9)</jdk>--> <!-- makes IntelliJ 2018.2 always default to 1.6 sources, so do manually -->
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <version>3.8.0</version>
+                            <configuration>
+                                <excludes>
+                                    <exclude>module-info.java</exclude>
+                                </excludes>
+                                <source>${matlab.target}</source>
+                                <target>${matlab.target}</target>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
 
 </project>

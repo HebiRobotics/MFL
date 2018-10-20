@@ -17,12 +17,129 @@ pipeline {
 
     stages {
 
-        stage("Java8") {
-            tools {
-                jdk 'jdk8'
-            }
-            steps {
-                sh "mvn clean package"
+        stage('X-Platform Tests') {
+            parallel {
+
+                stage('Windows Java 8') {
+                    agent {
+                        node {
+                            label 'windows && x64'
+                            customWorkspace "${BUILD_TAG}-win8"
+                        }
+                    }
+                    tools {
+                        jdk 'jdk8'
+                    }
+                    steps {
+                        bat 'mvn clean package -PnoJava9'
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+
+                stage('Linux Java 8') {
+                    agent {
+                        node {
+                            label 'linux && x64'
+                            customWorkspace "${BUILD_TAG}-lin8"
+                        }
+                    }
+                    tools {
+                        jdk 'jdk8'
+                    }
+                    steps {
+                        sh 'mvn clean package -PnoJava9'
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+
+                stage('OSX Java 8') {
+                    agent {
+                        node {
+                            label 'osx && x64'
+                            customWorkspace "${BUILD_TAG}-osx8"
+                        }
+                    }
+                    tools {
+                        jdk 'jdk8'
+                    }
+                    steps {
+                        sh 'mvn clean package -PnoJava9'
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+
+                stage('Windows Java 9') {
+                    agent {
+                        node {
+                            label 'windows && x64'
+                            customWorkspace "${BUILD_TAG}-win9"
+                        }
+                    }
+                    tools {
+                        jdk 'jdk9'
+                    }
+                    steps {
+                        bat 'mvn clean package'
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+
+                stage('Linux Java 9') {
+                    agent {
+                        node {
+                            label 'linux && x64'
+                            customWorkspace "${BUILD_TAG}-lin9"
+                        }
+                    }
+                    tools {
+                        jdk 'jdk9'
+                    }
+                    steps {
+                        sh 'mvn clean package'
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+
+                stage('OSX Java 9') {
+                    agent {
+                        node {
+                            label 'osx && x64'
+                            customWorkspace "${BUILD_TAG}-osx9"
+                        }
+                    }
+                    tools {
+                        jdk 'jdk9'
+                    }
+                    steps {
+                        sh 'mvn clean package'
+                    }
+                    post {
+                        always {
+                            cleanWs()
+                        }
+                    }
+                }
+
             }
         }
 
