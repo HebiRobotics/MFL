@@ -1,6 +1,5 @@
 package us.hebi.matlab.io.mat.mat5test;
 
-import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.mat.Mat5File;
 import us.hebi.matlab.io.mat.Mat5Writer;
@@ -54,7 +53,7 @@ public class MatTestUtil {
                     .writeFile(results);
 
         } finally {
-            Silencer.close(sink);
+            sink.close();
         }
 
         // Read from new buffer
@@ -75,7 +74,7 @@ public class MatTestUtil {
         try {
             return Mat5.newReader(source).setReducedHeader(reduced).readFile();
         } finally {
-            Silencer.close(source);
+            source.close();
         }
     }
 

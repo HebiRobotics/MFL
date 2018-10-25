@@ -1,7 +1,6 @@
 package us.hebi.matlab.io.experimental;
 
 import us.hebi.matlab.common.memory.Resources;
-import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.mat.Mat5File;
 import us.hebi.matlab.io.mat.Mat5Writer;
@@ -65,7 +64,7 @@ public class ConcurrentMat5Writer {
                 Mat5Writer writer = Mat5.newWriter(Sinks.wrap(buffer))
                         .setDeflateLevel(deflateLevel)
                         .writeRootArray(name, array);
-                Silencer.close(writer);
+                writer.close();
 
                 // Flip
                 buffer.flip();

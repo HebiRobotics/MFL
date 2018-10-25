@@ -8,16 +8,15 @@ import us.hebi.matlab.io.types.AbstractArray;
 import us.hebi.matlab.io.types.MatlabType;
 import us.hebi.matlab.io.types.Sink;
 import us.hebi.matlab.io.types.Sinks;
-import us.hebi.matlab.common.util.Silencer;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
+import static us.hebi.matlab.common.memory.Bytes.*;
 import static us.hebi.matlab.common.util.Preconditions.*;
 import static us.hebi.matlab.io.mat.Mat5.*;
-import static us.hebi.matlab.common.memory.Bytes.*;
 
 /**
  * Matrix that streams into a temporary storage file. The column
@@ -48,7 +47,9 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
             // Create new temporary file
             File file = new File(folder.getPath() + "/" + name + col + ".tmp");
             if (file.exists() && !file.delete()) {
-                Silencer.close(null, columnSinks);
+                for (Sink sink : columnSinks) {
+                    sink.close();
+                }
                 String msg = "Failed to overwrite existing temporary storage: " + file.getAbsolutePath();
                 throw new IllegalStateException(msg);
             }
@@ -103,7 +104,7 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
         for (int col = 0; col < getNumCols(); col++) {
 
             // Make sure all data is on disk
-            Silencer.close(columnSinks[col]);
+            columnSinks[col].close();
 
             // Map each file and push data to sink
             FileInputStream input = new FileInputStream(tmpFiles[col]);
@@ -111,7 +112,7 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
                 int numBytes = getNumRows() * SIZEOF_DOUBLE;
                 sink.writeInputStream(input, numBytes);
             } finally {
-                Silencer.close(input);
+                input.close();
             }
 
         }
