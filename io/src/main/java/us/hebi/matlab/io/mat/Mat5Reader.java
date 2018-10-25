@@ -1,6 +1,5 @@
 package us.hebi.matlab.io.mat;
 
-import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.common.util.Tasks;
 import us.hebi.matlab.common.util.Tasks.IoTask;
 import us.hebi.matlab.io.types.*;
@@ -175,7 +174,7 @@ public class Mat5Reader implements Closeable {
                                     .atRoot(atSubsys)
                                     .readNamedArray();
                         } finally {
-                            Silencer.close(inflated);
+                            inflated.close();
                         }
                     }
                 };

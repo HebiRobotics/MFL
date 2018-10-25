@@ -1,7 +1,6 @@
 package us.hebi.matlab.io.types;
 
 import us.hebi.matlab.common.memory.Resources;
-import us.hebi.matlab.common.util.Silencer;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -40,7 +39,7 @@ public class Sources {
             public void close() throws IOException {
                 super.close();
                 Resources.release(buffer);
-                Silencer.close(channel);
+                channel.close();
             }
         };
 

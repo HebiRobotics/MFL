@@ -2,7 +2,6 @@ package us.hebi.matlab.io.mat;
 
 import us.hebi.matlab.common.util.Casts;
 import us.hebi.matlab.common.util.Charsets;
-import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.io.types.*;
 import us.hebi.matlab.io.types.Opaque;
 
@@ -102,7 +101,7 @@ public class Mat5Writer implements Closeable {
         // Compress matrix data
         Sink compressed = sink.writeDeflated(new Deflater(deflateLevel));
         writeArrayWithTag(name, array, compressed);
-        Silencer.close(compressed); // triggers flush/finish
+        compressed.close(); // triggers flush/finish
 
         // Calculate actual size
         long end = sink.position();

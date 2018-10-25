@@ -2,7 +2,6 @@ package us.hebi.matlab.io.types;
 
 import us.hebi.matlab.common.memory.Resources;
 import us.hebi.matlab.common.util.Casts;
-import us.hebi.matlab.common.util.Silencer;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -49,8 +48,10 @@ public class Sinks {
             }
 
             @Override
-            public void close() {
-                Silencer.close(buffered, out, channel);
+            public void close() throws IOException {
+                buffered.close();
+                out.close();
+                channel.close();
             }
 
         };
@@ -87,7 +88,7 @@ public class Sinks {
                 long finalSize = buffer.position();
                 Resources.release(buffer);
                 channel.truncate(finalSize);
-                Silencer.close(channel);
+                channel.close();
             }
         };
 

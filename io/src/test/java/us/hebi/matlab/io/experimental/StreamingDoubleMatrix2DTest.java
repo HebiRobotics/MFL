@@ -3,7 +3,6 @@ package us.hebi.matlab.io.experimental;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import us.hebi.matlab.common.util.Silencer;
 import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.types.*;
 
@@ -54,7 +53,7 @@ public class StreamingDoubleMatrix2DTest {
         matFile.writeTo(sink);
 
         // Dispose any native resources
-        Silencer.close(matrix);
+        matrix.close();
 
         // Read from memory
         buffer.flip();
