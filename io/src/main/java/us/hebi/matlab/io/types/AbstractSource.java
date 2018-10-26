@@ -20,12 +20,13 @@ import static us.hebi.matlab.common.memory.Bytes.*;
 public abstract class AbstractSource implements Source {
 
     @Override
-    public void setByteOrder(ByteOrder byteOrder) {
+    public AbstractSource order(ByteOrder byteOrder) {
         this.byteOrder = byteOrder;
+        return this;
     }
 
     @Override
-    public ByteOrder getByteOrder() {
+    public ByteOrder order() {
         if (byteOrder == null) {
             throw new IllegalStateException("Byte order has not been initialized");
         }
@@ -41,31 +42,31 @@ public abstract class AbstractSource implements Source {
     @Override
     public short readShort() throws IOException {
         readBytes(bytes, 0, SIZEOF_SHORT);
-        return byteConverter.getShort(getByteOrder(), bytes, 0);
+        return byteConverter.getShort(order(), bytes, 0);
     }
 
     @Override
     public int readInt() throws IOException {
         readBytes(bytes, 0, SIZEOF_INT);
-        return byteConverter.getInt(getByteOrder(), bytes, 0);
+        return byteConverter.getInt(order(), bytes, 0);
     }
 
     @Override
     public long readLong() throws IOException {
         readBytes(bytes, 0, SIZEOF_LONG);
-        return byteConverter.getLong(getByteOrder(), bytes, 0);
+        return byteConverter.getLong(order(), bytes, 0);
     }
 
     @Override
     public float readFloat() throws IOException {
         readBytes(bytes, 0, SIZEOF_FLOAT);
-        return byteConverter.getFloat(getByteOrder(), bytes, 0);
+        return byteConverter.getFloat(order(), bytes, 0);
     }
 
     @Override
     public double readDouble() throws IOException {
         readBytes(bytes, 0, SIZEOF_DOUBLE);
-        return byteConverter.getDouble(getByteOrder(), bytes, 0);
+        return byteConverter.getDouble(order(), bytes, 0);
     }
 
     @Override
@@ -92,7 +93,7 @@ public abstract class AbstractSource implements Source {
             int n = Math.min((length - i) * SIZEOF_SHORT, bytes.length);
             readBytes(bytes, 0, n);
             for (int j = 0; j < n; j += SIZEOF_SHORT, i++) {
-                buffer[offset + i] = byteConverter.getShort(getByteOrder(), bytes, j);
+                buffer[offset + i] = byteConverter.getShort(order(), bytes, j);
             }
         }
     }
@@ -103,7 +104,7 @@ public abstract class AbstractSource implements Source {
             int n = Math.min((length - i) * SIZEOF_INT, bytes.length);
             readBytes(bytes, 0, n);
             for (int j = 0; j < n; j += SIZEOF_INT, i++) {
-                buffer[offset + i] = byteConverter.getInt(getByteOrder(), bytes, j);
+                buffer[offset + i] = byteConverter.getInt(order(), bytes, j);
             }
         }
     }
@@ -114,7 +115,7 @@ public abstract class AbstractSource implements Source {
             int n = Math.min((length - i) * SIZEOF_LONG, bytes.length);
             readBytes(bytes, 0, n);
             for (int j = 0; j < n; j += SIZEOF_LONG, i++) {
-                buffer[offset + i] = byteConverter.getLong(getByteOrder(), bytes, j);
+                buffer[offset + i] = byteConverter.getLong(order(), bytes, j);
             }
         }
     }
@@ -125,7 +126,7 @@ public abstract class AbstractSource implements Source {
             int n = Math.min((length - i) * SIZEOF_FLOAT, bytes.length);
             readBytes(bytes, 0, n);
             for (int j = 0; j < n; j += SIZEOF_FLOAT, i++) {
-                buffer[offset + i] = byteConverter.getFloat(getByteOrder(), bytes, j);
+                buffer[offset + i] = byteConverter.getFloat(order(), bytes, j);
             }
         }
     }
@@ -136,7 +137,7 @@ public abstract class AbstractSource implements Source {
             int n = Math.min((length - i) * SIZEOF_DOUBLE, bytes.length);
             readBytes(bytes, 0, n);
             for (int j = 0; j < n; j += SIZEOF_DOUBLE, i++) {
-                buffer[offset + i] = byteConverter.getDouble(getByteOrder(), bytes, j);
+                buffer[offset + i] = byteConverter.getDouble(order(), bytes, j);
             }
         }
     }
@@ -155,9 +156,7 @@ public abstract class AbstractSource implements Source {
     public Source readInflated(int numBytes, int inflateBufferSize) throws IOException {
         InputStream subInputStream = readBytesAsStream(numBytes);
         InputStream inflaterInput = new InflaterInputStream(subInputStream, new Inflater(), inflateBufferSize);
-        Source matInputBuffer = Sources.wrapInputStream(inflaterInput, bytes.length);
-        matInputBuffer.setByteOrder(getByteOrder());
-        return matInputBuffer;
+        return Sources.wrapInputStream(inflaterInput, bytes.length).order(order());
     }
 
     /**

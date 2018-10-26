@@ -47,9 +47,9 @@ class Mat5TagStreamer {
         this.consumer = consumer;
 
         // Read file header
-        source.setByteOrder(ByteOrder.nativeOrder());
+        source.order(ByteOrder.nativeOrder());
         Mat5File header = reduced ? Mat5File.readReducedFileHeader(source) : Mat5File.readFileHeader(source);
-        source.setByteOrder(header.getByteOrder());
+        source.order(header.getByteOrder());
         consumer.onFileStart(header);
 
         // Read root entries

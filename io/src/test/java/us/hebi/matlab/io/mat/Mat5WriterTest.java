@@ -9,6 +9,8 @@ import us.hebi.matlab.io.types.*;
 import java.nio.ByteBuffer;
 import java.util.zip.Deflater;
 
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
+
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 07 May 2018
@@ -16,10 +18,10 @@ import java.util.zip.Deflater;
 public class Mat5WriterTest {
 
     static ByteBuffer buffer = ByteBuffer.allocateDirect(32 * 1024);
-    static Sink sink = Sinks.wrap(buffer);
+    static Sink sink = Sinks.wrap(buffer).nativeOrder();
 
-    static Mat5Writer rawWriter = new Mat5Writer(sink).setDeflateLevel(Deflater.NO_COMPRESSION);
-    static Mat5Writer compressedWriter = new Mat5Writer(sink).setDeflateLevel(Deflater.BEST_SPEED);
+    static Mat5Writer rawWriter = Mat5.newWriter(sink).setDeflateLevel(Deflater.NO_COMPRESSION);
+    static Mat5Writer compressedWriter = Mat5.newWriter(sink).setDeflateLevel(Deflater.BEST_SPEED);
 
     @Before
     public void rewind() {
@@ -83,8 +85,8 @@ public class Mat5WriterTest {
     @Test
     public void computeSerializedSizeOfComplexMatFile() throws Exception {
         MatFile matFile = MatTestUtil.readMat("arrays/cell.mat");
-        long calculatedSize = Mat5Writer.computeUncompressedSize(matFile);
-        rawWriter.writeFile(matFile);
+        long calculatedSize = matFile.getUncompressedSerializedSize();
+        rawWriter.writeMat(matFile);
         long actualSize = buffer.position();
         Assert.assertEquals("Uncompressed File", calculatedSize, actualSize);
     }
@@ -100,9 +102,9 @@ public class Mat5WriterTest {
 
     private void checkSerializedSize(String message, String arrayName, Array array) throws Exception {
         buffer.rewind();
-        long calculatedSize = Mat5Writer.computeArraySize(arrayName, array);
+        long calculatedSize = computeArraySize(arrayName, array);
         long offset = sink.position();
-        Mat5Writer.writeArrayWithTag(arrayName, array, sink);
+        writeArrayWithTag(arrayName, array, sink);
         long actualSize = sink.position() - offset;
         Assert.assertEquals(message, calculatedSize, actualSize);
     }
@@ -110,9 +112,9 @@ public class Mat5WriterTest {
     @Test
     public void readWriteDoubleNDim() throws Exception {
         MatFile input = MatTestUtil.readMat("arrays/multiDimMatrix.mat");
-        compressedWriter.writeFile(input);
+        compressedWriter.writeMat(input);
         buffer.flip();
-        MatFile output = Mat5.newReader(Sources.wrap(buffer)).readFile();
+        MatFile output = Mat5.newReader(Sources.wrap(buffer)).readMat();
 
         Matrix expected = input.getArray("in");
         Matrix actual = output.getArray("in");

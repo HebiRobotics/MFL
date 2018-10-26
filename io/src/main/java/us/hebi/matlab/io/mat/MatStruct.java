@@ -13,6 +13,7 @@ import java.util.List;
 import static us.hebi.matlab.common.util.Preconditions.*;
 import static us.hebi.matlab.io.mat.Mat5.*;
 import static us.hebi.matlab.io.mat.Mat5Type.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
@@ -60,7 +61,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
 
         // Common fields
         int size = MATRIX_TAG_SIZE;
-        size += Mat5Writer.computeArrayHeaderSize(name, this);
+        size += computeArrayHeaderSize(name, this);
 
         // Subfield -/4: Object only. Not struct
         if (getType() == MatlabType.Object) {
@@ -78,7 +79,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         // Subfield 6/7: Fields
         for (int i = 0; i < numElements; i++) {
             for (int field = 0; field < numFields; field++) {
-                size += Mat5Writer.computeArraySize(get(fieldNames.get(field), i));
+                size += computeArraySize(get(fieldNames.get(field), i));
             }
         }
 
@@ -92,8 +93,8 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         final int numFields = fieldNames.size();
 
         // Common fields
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
 
         // Subfield -/4: Object only. Not struct
         if (getType() == MatlabType.Object) {
@@ -120,7 +121,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         checkArgument(getNumDimensions() == 2, "Structures are limited to two dimensions");
         for (int i = 0; i < numElements; i++) {
             for (int field = 0; field < numFields; field++) {
-                Mat5Writer.writeArrayWithTag(get(fieldNames.get(field), i), sink);
+                writeArrayWithTag(get(fieldNames.get(field), i), sink);
             }
         }
 

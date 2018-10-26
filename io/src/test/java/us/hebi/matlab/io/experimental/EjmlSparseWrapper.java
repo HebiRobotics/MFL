@@ -3,7 +3,7 @@ package us.hebi.matlab.io.experimental;
 import org.ejml.data.DMatrixSparseCSC;
 import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.mat.Mat5Serializable;
-import us.hebi.matlab.io.mat.Mat5Writer;
+import us.hebi.matlab.io.mat.Mat5WriteUtil;
 import us.hebi.matlab.io.types.AbstractArray;
 import us.hebi.matlab.io.types.MatlabType;
 import us.hebi.matlab.io.types.Sink;
@@ -12,6 +12,7 @@ import java.io.IOException;
 
 import static us.hebi.matlab.io.mat.Mat5Type.Double;
 import static us.hebi.matlab.io.mat.Mat5Type.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * Serializes an EJML Sparse CSC matrix into a MAT 5 file that can be read by MATLAB.
@@ -27,7 +28,7 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
-                + Mat5Writer.computeArrayHeaderSize(name, this)
+                + computeArrayHeaderSize(name, this)
                 + Int32.computeSerializedSize(getNumRowIndices())
                 + Int32.computeSerializedSize(getNumColIndices())
                 + Double.computeSerializedSize(getNzMax());
@@ -35,8 +36,8 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
 
         // Row indices (MATLAB requires at least 1 entry)
         Int32.writeTag(getNumRowIndices(), sink);
@@ -94,5 +95,10 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
         this.sparse = sparse;
     }
 
+    @Override
+    public void close() throws IOException {
+    }
+
     final DMatrixSparseCSC sparse;
+
 }

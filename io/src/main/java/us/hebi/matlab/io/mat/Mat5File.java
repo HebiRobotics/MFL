@@ -9,6 +9,8 @@ import java.util.Arrays;
 import java.util.Date;
 
 import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.io.mat.Mat5.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * --- Level 5 MAT-File Header Format ---
@@ -87,7 +89,7 @@ public class Mat5File extends AbstractMatFile {
         short version = Short.reverseBytes(source.readShort());
 
         // 2 byte endian indicator
-        ByteOrder order = source.getByteOrder();
+        ByteOrder order = source.order();
         short endianIndicator = source.readShort();
         switch (endianIndicator) {
             case 'M' << 8 | 'I': // order is correct
@@ -148,11 +150,16 @@ public class Mat5File extends AbstractMatFile {
 
     }
 
-    public void updateSubsysOffset(long headerStart, long subsysStart, Sink sink) throws IOException {
-        // Not necessary for reduced
-        if (hasReducedHeader())
-            return;
-
+    /**
+     * Updates the subsystem offset field in the header to reference the correct location. This
+     * is only needed for full headers as reduced headers have the subsystem in the 2nd entry.
+     *
+     * @param headerStart offset to the start of the header. Typically zero.
+     * @param subsysStart start of the subsystem entry at the root level
+     * @param sink
+     * @throws IOException
+     */
+    static void updateSubsysOffset(long headerStart, long subsysStart, Sink sink) throws IOException {
         // Jump back to beginning and overwrite offset
         long currentPosition = sink.position();
         sink.position(headerStart + 116);
@@ -225,12 +232,17 @@ public class Mat5File extends AbstractMatFile {
 
     @Override
     public long getUncompressedSerializedSize() {
-        return Mat5Writer.computeUncompressedSize(this);
+        long size = reduced ? REDUCED_FILE_HEADER_SIZE : FILE_HEADER_SIZE;
+        for (NamedArray entry : entries) {
+            size += computeArraySize(entry.getName(), entry.getValue());
+        }
+        return size;
     }
 
     @Override
-    public void writeTo(Sink sink) throws IOException {
-        new Mat5Writer(sink).writeFile(this);
+    public Mat5File writeTo(Sink sink) throws IOException {
+        Mat5.newWriter(sink).writeMat(this);
+        return this;
     }
 
     public Mat5Subsystem getSubsystem() {

@@ -4,11 +4,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import us.hebi.matlab.io.mat.Mat5;
-import us.hebi.matlab.io.types.*;
+import us.hebi.matlab.io.types.Matrix;
+import us.hebi.matlab.io.types.Sink;
+import us.hebi.matlab.io.types.Sinks;
+import us.hebi.matlab.io.types.Sources;
 
 import java.io.File;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 import static org.junit.Assert.*;
 import static us.hebi.matlab.io.experimental.StreamingDoubleMatrix2D.*;
@@ -21,7 +23,6 @@ public class StreamingDoubleMatrix2DTest {
 
     static File folder = new File("tmp-StreamingDoubleMatrix2DTest");
     static ByteBuffer buffer = ByteBuffer.allocate(4 * 1024);
-    static Sink sink = Sinks.wrap(buffer);
 
     @Before
     public void clear() {
@@ -44,20 +45,19 @@ public class StreamingDoubleMatrix2DTest {
         }
         assertArrayEquals(new int[]{numRows, numCols}, matrix.getDimensions());
 
-        // Create file structure
-        MatFile matFile = Mat5.newMatFile();
-        matFile.addArray(matrix.getName(), matrix);
+        // Write data to memory
+        try (Sink sink = Sinks.wrap(buffer).nativeOrder()) {
 
-        // Write to memory
-        sink.setByteOrder(ByteOrder.nativeOrder());
-        matFile.writeTo(sink);
+            Mat5.newMatFile() // create file structure
+                    .addArray(matrix.getName(), matrix) // add content
+                    .writeTo(sink) // write to memory
+                    .close(); // dispose any native resources
 
-        // Dispose any native resources
-        matrix.close();
+        }
 
         // Read from memory
         buffer.flip();
-        Matrix actual = Mat5.newReader(Sources.wrap(buffer)).readFile().getMatrix("position");
+        Matrix actual = Mat5.newReader(Sources.wrap(buffer)).readMat().getMatrix("position");
         assertArrayEquals(new int[]{numRows, numCols}, actual.getDimensions());
 
         // Check data

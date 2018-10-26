@@ -2,14 +2,15 @@ package us.hebi.matlab.io;
 
 import org.junit.Test;
 import us.hebi.matlab.io.mat.Mat5;
-import us.hebi.matlab.io.mat.Mat5Reader;
-import us.hebi.matlab.io.mat.Mat5Writer;
+import us.hebi.matlab.io.mat.Mat5File;
 import us.hebi.matlab.io.types.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.zip.Deflater;
 
 import static org.junit.Assert.*;
@@ -46,7 +47,7 @@ public class Mat5Examples {
 
         // Read from buffer
         buffer.flip();
-        MatFile result = Mat5.newReader(Sources.wrap(buffer)).readFile();
+        MatFile result = Mat5.newReader(Sources.wrap(buffer)).readMat();
 
         // Access data
         assertEquals(2, result.getMatrix("identityMatrix").getLong(1, 1));
@@ -54,7 +55,7 @@ public class Mat5Examples {
     }
 
     @Test
-    public void writeFullFile() throws IOException {
+    public void testCreateAndWriteMatFile() throws IOException {
         // Build file structure
         MatFile matFile = Mat5.newMatFile()
                 .addArray("var1", Mat5.newString("Test"))
@@ -66,56 +67,19 @@ public class Mat5Examples {
         // reduce the result so we can pre-allocate a buffer.
         int maxExpectedSize = sint32(matFile.getUncompressedSerializedSize());
         ByteBuffer buffer = ByteBuffer.allocate(maxExpectedSize);
-        Sink sink = Sinks.wrap(buffer);
-        try {
+        try (Sink sink = Sinks.wrap(buffer)) {
 
             // Write file w/ header and content
             matFile.writeTo(sink);
 
-        } finally {
-            // NO-OP for heap-buffer, but included for demonstration
-            sink.close();
         }
     }
 
+    /**
+     * All types have convenience overloads for 1D and 2D access
+     */
     @Test
-    public void writeIncrementalWithMixedCompression() throws IOException {
-        // Create arrays without attaching them to a MatFile
-        Array var1 = Mat5.newString("Test");
-        Array var2 = Mat5.newScalar(7);
-        Array var3 = Mat5.newMatrix(8, 8);
-        Array var4 = Mat5.newChar(7, 7);
-
-        // Calculate max expected size assuming that compression will
-        // reduce the result
-        long maxExpectedSize = Mat5.FILE_HEADER_SIZE
-                + Mat5Writer.computeArraySize("var1", var1)
-                + Mat5Writer.computeArraySize("var2", var2)
-                + Mat5Writer.computeArraySize("var3", var3)
-                + Mat5Writer.computeArraySize("var4", var4);
-
-        // Write to a pre-allocated buffer. Note that for a streaming file we
-        // would not need to calculate the size
-        ByteBuffer buffer = ByteBuffer.allocate(sint32(maxExpectedSize));
-        Sink sink = Sinks.wrap(buffer);
-        try {
-
-            // Write header and add individual arrays with mixed compression (tested loading w/ R2017b)
-            Mat5.newWriter(sink)
-                    .writeFile(Mat5.newMatFile()) // new file has no content, so this just writes the header
-                    .setDeflateLevel(Deflater.NO_COMPRESSION).writeRootArray("var1", var1)
-                    .setDeflateLevel(Deflater.BEST_SPEED).writeRootArray("var2", var2)
-                    .setDeflateLevel(Deflater.NO_COMPRESSION).writeRootArray("var3", var3)
-                    .setDeflateLevel(Deflater.BEST_COMPRESSION).writeRootArray("var4", var4);
-
-        } finally {
-            // NO-OP for heap-buffer, but included for demonstration
-            sink.close();
-        }
-    }
-
-    @Test
-    public void testDoubleMatrix() {
+    public void testDoubleMatrix_2D() {
         Matrix matrix = Mat5.newMatrix(400, 2);
 
         for (int col = 0; col < matrix.getNumCols(); col++) {
@@ -126,6 +90,22 @@ public class Mat5Examples {
             }
         }
 
+    }
+
+    /**
+     * Multi-dimensional matrices are indexed via an index array (int[]). The
+     * dims() and index() methods help with generating the int[] while also
+     * improving readability.
+     */
+    @Test
+    public void testDoubleMatrix_4D() {
+        long value = 91219;
+
+        Matrix matrix = Mat5.newMatrix(Mat5.dims(10, 11, 12, 13));
+
+        int[] index = Mat5.index(9, 9, 9, 9);
+        matrix.setLong(index, value);
+        assertEquals(value, matrix.getLong(index));
     }
 
     /**
@@ -186,13 +166,14 @@ public class Mat5Examples {
 
         // Write/Read to file
         File file = new File("./temp-test-file.mat");
-        Sink sink = Sinks.newStreamingFile(file);
-        matFile.writeTo(sink);
-        sink.close();
+        try (Sink sink = Sinks.newStreamingFile(file)) {
+            matFile.writeTo(sink);
+        }
 
-        Source source = Sources.openFile(file);
-        MatFile result = Mat5.newReader(source).readFile();
-        source.close();
+        final MatFile result;
+        try (Source source = Sources.openFile(file)) {
+            result = Mat5.newReader(source).readMat();
+        }
 
         assertTrue("Could not delete temporary file", file.delete());
 
@@ -212,33 +193,81 @@ public class Mat5Examples {
                 .addArray("complexScalar", Mat5.newComplexScalar(27, 16));
 
         ByteBuffer buffer = ByteBuffer.allocate(sint32(matFile.getUncompressedSerializedSize()));
-        matFile.writeTo(Sinks.wrap(buffer).setByteOrder(ByteOrder.nativeOrder()));
+        matFile.writeTo(Sinks.wrap(buffer).nativeOrder());
         buffer.flip();
 
         // Setup filter that only allows arrays that fulfill a certain criteria
         // Note that the filter only gets applied to the root entries, so entries
         // inside structs/cell arrays etc. don't get filtered.
-        Mat5Reader.ArrayFilter filter = new Mat5Reader.ArrayFilter() {
-            @Override
-            public boolean isAccepted(Mat5Reader.ArrayHeader header) {
-                // 2D arrays with an "x" or "n" in the name
-                String name = header.getName();
-                return (name.contains("x") || name.contains("a"))
-                        && header.getDimensions().length == 2;
-            }
-        };
-
         MatFile result = Mat5.newReader(Sources.wrap(buffer))
-                .setArrayFilter(filter)
-                .readFile();
+                .setArrayFilter(header -> header.getNumElements() == 1)
+                .readMat();
 
-        assertEquals(3, result.size());
-        result.getChar("name");
+        assertEquals(2, result.size());
         result.getMatrix("scalar");
         result.getMatrix("complexScalar");
 
     }
 
+    @Test
+    public void testIncrementalWritesWithMixedConcurrentCompression() throws IOException {
+        // Create arrays without attaching them to a MatFile
+        Array var1 = Mat5.newString("Test");
+        Array var2 = Mat5.newScalar(7);
+        Array var3 = Mat5.newMatrix(8, 8);
+        Array var4 = Mat5.newChar(7, 7);
+
+        // Pre-allocate a buffer to hold the results. Note that streaming files
+        // would expand as needed, so calculating the size would not be required.
+        // However, for unit tests it's better to keep things in memory. Since the
+        // variables are not attached to a MatFile, we need to sum them manually.
+        long maxExpectedSize = Mat5.FILE_HEADER_SIZE
+                + Mat5.getSerializedSize("var1", var1)
+                + Mat5.getSerializedSize("var2", var2)
+                + Mat5.getSerializedSize("var3", var3)
+                + Mat5.getSerializedSize("var4", var4);
+        ByteBuffer buffer = ByteBuffer.allocate(sint32(maxExpectedSize));
+
+        // Write header and add individual arrays with mixed compression (tested loading w/ R2017b)
+        try (Sink sink = Sinks.wrap(buffer).nativeOrder()) {
+
+            Mat5.newWriter(sink)
+                    .writeMat(Mat5.newMatFile()) // new file has no content, so this just writes the header
+                    .enableConcurrentCompression(executorService) // compress with multiple threads
+                    .setDeflateLevel(Deflater.NO_COMPRESSION).writeArray("var1", var1)
+                    .setDeflateLevel(Deflater.BEST_SPEED).writeArray("var2", var2)
+                    .setDeflateLevel(Deflater.NO_COMPRESSION).writeArray("var3", var3)
+                    .setDeflateLevel(Deflater.BEST_COMPRESSION).writeArray("var4", var4)
+                    .flush(); // finish file
+
+        }
+
+        // Read mat file
+        buffer.flip();
+        try (Source source = Sources.wrap(buffer)) {
+
+            Mat5File matFile = Mat5.newReader(source)
+                    .enableConcurrentDecompression(executorService) // decompress with multiple threads
+                    .setArrayFilter(array -> !"var3".equals(array.getName()))
+                    .readMat();
+
+            assertEquals("Test", matFile.getChar("var1").getString());
+            assertEquals(((Matrix) var2).getLong(0), matFile.getMatrix("var2").getLong(0));
+            assertArrayEquals(var4.getDimensions(), matFile.getChar("var4").getDimensions());
+
+            try {
+                matFile.getObject("var3");
+                fail();
+            } catch (IllegalArgumentException e) {
+                // was filtered out when reading
+            }
+
+        }
+
+    }
+
+
     private static double DELTA = 0;
+    private static ExecutorService executorService = Executors.newCachedThreadPool();
 
 }

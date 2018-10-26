@@ -4,6 +4,8 @@ import us.hebi.matlab.io.types.*;
 
 import java.io.IOException;
 
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
+
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 02 Sep 2018
@@ -28,18 +30,22 @@ class MatFunction extends AbstractArray implements FunctionHandle, Mat5Serializa
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
-                + Mat5Writer.computeArrayHeaderSize(name, this)
-                + Mat5Writer.computeArraySize(getContent());
+                + computeArrayHeaderSize(name, this)
+                + computeArraySize(getContent());
     }
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
-        Mat5Writer.writeArrayWithTag(content, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
+        writeArrayWithTag(content, sink);
+    }
+
+    @Override
+    public void close() throws IOException {
+        content.close();
     }
 
     final Struct content;
-
 
 }

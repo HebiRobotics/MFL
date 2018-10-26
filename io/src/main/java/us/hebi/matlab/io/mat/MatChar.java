@@ -8,6 +8,7 @@ import java.nio.CharBuffer;
 import java.util.Arrays;
 
 import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * Default char array implementation backed by a char buffer
@@ -52,16 +53,16 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
     public int getMat5Size(String name) {
         buffer.rewind();
         return Mat5.MATRIX_TAG_SIZE
-                + Mat5Writer.computeArrayHeaderSize(name, this)
-                + Mat5Writer.computeCharBufferSize(encoding, buffer);
+                + computeArrayHeaderSize(name, this)
+                + computeCharBufferSize(encoding, buffer);
     }
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
         buffer.rewind();
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
-        Mat5Writer.writeCharBufferWithTag(encoding, buffer, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
+        writeCharBufferWithTag(encoding, buffer, sink);
     }
 
     protected final CharBuffer buffer;

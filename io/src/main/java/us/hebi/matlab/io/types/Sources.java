@@ -1,6 +1,6 @@
 package us.hebi.matlab.io.types;
 
-import us.hebi.matlab.common.memory.Resources;
+import us.hebi.matlab.common.memory.NativeMemory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -24,9 +24,15 @@ public class Sources {
     public static Source openFile(File file) throws IOException {
         checkNotNull(file);
         checkArgument(file.exists() && file.isFile(), "must be an existing file");
-        checkArgument(file.length() <= Integer.MAX_VALUE, "File too large. Limited to 2GB");
 
-        // Map file as byte buffer
+        // File is larger than the max capacity (2 GB) of a buffer, so we use an InputStream instead.
+        // Unfortunately, this limits us to read a very large file using a single thread :( At some point
+        // we could build more complex logic that can map to more than a single buffer.
+        if (file.length() > Integer.MAX_VALUE) {
+            return wrapInputStream(new FileInputStream(file));
+        }
+
+        // File is small enough to be memory-mapped into a single buffer
         final FileChannel channel = new RandomAccessFile(file, "r").getChannel();
         final ByteBuffer buffer = channel
                 .map(FileChannel.MapMode.READ_ONLY, 0, (int) channel.size())
@@ -38,7 +44,7 @@ public class Sources {
             @Override
             public void close() throws IOException {
                 super.close();
-                Resources.release(buffer);
+                NativeMemory.freeDirectBuffer(buffer);
                 channel.close();
             }
         };

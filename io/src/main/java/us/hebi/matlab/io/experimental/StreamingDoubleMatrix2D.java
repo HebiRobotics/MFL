@@ -3,7 +3,6 @@ package us.hebi.matlab.io.experimental;
 import us.hebi.matlab.io.mat.Mat5;
 import us.hebi.matlab.io.mat.Mat5Serializable;
 import us.hebi.matlab.io.mat.Mat5Type;
-import us.hebi.matlab.io.mat.Mat5Writer;
 import us.hebi.matlab.io.types.AbstractArray;
 import us.hebi.matlab.io.types.MatlabType;
 import us.hebi.matlab.io.types.Sink;
@@ -17,11 +16,23 @@ import java.nio.ByteOrder;
 import static us.hebi.matlab.common.memory.Bytes.*;
 import static us.hebi.matlab.common.util.Preconditions.*;
 import static us.hebi.matlab.io.mat.Mat5.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
- * Matrix that streams into a temporary storage file. The column
- * size stays fixed (e.g. group size) while the rows (e.g. time series)
- * continuously expand.
+ * 2D Matrix that has a fixed number of columns, and an expanding number
+ * of rows. We've often encountered this as an issue when working with
+ * synchronized time series from multiple sources.
+ * <p>
+ * The MAT file format is not well suited for this because the size
+ * needs to be known beforehand, and because the data is in column-major
+ * format.
+ *
+ * This class is an example of how such a use case could be implemented
+ * using custom serialization. There is one expanding file for each column
+ * that contains all rows. Once the data gets written, all temporary storage
+ * files get combined and written into the target sink.
+ *
+ * This example that is not considered part of the stable API.
  *
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 08 May 2018
@@ -51,7 +62,7 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
                     sink.close();
                 }
                 String msg = "Failed to overwrite existing temporary storage: " + file.getAbsolutePath();
-                throw new IllegalStateException(msg);
+                throw new IOException(msg);
             }
 
             // Write buffer
@@ -79,7 +90,7 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
 
     @Override
     public int getMat5Size(String name) {
-        int header = Mat5Writer.computeArrayHeaderSize(name, this);
+        int header = computeArrayHeaderSize(name, this);
         int data = Mat5Type.Double.computeSerializedSize(getNumElements());
         return Mat5.MATRIX_TAG_SIZE + header + data;
     }
@@ -87,8 +98,8 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
         int numElements = getNumElements();
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
         Mat5Type.Double.writeTag(numElements, sink);
         writeData(sink);
         Mat5Type.Double.writePadding(numElements, sink);
@@ -98,7 +109,7 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
         if (getNumElements() == 0)
             return;
 
-        if (sink.getByteOrder() != ByteOrder.nativeOrder())
+        if (sink.order() != ByteOrder.nativeOrder())
             throw new IOException("Expected sink to be in native order");
 
         for (int col = 0; col < getNumCols(); col++) {
