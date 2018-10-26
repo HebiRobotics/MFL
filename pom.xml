@@ -123,6 +123,8 @@
                                 </excludes>
                                 <source>${matlab.target}</source>
                                 <target>${matlab.target}</target>
+                                <testSource>8</testSource>
+                                <testTarget>8</testTarget>
                             </configuration>
                         </plugin>
                     </plugins>

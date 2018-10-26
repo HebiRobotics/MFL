@@ -37,7 +37,7 @@ public class FigureTest {
         assertEquals("auto", properties.getChar("PositionMode").getString());
         assertEquals("manual", properties.getChar("CurrentAxesMode").getString());
         assertEquals("add", properties.getChar("NextPlot").getString());
-        assertArrayEquals(new int[]{1,4}, properties.getMatrix("PaperPosition").getDimensions());
+        assertArrayEquals(new int[]{1, 4}, properties.getMatrix("PaperPosition").getDimensions());
         assertEquals("auto", properties.getChar("PaperPositionMode").getString());
         assertEquals("manual", properties.getChar("ScreenPixelsPerInchMode").getString());
 

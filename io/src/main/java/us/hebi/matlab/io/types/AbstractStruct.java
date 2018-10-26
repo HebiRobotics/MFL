@@ -82,6 +82,9 @@ public abstract class AbstractStruct extends AbstractStructBase {
                 array.close();
             }
         }
+        indexMap.clear();
+        fields.clear();
+        values.clear();
     }
 
     private final HashMap<String, Integer> indexMap = new HashMap<String, Integer>();

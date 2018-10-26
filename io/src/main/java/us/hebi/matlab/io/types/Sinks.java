@@ -1,6 +1,6 @@
 package us.hebi.matlab.io.types;
 
-import us.hebi.matlab.common.memory.Resources;
+import us.hebi.matlab.common.memory.NativeMemory;
 import us.hebi.matlab.common.util.Casts;
 
 import java.io.*;
@@ -86,7 +86,7 @@ public class Sinks {
             public void close() throws IOException {
                 super.close();
                 long finalSize = buffer.position();
-                Resources.release(buffer);
+                NativeMemory.freeDirectBuffer(buffer);
                 channel.truncate(finalSize);
                 channel.close();
             }
@@ -167,12 +167,12 @@ public class Sinks {
         }
 
         @Override
-        public ByteOrder getByteOrder() {
+        public ByteOrder order() {
             return out.order();
         }
 
         @Override
-        public AbstractSink setByteOrder(ByteOrder order) {
+        public AbstractSink order(ByteOrder order) {
             out.order(order);
             return this;
         }

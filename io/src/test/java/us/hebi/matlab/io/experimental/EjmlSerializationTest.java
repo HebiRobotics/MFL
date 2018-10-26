@@ -70,7 +70,7 @@ public class EjmlSerializationTest {
         ByteBuffer buffer = ByteBuffer.allocate(sint32(mat.getUncompressedSerializedSize()));
         mat.writeTo(Sinks.wrap(buffer));
         buffer.flip();
-        return Mat5.newReader(Sources.wrap(buffer)).readFile();
+        return Mat5.newReader(Sources.wrap(buffer)).readMat();
     }
 
     final Random rnd = new Random(0);

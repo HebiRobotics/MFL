@@ -1,229 +1,220 @@
 package us.hebi.matlab.io.mat;
 
-import us.hebi.matlab.common.util.Casts;
-import us.hebi.matlab.common.util.Charsets;
+import us.hebi.matlab.common.util.Tasks;
 import us.hebi.matlab.io.types.*;
-import us.hebi.matlab.io.types.Opaque;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.nio.CharBuffer;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.zip.Deflater;
 
-import static us.hebi.matlab.common.util.Casts.checkedDivide;
 import static us.hebi.matlab.common.util.Preconditions.*;
-import static us.hebi.matlab.io.mat.Mat5.*;
-import static us.hebi.matlab.io.mat.Mat5Type.*;
-import static us.hebi.matlab.io.mat.Mat5Type.Int32;
-import static us.hebi.matlab.io.mat.Mat5Type.Int8;
-import static us.hebi.matlab.io.mat.Mat5Type.UInt32;
-import static us.hebi.matlab.io.types.MatlabType.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 06 May 2018
  */
-public class Mat5Writer implements Closeable {
+public final class Mat5Writer {
 
     /**
-     * Computes the resulting file size if compression is disabled. Since
-     * compression usually reduces the file size, this can be seen as a
-     * maximum expected size.
-     * <p>
-     * This is useful to e.g. pre-allocate a buffer or file that can be
-     * truncated once the actual file size is known.
-     * <p>
-     * Note that it is not guaranteed that compression will result in a
-     * smaller file size, e.g., we have seen this happen on small arrays
-     * with little data. Thus, for small arrays, you should add padding.
+     * Sets the level for the deflate algorithm. Deflater.NO_COMPRESSION
+     * disables compression entirely. The default is Deflater.BEST_SPEED.
+     *
+     * @param deflateLevel Deflate algorithm levels [0-9]
+     * @return this
      */
-    public static long computeUncompressedSize(MatFile matFile) {
-        long size = FILE_HEADER_SIZE;
-        for (NamedArray entry : matFile) {
-            size += computeArraySize(entry.getName(), entry.getValue());
-        }
-        return size;
-    }
-
-    protected Mat5Writer(Sink sink) {
-        this.sink = checkNotNull(sink);
-    }
-
     public Mat5Writer setDeflateLevel(int deflateLevel) {
         this.deflateLevel = deflateLevel;
         return this;
     }
 
-    public Mat5Writer writeFile(MatFile matFile) throws IOException {
+    /**
+     * Compressing elements tends to be by far the most expensive part of writing MAT5 files.
+     * This method enables the deflation to happen concurrently, i.e., by multiple threads. Note
+     * that this requires the compressed data to first be written into a temporary buffer, so
+     * the memory usage will go up.
+     * <p>
+     * Non-compressed data will continue to be written using the calling thread. Arrays will
+     * always be written in the input order, even if the file uses mixed compression.
+     *
+     * @param executorService
+     * @return this
+     */
+    public Mat5Writer enableConcurrentCompression(ExecutorService executorService) {
+        return enableConcurrentCompression(executorService, Mat5.getDefaultBufferAllocator());
+    }
+
+    /**
+     * In addition to enabling concurrent compression, this method also specifies how the
+     * temporary buffers should be allocated. Allocated buffers get released once they are
+     * no longer needed. This is useful when working with buffer pools or memory mapped buffers.
+     *
+     * @param bufferAllocator
+     * @return this
+     */
+    public Mat5Writer enableConcurrentCompression(ExecutorService executorService, BufferAllocator bufferAllocator) {
+        this.executorService = checkNotNull(executorService, "empty executor service");
+        this.bufferAllocator = checkNotNull(bufferAllocator, "empty buffer allocator");
+        this.deflater = null;
+        return this;
+    }
+
+    public Mat5Writer writeMat(MatFile matFile) throws IOException {
         if (matFile instanceof Mat5File) {
-            return writeFile((Mat5File) matFile);
+            return writeMat((Mat5File) matFile);
         }
         throw new IllegalArgumentException("MatFile does not support the MAT5 format");
     }
 
-    public Mat5Writer writeFile(Mat5File matFile) throws IOException {
-        long headerStart = sink.position();
+    private Mat5Writer writeMat(Mat5File matFile) throws IOException {
+        if (!matFile.hasReducedHeader())
+            headerStart = sink.position();
         matFile.writeFileHeader(sink);
         for (NamedArray namedArray : matFile) {
-            long entryStart = sink.position();
-            writeRootArray(namedArray);
-
-            // Update subsystem location in file header
-            if (namedArray.getValue() instanceof Mat5Subsystem) {
-                matFile.updateSubsysOffset(headerStart, entryStart, sink);
-            }
-
+            writeArray(namedArray);
         }
+        flush();
         return this;
     }
 
-    public Mat5Writer writeRootArray(NamedArray namedArray) throws IOException {
-        return writeRootArray(namedArray.getName(), namedArray.getValue());
+    public Mat5Writer writeArray(NamedArray namedArray) throws IOException {
+        return writeArray(namedArray.getName(), namedArray.getValue());
     }
 
-    public Mat5Writer writeRootArray(String name, Array array) throws IOException {
+    public Mat5Writer writeArray(final String name, final Array array) throws IOException {
         if ((name == null || name.isEmpty())
                 && !(array instanceof McosReference)
                 && !(array instanceof Mat5Subsystem))
             throw new IllegalArgumentException("Root Array can't have an empty name");
+        final boolean isSubsystem = array instanceof Mat5Subsystem;
 
-        // Disabled compression
         if (deflateLevel == Deflater.NO_COMPRESSION) {
-            writeArrayWithTag(name, array, sink); // note: padding is included in size
+            // Uncompressed writes can always be done without using a buffer
+
+            if (flushActions.isEmpty()) {
+
+                // No queue, so we can write immediately
+                if (isSubsystem) nextEntryIsSubsystem();
+                Mat5WriteUtil.writeArrayWithTag(name, array, sink);
+
+            } else {
+
+                // Queue action to preserve input order
+                FlushAction action = new FlushAction() {
+                    public void run() throws IOException {
+                        if (isSubsystem) nextEntryIsSubsystem();
+                        Mat5WriteUtil.writeArrayWithTag(name, array, sink);
+                    }
+                };
+                flushActions.add(Tasks.wrapAsFuture(action));
+
+            }
+
+        } else if (executorService == null) {
+
+            // Do single threaded compressions immediately. Note that actions are only
+            // added on concurrent writes, which means that executorService can't be null.
+            checkState(flushActions.isEmpty(), "Expected flush actions to be empty when writing single threaded");
+            if (isSubsystem) nextEntryIsSubsystem();
+
+            // Reuse deflater
+            if (deflater == null) {
+                deflater = new Deflater(deflateLevel);
+            } else {
+                deflater.setLevel(deflateLevel);
+                deflater.reset();
+            }
+
+            Mat5WriteUtil.writeArrayWithTagDeflated(name, array, sink, deflater);
             return this;
+
+        } else {
+
+            // Write compressed entries into temporary buffers, and combine them in flush action
+            final Deflater deflater = new Deflater(deflateLevel);
+            final BufferAllocator bufferAllocator = this.bufferAllocator;
+            flushActions.add(executorService.submit(new Callable<FlushAction>() {
+                @Override
+                public FlushAction call() throws Exception {
+
+                    // Create temporary buffer
+                    int maxExpectedSize = computeArraySize(name, array) + 256;
+                    final ByteBuffer buffer = bufferAllocator.allocate(maxExpectedSize);
+                    Sink tmpSink = Sinks.wrap(buffer).order(sink.order());
+
+                    // Compress async into temporary buffer
+                    Mat5WriteUtil.writeArrayWithTagDeflated(name, array, tmpSink, deflater);
+                    tmpSink.close();
+                    buffer.flip();
+
+                    // Combine in flushing thread
+                    return new FlushAction() {
+                        public void run() throws IOException {
+                            try {
+                                if (isSubsystem) nextEntryIsSubsystem();
+                                sink.writeByteBuffer(buffer);
+                            } finally {
+                                bufferAllocator.release(buffer);
+                            }
+                        }
+                    };
+                }
+            }));
+
         }
-
-        // Write placeholder tag with a dummy size so we can fill in info later
-        long tagPosition = sink.position();
-        Compressed.writeTag(DUMMY_SIZE, false, sink);
-        long start = sink.position();
-
-        // Compress matrix data
-        Sink compressed = sink.writeDeflated(new Deflater(deflateLevel));
-        writeArrayWithTag(name, array, compressed);
-        compressed.close(); // triggers flush/finish
-
-        // Calculate actual size
-        long end = sink.position();
-        long compressedSize = end - start;
-
-        // Overwrite placeholder tag with the real size
-        sink.position(tagPosition);
-        Compressed.writeTag(Casts.sint32(compressedSize), false, sink);
-
-        // Return to the current real position after the compressed data
-        // Note that compressed tags don't require padding for alignment.
-        sink.position(end);
 
         return this;
-
     }
 
-    @Override
-    public void close() throws IOException {
-        sink.close();
+    private void nextEntryIsSubsystem() throws IOException {
+        this.subsysLocation = sink.position();
     }
 
-    public static void writeArrayWithTag(Array array, Sink sink) throws IOException {
-        writeArrayWithTag("", array, sink);
-    }
-
-    public static void writeArrayWithTag(String name, Array array, Sink sink) throws IOException {
-        if (array instanceof Mat5Serializable) {
-            ((Mat5Serializable) array).writeMat5(name, sink);
-            return;
+    /**
+     * Makes sure that all written arrays were written to the sink, and that
+     * the (optional) subsystem offset has been set. May be called more than
+     * once.
+     *
+     * @return this
+     * @throws IOException
+     */
+    public Mat5Writer flush() throws IOException {
+        // Write all entries
+        for (Future<FlushAction> action : flushActions) {
+            try {
+                action.get().run();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
-        throw new IllegalArgumentException("Array does not support the MAT5 format");
-    }
-
-    public static int computeArraySize(Array array) {
-        return computeArraySize("", array);
-    }
-
-    public static int computeArraySize(String name, Array array) {
-        if (array instanceof Mat5Serializable)
-            return ((Mat5Serializable) array).getMat5Size(name);
-        throw new IllegalArgumentException("Array does not support the MAT5 format");
-    }
-
-    public static int computeArrayHeaderSize(String name, Array array) {
-        int arrayFlags = UInt32.computeSerializedSize(2);
-        int dimensions = Int32.computeSerializedSize(array.getNumDimensions());
-        int nameLen = Int8.computeSerializedSize(name.length()); // ascii
-        return arrayFlags + dimensions + nameLen;
-    }
-
-    public static void writeMatrixTag(String name, Mat5Serializable array, Sink sink) throws IOException {
-        Matrix.writeTag(array.getMat5Size(name) - Mat5.MATRIX_TAG_SIZE, sink);
-    }
-
-    public static void writeArrayHeader(String name, Array array, Sink sink) throws IOException {
-        if (array.getType() == Opaque)
-            throw new IllegalArgumentException("Opaque types do not share the same format as other types");
-
-        // Subfield 1: Meta data
-        UInt32.writeIntsWithTag(Mat5ArrayFlags.forArray(array), sink);
-
-        // Subfield 2: Dimensions
-        Int32.writeIntsWithTag(array.getDimensions(), sink);
-
-        // Subfield 3: Name
-        Int8.writeBytesWithTag(name.getBytes(Charsets.US_ASCII), sink);
-    }
-
-    public static int computeOpaqueSize(String name, Opaque array) {
-        return Mat5.MATRIX_TAG_SIZE
-                + UInt32.computeSerializedSize(2)
-                + Int8.computeSerializedSize(name.length())
-                + Int8.computeSerializedSize(array.getObjectType().length())
-                + Int8.computeSerializedSize(array.getClassName().length())
-                + Mat5Writer.computeArraySize(array.getContent());
-    }
-
-    public static void writeOpaque(String name, Opaque opaque, Sink sink) throws IOException {
-        // Tag
-        final int numBytes = computeOpaqueSize(name, opaque) - Mat5.MATRIX_TAG_SIZE;
-        Matrix.writeTag(numBytes, sink);
-
-        // Subfield 1: Meta data
-        UInt32.writeIntsWithTag(Mat5ArrayFlags.forOpaque(opaque), sink);
-
-        // Subfield 2: Ascii variable name
-        Int8.writeBytesWithTag(name.getBytes(Charsets.US_ASCII), sink);
-
-        // Subfield 3: Object Identifier (e.g. "MCOS", "handle", "java")
-        Int8.writeBytesWithTag(opaque.getObjectType().getBytes(Charsets.US_ASCII), sink);
-
-        // Subfield 4: Class name (e.g. "table", "string", "java.io.File")
-        Int8.writeBytesWithTag(opaque.getClassName().getBytes(Charsets.US_ASCII), sink);
-
-        // Subfield 5: Content
-        Mat5Writer.writeArrayWithTag(opaque.getContent(), sink);
-    }
-
-    static int computeCharBufferSize(CharEncoding encoding, CharBuffer buffer) {
-        Mat5Type tagType = Mat5Type.fromCharEncoding(encoding);
-        int numElements = checkedDivide(encoding.getEncodedLength(buffer), tagType.bytes());
-        return tagType.computeSerializedSize(numElements);
-    }
-
-    static void writeCharBufferWithTag(CharEncoding encoding, CharBuffer buffer, Sink sink) throws IOException {
-        Mat5Type tagType = Mat5Type.fromCharEncoding(encoding);
-        int numElements = checkedDivide(encoding.getEncodedLength(buffer), tagType.bytes());
-        tagType.writeTag(numElements, sink);
-        encoding.writeEncoded(buffer, sink);
-        tagType.writePadding(numElements, sink);
-    }
-
-    private void checkType(Array element, MatlabType expected) {
-        if (element.getType() != expected) {
-            String format = String.format("%s is an invalid type. Expected %s", element.getType(), expected);
-            throw new IllegalArgumentException(format);
+        // Lastly, update subsystem offset in the (non-reduced) header
+        if (headerStart >= 0 && subsysLocation >= -1) {
+            Mat5File.updateSubsysOffset(headerStart, subsysLocation, sink);
+            subsysLocation = -1;
         }
+        return this;
+    }
+
+    private interface FlushAction {
+        void run() throws IOException;
+    }
+
+    Mat5Writer(Sink sink) {
+        this.sink = checkNotNull(sink, "Sink can't be empty");
     }
 
     protected final Sink sink;
-    private int deflateLevel = Deflater.BEST_SPEED;
-    private static final int DUMMY_SIZE = 0;
+    protected int deflateLevel = Deflater.BEST_SPEED;
+    private long headerStart = -1;
+    private long subsysLocation = -1;
+    private ExecutorService executorService = null;
+    private BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
+    private final List<Future<FlushAction>> flushActions = new ArrayList<Future<FlushAction>>(16);
+    private Deflater deflater = null;
 
 }

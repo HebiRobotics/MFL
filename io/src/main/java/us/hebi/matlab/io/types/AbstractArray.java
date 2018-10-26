@@ -100,10 +100,6 @@ public abstract class AbstractArray implements Array {
     }
 
     @Override
-    public void close() throws IOException {
-    }
-
-    @Override
     public String toString() {
         return StringHelper.toString(this);
     }

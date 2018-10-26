@@ -7,6 +7,7 @@ import us.hebi.matlab.io.types.Sink;
 import java.io.IOException;
 
 import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
@@ -94,15 +95,15 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
-                + Mat5Writer.computeArrayHeaderSize(name, this)
+                + computeArrayHeaderSize(name, this)
                 + real.getMat5Size()
                 + (complex ? imaginary.getMat5Size() : 0);
     }
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
         real.writeMat5(sink);
         if (complex) imaginary.writeMat5(sink);
     }

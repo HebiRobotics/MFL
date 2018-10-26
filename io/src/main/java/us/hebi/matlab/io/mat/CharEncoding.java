@@ -71,12 +71,20 @@ public enum CharEncoding {
         } else {
 
             // UTF encoded bytes (copy byte-wise)
-            ByteBuffer byteBuffer = ByteBuffer.allocate(numBytes);
-            source.readByteBuffer(byteBuffer);
-            byteBuffer.rewind();
+            BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
+            ByteBuffer tmpBuffer = bufferAllocator.allocate(numBytes);
+            try {
+                // Read data into temporary buffer
+                source.readByteBuffer(tmpBuffer);
+                tmpBuffer.rewind();
 
-            // Decode to char buffer
-            return getCharset(source.getByteOrder()).decode(byteBuffer);
+                // Convert to char buffer
+                return getCharset(source.order()).decode(tmpBuffer);
+
+            } finally {
+                // Release temporary buffer
+                bufferAllocator.release(tmpBuffer);
+            }
 
         }
     }
@@ -121,7 +129,7 @@ public enum CharEncoding {
 
         // reuse cached encoder. not thread-safe, so synchronized. If this
         // ever becomes a problem, we could do some thread-local magic.
-        final ByteOrder order = (sink == null) ? ByteOrder.nativeOrder() : sink.getByteOrder();
+        final ByteOrder order = (sink == null) ? ByteOrder.nativeOrder() : sink.order();
         final CharsetEncoder encoder = getEncoder(order);
         final ByteBuffer tmp = buffer.get();
 

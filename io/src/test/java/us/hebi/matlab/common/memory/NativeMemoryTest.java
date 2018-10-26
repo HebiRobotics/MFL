@@ -15,29 +15,23 @@ import static org.junit.Assert.*;
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 20 Oct 2018
  */
-public class ResourcesTest {
+public class NativeMemoryTest {
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void releaseHeapBuffer() {
-        // Should be NO-OP
-        ByteBuffer buffer = ByteBuffer.allocate(4);
-        buffer.putInt(0, 1);
-        Resources.release(buffer);
-        buffer.putInt(0, 2);
+        NativeMemory.freeDirectBuffer(ByteBuffer.allocate(1));
     }
 
     @Test
     public void releaseDirectBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-        buffer.putInt(0, 1);
-        Resources.release(buffer);
-        // Accessing again throws segfault that can't be caught
+        // Note: we can't check access after free because it'd segfault
+        NativeMemory.freeDirectBuffer(ByteBuffer.allocateDirect(1));
     }
 
     @Test
     public void unmapMemoryMappedFile() throws IOException {
         // Make sure file is gone
-        File tmpFile = new File("ResourcesTest.tmp");
+        File tmpFile = new File("NativeMemoryTest.tmp");
         assertTrue("pre-create", !tmpFile.exists() || tmpFile.delete());
 
         // Create new file
@@ -60,8 +54,8 @@ public class ResourcesTest {
         }
 
         // Unmap memory
-        Resources.release(buffer);
-        assertTrue("post-release", tmpFile.delete());
+        NativeMemory.freeDirectBuffer(buffer);
+        assertTrue("post-free", tmpFile.delete());
     }
 
 }

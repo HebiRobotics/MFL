@@ -1,10 +1,8 @@
 package us.hebi.matlab.io.mat;
 
-import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.common.memory.NativeMemory;
 import us.hebi.matlab.io.types.*;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
@@ -165,6 +163,13 @@ public class Mat5 {
         return createMatrix(dims, type, false, true);
     }
 
+    public static int getSerializedSize(String name, Array array) {
+        if (array instanceof Mat5Serializable) {
+            return ((Mat5Serializable) array).getMat5Size(name);
+        }
+        throw new IllegalArgumentException("Array does not support the MAT5 format");
+    }
+
     private static Matrix createMatrix(int[] dims, MatlabType type, boolean logical, boolean complex) {
         return new MatMatrix(dims, false, type, logical,
                 createStore(type, dims), complex ? createStore(type, dims) : null);
@@ -172,21 +177,42 @@ public class Mat5 {
 
     private static NumberStore createStore(MatlabType type, int[] dims) {
         Mat5Type tagType = Mat5Type.fromNumericalType(type);
-        ByteBuffer buffer = allocateBuffer(getNumElements(dims) * tagType.bytes());
-        buffer.order(DEFAULT_ORDER);
-        return new UniversalNumberStore(tagType, buffer);
+        return new UniversalNumberStore(tagType, getNumElements(dims), getDefaultBufferAllocator());
     }
 
-    static ByteBuffer allocateBuffer(int numBytes) {
-        if (numBytes <= 16 * 1024) // on-heap threshold
-            return ByteBuffer.allocate(numBytes);
-        return ByteBuffer.allocateDirect(numBytes);
+    static BufferAllocator getDefaultBufferAllocator() {
+        return DEFAULT_BUFFER_ALLOCATOR;
     }
+
+    /**
+     * Buffer allocator that gets used for all arrays, readers, and writers created
+     * in this class. If we find a valid use case for changing this, this may become
+     * settable in the future.
+     */
+    private final static BufferAllocator DEFAULT_BUFFER_ALLOCATOR = new BufferAllocator() {
+        @Override
+        public ByteBuffer allocate(int numBytes) {
+            if (numBytes <= 4096) // (arbitrary) threshold for staying on-heap
+                return ByteBuffer.allocate(numBytes);
+            return ByteBuffer.allocateDirect(numBytes);
+        }
+
+        @Override
+        public void release(ByteBuffer buffer) {
+            if (buffer.isDirect()) {
+                NativeMemory.freeDirectBuffer(buffer);
+            }
+        }
+    };
 
     /**
      * Currently just used internally for matrices that contain
      * binary data that needs to be parsed (e.g. subsystem or
      * Java serialization)
+     * <p>
+     * The buffer may be a direct buffer that may be closed by
+     * the holding Matrix, so the buffer should not be held on to
+     * or go into user managed space!
      *
      * @param matrix
      * @return
