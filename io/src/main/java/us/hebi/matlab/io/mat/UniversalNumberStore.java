@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static us.hebi.matlab.common.util.Casts.*;
+import static us.hebi.matlab.common.util.Preconditions.*;
 
 /**
  * MAT files can store numerical data in a compressed format, i.e.,
@@ -40,9 +41,9 @@ class UniversalNumberStore implements NumberStore {
      */
     UniversalNumberStore(Mat5Type type, ByteBuffer buffer, BufferAllocator bufferAllocator) {
         this.type = type;
+        this.buffer = checkNotNull(buffer);
+        this.bufferAllocator = checkNotNull(bufferAllocator);
         this.numElements = buffer.remaining() / type.bytes();
-        this.buffer = buffer;
-        this.bufferAllocator = bufferAllocator;
     }
 
     UniversalNumberStore(Mat5Type tagType, int numElements, BufferAllocator bufferAllocator) {
@@ -171,7 +172,7 @@ class UniversalNumberStore implements NumberStore {
         // this way we guarantee that the switch happens fully
         // buffered. It's also likely that any subsequent writes
         // use the same output order.
-        if (buffer.order() != sink.order()) {
+        if (checkNotNull(buffer.order(), "buffer") != checkNotNull(sink, "sink").order()) {
             Bytes.reverseByteOrder(buffer, type.bytes());
         }
 
@@ -193,7 +194,7 @@ class UniversalNumberStore implements NumberStore {
             bufferAllocator.release(buffer);
             buffer = null;
             bufferAllocator = null;
-        }else{
+        } else {
             System.err.println("already released!");
         }
     }

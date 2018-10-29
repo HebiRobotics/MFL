@@ -117,7 +117,9 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
 
     @Override
     public void close() throws IOException {
-        // Ignore EMPTY_MATRIX elements
+        // Ignore EMPTY_MATRIX elements. At some
+        // point we may want to create a separate
+        // class to represent empty.
         if(this == Mat5.EMPTY_MATRIX)
             return;
 
