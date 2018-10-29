@@ -87,9 +87,7 @@ public class SourceTest {
     }
 
     private Source asSource(ByteBuffer bb) {
-        Source source = Sources.wrap(bb.duplicate());
-        source.setByteOrder(bb.order());
-        return source;
+        return Sources.wrap(bb.duplicate()).order(bb.order());
     }
 
 }

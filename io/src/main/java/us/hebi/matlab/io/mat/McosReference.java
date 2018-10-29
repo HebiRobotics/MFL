@@ -4,7 +4,10 @@ import us.hebi.matlab.io.types.*;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * Reference for handle classes, 'table', 'string', etc.
@@ -104,7 +107,7 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
     @Override
     public List<String> getFieldNames() {
-        return objects[0].getFieldNames();
+        return isEmpty() ? Collections.<String>emptyList() : objects[0].getFieldNames();
     }
 
     @Override
@@ -135,13 +138,11 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
     @Override
     public String getPackageName() {
-        return objects[0].getPackageName();
+        return isEmpty() ? "" : objects[0].getPackageName();
     }
 
     public String getClassName() {
-        if (objects.length == 0 || objects[0] == McosObject.EMPTY)
-            return className;
-        return objects[0].getClassName();
+        return isEmpty() ? className : objects[0].getClassName();
     }
 
     public Array getContent() {
@@ -150,17 +151,27 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
     @Override
     public int getMat5Size(String name) {
-        return Mat5Writer.computeOpaqueSize(name, this);
+        return computeOpaqueSize(name, this);
     }
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeOpaque(name, this, sink);
+        writeOpaque(name, this, sink);
+    }
+
+    @Override
+    public void close() throws IOException {
+        content.close();
+        // Note: backing objects get closed automatically when subsystem gets closed
     }
 
     @Override
     public String toString() {
         return super.toString() + " for '" + getClassName() + "'";
+    }
+
+    private boolean isEmpty() {
+        return objects.length == 0 || objects[0] == McosObject.EMPTY;
     }
 
     final String objectType;

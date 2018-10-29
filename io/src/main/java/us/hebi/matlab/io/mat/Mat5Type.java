@@ -39,7 +39,7 @@ public enum Mat5Type {
     Utf32(18);
 
     void writeByteBufferWithTag(ByteBuffer buffer, Sink sink) throws IOException {
-        if (bytes() > 1 && buffer.order() != sink.getByteOrder())
+        if (bytes() > 1 && buffer.order() != sink.order())
             throw new IllegalArgumentException("Buffer order does not match sink order");
 
         int position = buffer.position();

@@ -59,6 +59,17 @@ public interface MatFile extends Closeable, Iterable<NamedArray> {
     void close() throws IOException;
 
     /**
+     * Computes the resulting file size if compression is disabled. Since
+     * compression usually reduces the file size, this can be seen as a
+     * maximum expected size.
+     * <p>
+     * This is useful to e.g. pre-allocate a buffer or file that can be
+     * truncated once the actual file size is known.
+     * <p>
+     * Note that it is not guaranteed that compression will result in a
+     * smaller file size, e.g., we have seen this happen on small arrays
+     * with little data. Thus, for small arrays, you should add padding.
+     *
      * @return serialized size in bytes including header
      */
     long getUncompressedSerializedSize();
@@ -66,7 +77,9 @@ public interface MatFile extends Closeable, Iterable<NamedArray> {
     /**
      * Serializes this mat file including header and content to
      * the specified sink. The data may be compressed on the way.
+     *
+     * @return this
      */
-    void writeTo(Sink sink) throws IOException;
+    MatFile writeTo(Sink sink) throws IOException;
 
 }

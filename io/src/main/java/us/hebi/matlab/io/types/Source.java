@@ -18,9 +18,9 @@ import java.nio.ByteOrder;
  */
 public interface Source extends Closeable {
 
-    void setByteOrder(ByteOrder byteOrder);
+    Source order(ByteOrder byteOrder);
 
-    ByteOrder getByteOrder();
+    ByteOrder order();
 
     /**
      * @return current position, i.e., the number of bytes that have been read from this source

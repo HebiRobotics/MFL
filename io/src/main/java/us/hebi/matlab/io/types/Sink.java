@@ -17,9 +17,23 @@ import java.util.zip.Deflater;
  */
 public interface Sink extends Closeable {
 
-    Sink setByteOrder(ByteOrder byteOrder);
+    /**
+     * Sets the byte order of this sink to the native order
+     * of the current platform. This matches the MATLAB behavior
+     * for writing MAT files.
+     *
+     * While this is not strictly required, there is no downside,
+     * and writing native order may be slightly faster.
+     *
+     * Equivalent to .order(ByteOrder.nativeOrder())
+     *
+     * @return this
+     */
+    Sink nativeOrder();
 
-    ByteOrder getByteOrder();
+    Sink order(ByteOrder byteOrder);
+
+    ByteOrder order();
 
     /**
      * @return current position

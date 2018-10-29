@@ -20,13 +20,18 @@ import static us.hebi.matlab.common.util.Preconditions.*;
 public abstract class AbstractSink implements Sink {
 
     @Override
-    public AbstractSink setByteOrder(ByteOrder byteOrder) {
+    public AbstractSink nativeOrder() {
+        return order(ByteOrder.nativeOrder());
+    }
+
+    @Override
+    public AbstractSink order(ByteOrder byteOrder) {
         this.byteOrder = checkNotNull(byteOrder);
         return this;
     }
 
     @Override
-    public ByteOrder getByteOrder() {
+    public ByteOrder order() {
         return byteOrder;
     }
 
@@ -38,31 +43,31 @@ public abstract class AbstractSink implements Sink {
 
     @Override
     public void writeShort(short value) throws IOException {
-        byteConverter.putShort(value, getByteOrder(), bytes, 0);
+        byteConverter.putShort(value, order(), bytes, 0);
         writeBytes(bytes, 0, SIZEOF_SHORT);
     }
 
     @Override
     public void writeInt(int value) throws IOException {
-        byteConverter.putInt(value, getByteOrder(), bytes, 0);
+        byteConverter.putInt(value, order(), bytes, 0);
         writeBytes(bytes, 0, SIZEOF_INT);
     }
 
     @Override
     public void writeLong(long value) throws IOException {
-        byteConverter.putLong(value, getByteOrder(), bytes, 0);
+        byteConverter.putLong(value, order(), bytes, 0);
         writeBytes(bytes, 0, SIZEOF_LONG);
     }
 
     @Override
     public void writeFloat(float value) throws IOException {
-        byteConverter.putFloat(value, getByteOrder(), bytes, 0);
+        byteConverter.putFloat(value, order(), bytes, 0);
         writeBytes(bytes, 0, SIZEOF_FLOAT);
     }
 
     @Override
     public void writeDouble(double value) throws IOException {
-        byteConverter.putDouble(value, getByteOrder(), bytes, 0);
+        byteConverter.putDouble(value, order(), bytes, 0);
         writeBytes(bytes, 0, SIZEOF_DOUBLE);
     }
 
@@ -111,7 +116,7 @@ public abstract class AbstractSink implements Sink {
         for (int i = 0; i < length; ) {
             int n = Math.min((length - i) * SIZEOF_SHORT, bytes.length);
             for (int j = 0; j < n; j += SIZEOF_SHORT, i++) {
-                byteConverter.putShort(buffer[offset + i], getByteOrder(), bytes, j);
+                byteConverter.putShort(buffer[offset + i], order(), bytes, j);
             }
             writeBytes(bytes, 0, n);
         }
@@ -122,7 +127,7 @@ public abstract class AbstractSink implements Sink {
         for (int i = 0; i < length; ) {
             int n = Math.min((length - i) * SIZEOF_INT, bytes.length);
             for (int j = 0; j < n; j += SIZEOF_INT, i++) {
-                byteConverter.putInt(buffer[offset + i], getByteOrder(), bytes, j);
+                byteConverter.putInt(buffer[offset + i], order(), bytes, j);
             }
             writeBytes(bytes, 0, n);
         }
@@ -133,7 +138,7 @@ public abstract class AbstractSink implements Sink {
         for (int i = 0; i < length; ) {
             int n = Math.min((length - i) * SIZEOF_LONG, bytes.length);
             for (int j = 0; j < n; j += SIZEOF_LONG, i++) {
-                byteConverter.putLong(buffer[offset + i], getByteOrder(), bytes, j);
+                byteConverter.putLong(buffer[offset + i], order(), bytes, j);
             }
             writeBytes(bytes, 0, n);
         }
@@ -144,7 +149,7 @@ public abstract class AbstractSink implements Sink {
         for (int i = 0; i < length; ) {
             int n = Math.min((length - i) * SIZEOF_FLOAT, bytes.length);
             for (int j = 0; j < n; j += SIZEOF_FLOAT, i++) {
-                byteConverter.putFloat(buffer[offset + i], getByteOrder(), bytes, j);
+                byteConverter.putFloat(buffer[offset + i], order(), bytes, j);
             }
             writeBytes(bytes, 0, n);
         }
@@ -155,7 +160,7 @@ public abstract class AbstractSink implements Sink {
         for (int i = 0; i < length; ) {
             int n = Math.min((length - i) * SIZEOF_DOUBLE, bytes.length);
             for (int j = 0; j < n; j += SIZEOF_DOUBLE, i++) {
-                byteConverter.putDouble(buffer[offset + i], getByteOrder(), bytes, j);
+                byteConverter.putDouble(buffer[offset + i], order(), bytes, j);
             }
             writeBytes(bytes, 0, n);
         }
@@ -165,9 +170,7 @@ public abstract class AbstractSink implements Sink {
     public Sink writeDeflated(Deflater deflater) {
         DeflaterOutputStream deflateStream = new DeflaterOutputStream(streamWrapper, deflater, bytes.length);
         int deflateBufferSize = Math.max(1024, bytes.length);
-        Sink deflateSink = Sinks.wrapNonSeeking(deflateStream, deflateBufferSize);
-        deflateSink.setByteOrder(getByteOrder());
-        return deflateSink;
+        return Sinks.wrapNonSeeking(deflateStream, deflateBufferSize).order(order());
     }
 
     private OutputStream streamWrapper = new Sinks.SinkOutputStream(this);

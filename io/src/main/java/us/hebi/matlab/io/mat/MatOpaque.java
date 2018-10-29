@@ -4,6 +4,8 @@ import us.hebi.matlab.io.types.*;
 
 import java.io.IOException;
 
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
+
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 04 Sep 2018
@@ -36,12 +38,17 @@ class MatOpaque extends AbstractArray implements Opaque, Mat5Serializable {
 
     @Override
     public int getMat5Size(String name) {
-        return Mat5Writer.computeOpaqueSize(name, this);
+        return computeOpaqueSize(name, this);
     }
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeOpaque(name, this, sink);
+        writeOpaque(name, this, sink);
+    }
+
+    @Override
+    public void close() throws IOException {
+        content.close();
     }
 
     private final String objectType;

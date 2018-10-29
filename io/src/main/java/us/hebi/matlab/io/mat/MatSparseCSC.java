@@ -8,6 +8,7 @@ import us.hebi.matlab.io.types.Sparse;
 import java.io.IOException;
 
 import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * The lookup is implemented as a compressed column (CC) sparse
@@ -158,9 +159,10 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
 
     @Override
     public void close() throws IOException {
-        super.close();
         rowIndices.close();
         columnIndices.close();
+        real.close();
+        if (complex) imaginary.close();
     }
 
     private final NumberStore columnIndices;
@@ -174,7 +176,7 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
-                + Mat5Writer.computeArrayHeaderSize(name, this)
+                + computeArrayHeaderSize(name, this)
                 + rowIndices.getMat5Size()
                 + columnIndices.getMat5Size()
                 + real.getMat5Size()
@@ -183,8 +185,8 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
         rowIndices.writeMat5(sink);
         columnIndices.writeMat5(sink);
         real.writeMat5(sink);

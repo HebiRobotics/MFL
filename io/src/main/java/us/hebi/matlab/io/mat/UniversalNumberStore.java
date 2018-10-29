@@ -1,14 +1,14 @@
 package us.hebi.matlab.io.mat;
 
-import us.hebi.matlab.io.types.Sink;
-import us.hebi.matlab.common.util.Casts;
 import us.hebi.matlab.common.memory.Bytes;
-import us.hebi.matlab.common.memory.Resources;
+import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.io.types.Sink;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import static us.hebi.matlab.common.util.Casts.*;
+import static us.hebi.matlab.common.util.Preconditions.*;
 
 /**
  * MAT files can store numerical data in a compressed format, i.e.,
@@ -32,10 +32,26 @@ import static us.hebi.matlab.common.util.Casts.*;
  */
 class UniversalNumberStore implements NumberStore {
 
-    UniversalNumberStore(Mat5Type type, ByteBuffer buffer) {
+    /**
+     * The buffer will go into the life cycle of this store (i.e. close()),
+     * so the reference should not be used outside.
+     *
+     * @param type
+     * @param buffer
+     */
+    UniversalNumberStore(Mat5Type type, ByteBuffer buffer, BufferAllocator bufferAllocator) {
         this.type = type;
+        this.buffer = checkNotNull(buffer);
+        this.bufferAllocator = checkNotNull(bufferAllocator);
         this.numElements = buffer.remaining() / type.bytes();
-        this.buffer = buffer;
+    }
+
+    UniversalNumberStore(Mat5Type tagType, int numElements, BufferAllocator bufferAllocator) {
+        this.type = tagType;
+        this.numElements = numElements;
+        this.buffer = bufferAllocator.allocate(numElements * tagType.bytes());
+        this.buffer.order(Mat5.DEFAULT_ORDER);
+        this.bufferAllocator = bufferAllocator;
     }
 
     @Override
@@ -156,7 +172,7 @@ class UniversalNumberStore implements NumberStore {
         // this way we guarantee that the switch happens fully
         // buffered. It's also likely that any subsequent writes
         // use the same output order.
-        if (buffer.order() != sink.getByteOrder()) {
+        if (buffer.order() != sink.order()) {
             Bytes.reverseByteOrder(buffer, type.bytes());
         }
 
@@ -173,11 +189,20 @@ class UniversalNumberStore implements NumberStore {
 
     @Override
     public void close() {
-        Resources.release(buffer);
+        if (buffer == null) {
+            System.err.println("already released!");
+            return;
+        }
+
+        // Release buffer back to the allocator
+        bufferAllocator.release(buffer);
+        buffer = null;
+        bufferAllocator = null;
     }
 
     private final Mat5Type type;
     private final int numElements;
-    private final ByteBuffer buffer;
+    private ByteBuffer buffer;
+    private BufferAllocator bufferAllocator;
 
 }

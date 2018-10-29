@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import static us.hebi.matlab.io.mat.Mat5Type.*;
+import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
  * The subsystem contains various types of class information. It gets stored
@@ -21,9 +22,10 @@ import static us.hebi.matlab.io.mat.Mat5Type.*;
  */
 public final class Mat5Subsystem extends AbstractArray implements Mat5Serializable {
 
-    Mat5Subsystem(int[] dims, boolean isGlobal, ByteBuffer buffer) {
+    Mat5Subsystem(int[] dims, boolean isGlobal, ByteBuffer buffer, BufferAllocator bufferAllocator) {
         super(dims, isGlobal);
         this.buffer = buffer;
+        this.bufferAllocator = bufferAllocator;
     }
 
     @Override
@@ -38,14 +40,14 @@ public final class Mat5Subsystem extends AbstractArray implements Mat5Serializab
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
-                + Mat5Writer.computeArrayHeaderSize(name, this)
+                + computeArrayHeaderSize(name, this)
                 + UInt8.computeSerializedSize(getNumElements());
     }
 
     @Override
     public void writeMat5(String name, Sink sink) throws IOException {
-        Mat5Writer.writeMatrixTag(name, this, sink);
-        Mat5Writer.writeArrayHeader(name, this, sink);
+        writeMatrixTag(name, this, sink);
+        writeArrayHeader(name, this, sink);
         UInt8.writeByteBufferWithTag(buffer.slice(), sink);
     }
 
@@ -53,16 +55,13 @@ public final class Mat5Subsystem extends AbstractArray implements Mat5Serializab
         if (mcosRegistry.getReferences().isEmpty())
             return;
 
-        // A subsystem can have another subsystem at the end. In the tested cases
-        // the nested subsystem never contained any useful data (e.g. empty opaque
-        // array), so stop processing at this level.
-        boolean processNestedSubsystem = false;
-
         // Read the mat file that is contained within the byte buffer
-        Mat5File subFile = Mat5.newReader(Sources.wrap(buffer.slice()))
+        subFile = Mat5.newReader(Sources.wrap(buffer.slice()))
                 .setMcosRegistry(mcosRegistry)
+                .setBufferAllocator(bufferAllocator)
+                .disableSubsystemProcessing() // the Subsystem's subsystem does not contain useful data
                 .setReducedHeader(true)
-                .readFile(processNestedSubsystem);
+                .readMat();
 
         // The first entry in the top level subsystem (end of root file) contains the
         // 'FileWrapper__' object which contains the data backing the various reference
@@ -79,6 +78,18 @@ public final class Mat5Subsystem extends AbstractArray implements Mat5Serializab
 
     }
 
-    final ByteBuffer buffer;
+    @Override
+    public void close() throws IOException {
+        if (subFile != null)
+            subFile.close();
+        bufferAllocator.release(buffer);
+        buffer = null;
+        bufferAllocator = null;
+        subFile = null;
+    }
+
+    private ByteBuffer buffer;
+    private BufferAllocator bufferAllocator;
+    private Mat5File subFile;
 
 }

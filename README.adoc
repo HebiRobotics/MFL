@@ -4,7 +4,11 @@ This `MatlabTools` repo is intended to be an open source collection of some of o
 
 == MatlabTools :: IO
 
-`MatlabTools::IO` is a library that allows importing and exporting MATLAB's Level 5 MAT-Files. The Level 5 format is also known as `MAT-File Version 7` and has been the default format for `.mat` and `.fig` files since `MATLAB R14` which was released in https://en.wikipedia.org/wiki/MATLAB#Release_history[2004].
+`MatlabTools::IO` is a Java library for reading and writing MATLAB's https://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf[Level 5 MAT-File format], which has been the default for `.mat` and `.fig` files since https://en.wikipedia.org/wiki/MATLAB#Release_history[MATLAB 5.0 (R8)] in 1996. The Level 5 format includes `save` flags `-v6` and `-v7`, but not `-v4` or `-v7.3`. See MAT-File https://de.mathworks.com/help/matlab/import_export/mat-file-versions.html[Versions] for more info.
+
+The overall design goals are; 1) to be as memory efficient as possible to support working with large amounts of data on heap constrained and allocation limited environments, 2) to allow users to serialize custom data classes without having to convert to temporary objects, 3) to provide a user-friendly API that follows MATLAB's semantic behavior and reduces casts and boiler plate code wherever possible.
+
+This library is free, written in 100% Java, and has been released under an Apache v2.0 license. It works with Java 6 and higher, including Java 9 and 10.
 
 For more information and usage examples, please refer to the sub-readme at link:./io[MatlabTools::IO].
 

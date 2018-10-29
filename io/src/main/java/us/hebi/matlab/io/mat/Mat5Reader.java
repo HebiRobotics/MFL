@@ -8,7 +8,6 @@ import us.hebi.matlab.io.types.Matrix;
 import us.hebi.matlab.io.types.Opaque;
 import us.hebi.matlab.io.types.Sparse;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.Object;
 import java.nio.ByteBuffer;
@@ -16,7 +15,6 @@ import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
@@ -35,25 +33,103 @@ import static us.hebi.matlab.io.types.MatlabType.*;
  * @author Florian Enner < florian @ hebirobotics.com >
  * @since 30 Apr 2018
  */
-public class Mat5Reader implements Closeable {
+public final class Mat5Reader {
 
-    protected Mat5Reader(Source source) {
-        this.source = checkNotNull(source);
+    public static class ArrayHeader {
+
+        public int getNumElements() {
+            // [int32] as a single Mat5 element can't be larger
+            return AbstractArray.getNumElements(dimensions);
+        }
+
+        public MatlabType getType() {
+            return type;
+        }
+
+        public int[] getDimensions() {
+            return dimensions;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public boolean isLogical() {
+            return Mat5ArrayFlags.isLogical(arrayFlags);
+        }
+
+        public boolean isComplex() {
+            return Mat5ArrayFlags.isComplex(arrayFlags);
+        }
+
+        public boolean isGlobal() {
+            return Mat5ArrayFlags.isGlobal(arrayFlags);
+        }
+
+        public int getNzMax() {
+            return Mat5ArrayFlags.getNzMax(arrayFlags);
+        }
+
+        private ArrayHeader(int[] arrayFlags, MatlabType type, int[] dimensions, String name) {
+            this.arrayFlags = arrayFlags;
+            this.type = type;
+            this.dimensions = dimensions;
+            this.name = name;
+        }
+
+        final int[] arrayFlags;
+
+        final MatlabType type;
+
+        final int[] dimensions;
+
+        final String name;
+
     }
 
+    public interface ArrayFilter {
+        boolean isAccepted(ArrayHeader header);
+    }
+
+    /**
+     * Enables filtering of root-level entries based on the variable header
+     *
+     * @param filter
+     * @return this
+     */
     public Mat5Reader setArrayFilter(ArrayFilter filter) {
         this.filter = checkNotNull(filter);
         return this;
     }
 
-    public Mat5Reader enableAsyncDecompression(ExecutorService executorService) {
-        return enableAsyncDecompression(executorService, true);
+    /**
+     * Inflating compressed entries is by far the most expensive part of reading a MAT5 file.
+     * This method enables the inflation to happen concurrently, i.e., in multiple threads,
+     * to speed up reading.
+     * <p>
+     * Note that this only works for sources that can read sub-sections (slices) of the data
+     * such as buffers or memory mapped files. If the source does not support it, the source
+     * will continue to be read using a single thread.
+     *
+     * @param executorService
+     * @return this
+     */
+    public Mat5Reader enableConcurrentDecompression(ExecutorService executorService) {
+        this.executorService = checkNotNull(executorService);
+        return this;
     }
 
-    public Mat5Reader enableAsyncDecompression(ExecutorService executorService, boolean checkSourceSupport) {
-        if (checkSourceSupport && source.isMutatedByChildren())
-            throw new IllegalArgumentException("Async decompression is not supported by the specified source");
-        this.asyncExecutor = checkNotNull(executorService);
+    /**
+     * Sets the buffer allocator that gets used for creating any buffer-backed array. Buffers
+     * will be released when the array or containing mat file gets closed. This is not a
+     * common use case, but may be useful when working with buffer pools or large memory
+     * mapped buffers.
+     *
+     * @param bufferAllocator
+     * @return this
+     */
+    public Mat5Reader setBufferAllocator(BufferAllocator bufferAllocator) {
+        this.bufferAllocator = bufferAllocator;
         return this;
     }
 
@@ -67,25 +143,35 @@ public class Mat5Reader implements Closeable {
         return this;
     }
 
-    public Mat5Reader setMcosRegistry(McosRegistry registry) {
+    /**
+     * Disables processing of the (optional) subsystem that contains the data backing reference objects
+     * such as handle classes (e.g. 'table'). The main reason for this method being public is that the
+     * subsystem format is undocumented and unsupported. If you encounter a MAT file that fails processing,
+     * disabling it will let you access at least all of the documented parts of the file. If this happens,
+     * please also file a bug report.
+     *
+     * @return this
+     */
+    public Mat5Reader disableSubsystemProcessing() {
+        this.processSubsystem = false;
+        return this;
+    }
+
+    Mat5Reader setMcosRegistry(McosRegistry registry) {
         this.mcos = checkNotNull(registry);
         return this;
     }
 
-    public final Mat5File readFile() throws IOException {
-        return readFile(true);
-    }
-
-    public final Mat5File readFile(boolean processReferences) throws IOException {
+    public final Mat5File readMat() throws IOException {
         try {
 
             // Read header and determine byte order
             long start = source.getPosition();
-            Mat5File matFile = readFileWithoutContent();
+            Mat5File matFile = readMatHeader();
             this.subsysPosition = start + matFile.getSubsysOffset();
 
             // Generate content structure
-            for (Future<NamedArray> task : readContent()) {
+            for (Future<NamedArray> task : readMatContent()) {
                 NamedArray variable = task.get();
                 if (variable != null) {
                     matFile.addArray(variable);
@@ -93,31 +179,29 @@ public class Mat5Reader implements Closeable {
             }
 
             // Process references
-            if (matFile.getSubsystem() != null && processReferences)
+            if (matFile.getSubsystem() != null && processSubsystem)
                 matFile.getSubsystem().processReferences(mcos);
 
             return matFile;
 
-        } catch (ExecutionException exe) {
-            throw new IOException(exe);
-        } catch (InterruptedException ie) {
-            throw new RuntimeException(ie);
+        } catch (Exception e) {
+            throw new IOException(e);
         }
 
     }
 
-    public final Mat5File readFileWithoutContent() throws IOException {
-        source.setByteOrder(ByteOrder.nativeOrder());
+    private Mat5File readMatHeader() throws IOException {
+        source.order(ByteOrder.nativeOrder());
         final Mat5File matFile;
         if (reducedHeader)
             matFile = Mat5File.readReducedFileHeader(source);
         else
             matFile = Mat5File.readFileHeader(source);
-        source.setByteOrder(matFile.getByteOrder());
+        source.order(matFile.getByteOrder());
         return matFile;
     }
 
-    public final List<Future<NamedArray>> readContent() throws IOException {
+    private List<Future<NamedArray>> readMatContent() throws IOException {
         List<Future<NamedArray>> content = new ArrayList<Future<NamedArray>>();
         Mat5Tag tag = Mat5Tag.readTagOrNull(source);
         while (tag != null) {
@@ -127,11 +211,11 @@ public class Mat5Reader implements Closeable {
         return content;
     }
 
-    protected final Mat5Tag readTag() throws IOException {
+    private Mat5Tag readTag() throws IOException {
         return Mat5Tag.readTag(source);
     }
 
-    public final Future<NamedArray> readNamedRootArray(Mat5Tag tag) throws IOException {
+    private Future<NamedArray> readNamedRootArray(Mat5Tag tag) throws IOException {
         checkArgument(tag.getNumBytes() != 0, "Root element contains no data");
         long expectedEnd = source.getPosition() + tag.getNumBytes() + tag.getPadding();
 
@@ -170,7 +254,7 @@ public class Mat5Reader implements Closeable {
                     @Override
                     public NamedArray call() throws IOException {
                         try {
-                            return createReader(inflated)
+                            return createChildReader(inflated)
                                     .atRoot(atSubsys)
                                     .readNamedArray();
                         } finally {
@@ -180,8 +264,8 @@ public class Mat5Reader implements Closeable {
                 };
 
                 // If possible execute it asynchronously
-                boolean runAsync = !source.isMutatedByChildren() && asyncExecutor != null;
-                return runAsync ? asyncExecutor.submit(task) : Tasks.wrapAsFuture(task.call());
+                boolean runAsync = !source.isMutatedByChildren() && executorService != null;
+                return runAsync ? executorService.submit(task) : Tasks.wrapAsFuture(task.call());
 
             }
 
@@ -204,7 +288,7 @@ public class Mat5Reader implements Closeable {
      *
      * @return this
      */
-    protected Mat5Reader atRoot(boolean atSubsys) {
+    private Mat5Reader atRoot(boolean atSubsys) {
         nextIsSubsys = atSubsys;
         mayFilterNext = true;
         return this;
@@ -220,12 +304,7 @@ public class Mat5Reader implements Closeable {
         }
     }
 
-    @Override
-    public void close() throws IOException {
-        source.close();
-    }
-
-    public final NamedArray readNamedArray() throws IOException {
+    private NamedArray readNamedArray() throws IOException {
         Mat5Tag tag = readTagWithExpectedType(Matrix);
         // Sometimes there are completely empty Matrix tags. In that
         // case, return empty matrix rather than null.
@@ -343,7 +422,7 @@ public class Mat5Reader implements Closeable {
 
         // Store data as bytes directly
         ByteBuffer buffer = readAsByteBuffer(readTagWithExpectedType(UInt8));
-        return new Mat5Subsystem(header.getDimensions(), header.isGlobal(), buffer);
+        return new Mat5Subsystem(header.getDimensions(), header.isGlobal(), buffer, bufferAllocator);
     }
 
     private Array readNumerical(ArrayHeader header) throws IOException {
@@ -477,73 +556,17 @@ public class Mat5Reader implements Closeable {
 
     }
 
-    public interface ArrayFilter {
-        boolean isAccepted(ArrayHeader header);
-    }
-
-    public static class ArrayHeader {
-
-        public int getNumElements() {
-            // [int32] as a single Mat5 element can't be larger
-            return AbstractArray.getNumElements(dimensions);
-        }
-
-        public MatlabType getType() {
-            return type;
-        }
-
-        public int[] getDimensions() {
-            return dimensions;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public boolean isLogical() {
-            return Mat5ArrayFlags.isLogical(arrayFlags);
-        }
-
-        public boolean isComplex() {
-            return Mat5ArrayFlags.isComplex(arrayFlags);
-        }
-
-        public boolean isGlobal() {
-            return Mat5ArrayFlags.isGlobal(arrayFlags);
-        }
-
-        public int getNzMax() {
-            return Mat5ArrayFlags.getNzMax(arrayFlags);
-        }
-
-        private ArrayHeader(int[] arrayFlags, MatlabType type, int[] dimensions, String name) {
-            this.arrayFlags = arrayFlags;
-            this.type = type;
-            this.dimensions = dimensions;
-            this.name = name;
-        }
-
-        final int[] arrayFlags;
-
-        final MatlabType type;
-
-        final int[] dimensions;
-
-        final String name;
-
-    }
-
     private static String readAsAscii(Mat5Tag tag) throws IOException {
         return CharEncoding.parseAsciiString(tag.readAsBytes());
     }
 
     private NumberStore readAsNumberStore(Mat5Tag tag) throws IOException {
-        return new UniversalNumberStore(tag.getType(), readAsByteBuffer(tag));
+        return new UniversalNumberStore(tag.getType(), readAsByteBuffer(tag), bufferAllocator);
     }
 
     private ByteBuffer readAsByteBuffer(Mat5Tag tag) throws IOException {
-        ByteBuffer buffer = Mat5.allocateBuffer(tag.getNumBytes());
-        buffer.order(source.getByteOrder());
+        ByteBuffer buffer = bufferAllocator.allocate(tag.getNumBytes());
+        buffer.order(source.order());
         source.readByteBuffer(buffer);
         source.skip(tag.getPadding());
         buffer.rewind();
@@ -557,44 +580,45 @@ public class Mat5Reader implements Closeable {
         return tag;
     }
 
-    protected static final IOException readError(String format, Object... args) {
+    static IOException readError(String format, Object... args) {
         return new IOException(String.format(format, args));
     }
 
-    // ------------------------- Overridable factory methods
+    // ------------------------- Factory methods
 
-    protected Mat5Reader createReader(Source source) {
+    private Mat5Reader createChildReader(Source source) {
         Mat5Reader reader = new Mat5Reader(source);
         reader.filter = this.filter;
         reader.mcos = this.mcos;
+        reader.bufferAllocator = this.bufferAllocator;
         return reader;
     }
 
-    protected Matrix createMatrix(int[] dimensions, MatlabType type, boolean global, boolean logical, NumberStore real, NumberStore imaginary) {
+    private Matrix createMatrix(int[] dimensions, MatlabType type, boolean global, boolean logical, NumberStore real, NumberStore imaginary) {
         return new MatMatrix(dimensions, global, type, logical, real, imaginary);
     }
 
-    protected Sparse createSparse(int[] dimensions, boolean global, boolean logical, int nzMax, NumberStore real, NumberStore imaginary, NumberStore rowIndices, NumberStore colIndices) {
+    private Sparse createSparse(int[] dimensions, boolean global, boolean logical, int nzMax, NumberStore real, NumberStore imaginary, NumberStore rowIndices, NumberStore colIndices) {
         return new MatSparseCSC(dimensions, global, logical, nzMax, real, imaginary, rowIndices, colIndices);
     }
 
-    protected Char createChar(int[] dims, boolean global, CharEncoding encoding, CharBuffer buffer) {
+    private Char createChar(int[] dims, boolean global, CharEncoding encoding, CharBuffer buffer) {
         return new MatChar(dims, global, encoding, buffer);
     }
 
-    protected Cell createCell(int[] dims, boolean global, Array[] contents) {
+    private Cell createCell(int[] dims, boolean global, Array[] contents) {
         return new MatCell(dims, global, contents);
     }
 
-    protected Struct createStruct(int[] dims, boolean isGlobal, String[] names, Array[][] values) {
+    private Struct createStruct(int[] dims, boolean isGlobal, String[] names, Array[][] values) {
         return new MatStruct(dims, isGlobal, names, values);
     }
 
-    protected ObjectStruct createObject(int[] dims, boolean isGlobal, String className, String[] names, Array[][] values) {
+    private ObjectStruct createObject(int[] dims, boolean isGlobal, String className, String[] names, Array[][] values) {
         return new MatObjectStruct(dims, isGlobal, className, names, values);
     }
 
-    protected Opaque createOpaque(boolean isGlobal, String objectType, String className, Array content) {
+    private Opaque createOpaque(boolean isGlobal, String objectType, String className, Array content) {
         // Serialized Java object
         if ("java".equals(objectType))
             return new MatJavaObject(isGlobal, className, content);
@@ -602,14 +626,20 @@ public class Mat5Reader implements Closeable {
         // MCOS (Matlab Class Object System) related entries
         if ("MCOS".equals(objectType)) {
             if ("FileWrapper__".equals(className)) {
-                return new McosFileWrapper(isGlobal, objectType, className, content, source.getByteOrder());
+                // Special element that contains data for reference objects
+                return new McosFileWrapper(isGlobal, objectType, className, content, source.order());
             } else {
+                // Pointer to a reference object
                 return mcos.register(McosReference.parseOpaque(isGlobal, objectType, className, content));
             }
         }
 
         // Generic Opaque object
         return new MatOpaque(isGlobal, objectType, className, content);
+    }
+
+    Mat5Reader(Source source) {
+        this.source = checkNotNull(source, "Source can't be empty");
     }
 
     private final Source source;
@@ -620,8 +650,10 @@ public class Mat5Reader implements Closeable {
     private boolean mayFilterNext = false;
     private boolean reducedHeader = false;
     private ArrayFilter filter = null;
-    private ExecutorService asyncExecutor = null;
+    private ExecutorService executorService = null;
+    private boolean processSubsystem = true;
     private int maxInflateBufferSize = 2048;
     private McosRegistry mcos = new McosRegistry();
+    private BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
 
 }
