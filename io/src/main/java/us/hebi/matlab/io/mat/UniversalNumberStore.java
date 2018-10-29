@@ -172,7 +172,7 @@ class UniversalNumberStore implements NumberStore {
         // this way we guarantee that the switch happens fully
         // buffered. It's also likely that any subsequent writes
         // use the same output order.
-        if (checkNotNull(buffer.order(), "buffer") != checkNotNull(sink, "sink").order()) {
+        if (buffer.order() != sink.order()) {
             Bytes.reverseByteOrder(buffer, type.bytes());
         }
 
@@ -189,14 +189,15 @@ class UniversalNumberStore implements NumberStore {
 
     @Override
     public void close() {
-        if (buffer != null) {
-            // Release buffer back to the allocator
-            bufferAllocator.release(buffer);
-            buffer = null;
-            bufferAllocator = null;
-        } else {
+        if (buffer == null) {
             System.err.println("already released!");
+            return;
         }
+
+        // Release buffer back to the allocator
+        bufferAllocator.release(buffer);
+        buffer = null;
+        bufferAllocator = null;
     }
 
     private final Mat5Type type;
