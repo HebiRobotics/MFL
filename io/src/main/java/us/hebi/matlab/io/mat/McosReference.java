@@ -107,7 +107,7 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
     @Override
     public List<String> getFieldNames() {
-        return isEmpty() ? Collections.emptyList() : objects[0].getFieldNames();
+        return isEmpty() ? Collections.<String>emptyList() : objects[0].getFieldNames();
     }
 
     @Override
