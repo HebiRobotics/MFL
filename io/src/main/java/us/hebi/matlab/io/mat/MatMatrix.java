@@ -117,6 +117,10 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
 
     @Override
     public void close() throws IOException {
+        // Ignore EMPTY_MATRIX elements
+        if(this == Mat5.EMPTY_MATRIX)
+            return;
+
         real.close();
         if (imaginary != null)
             imaginary.close();

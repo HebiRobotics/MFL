@@ -188,18 +188,14 @@ class UniversalNumberStore implements NumberStore {
 
     @Override
     public void close() {
-        // Ignore EMPTY_MATRIX
-        if (this == ((MatMatrix) Mat5.EMPTY_MATRIX).getRealStore())
-            return;
-
-        if (buffer == null) {
+        if (buffer != null) {
+            // Release buffer back to the allocator
+            bufferAllocator.release(buffer);
+            buffer = null;
+            bufferAllocator = null;
+        }else{
             System.err.println("already released!");
-            return;
         }
-
-        bufferAllocator.release(buffer);
-        buffer = null;
-        bufferAllocator = null;
     }
 
     private final Mat5Type type;
