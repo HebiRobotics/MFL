@@ -43,7 +43,7 @@ public abstract class AbstractCharBase extends AbstractArray implements Char {
         // thread local might be too large and use is likely single threaded
         synchronized (builder) {
             // Make sure there is enough space
-            builder.setLength(numCols);
+            builder.ensureCapacity(numCols);
             builder.setLength(0);
 
             // Read until end of string character

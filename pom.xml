@@ -4,26 +4,63 @@
 
     <groupId>us.hebi.matlab</groupId>
     <artifactId>tools-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>MatlabTools Parent</name>
+    <name>MatlabTools</name>
     <description>
-        Contains Java libraries for interfacing with MATLAB
+        Collection of Java libraries for interfacing with MATLAB
     </description>
 
-    <!-- Modules -->
+    <!-- Maven Central configuration copied from https://github.com/davidcarboni/releaser -->
+    <!-- Required: license information: -->
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <!-- Required: source control information: -->
+    <scm>
+        <url>https://github.com/HebiRobotics/MatlabTools</url>
+        <connection>scm:git:git://github.com/HebiRobotics/MatlabTools.git</connection>
+        <developerConnection>scm:git:git@github.com:HebiRobotics/MatlabTools.git</developerConnection>
+    </scm>
+
+    <!-- Maven Central Distribution -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/
+            </url>
+        </repository>
+    </distributionManagement>
+
+    <!-- Required: developer information: -->
+    <developers>
+        <developer>
+            <id>ennerf</id>
+            <name>Florian Enner</name>
+            <email>florian@hebirobotics.com</email>
+            <url>https://github.com/ennerf</url>
+            <organization>HEBI Robotics</organization>
+            <organizationUrl>https://github.com/HebiRobotics</organizationUrl>
+        </developer>
+    </developers>
+
+    <!-- Sub-Modules -->
     <modules>
         <module>io</module>
     </modules>
 
     <properties>
-
-        <!-- Dependency versions. KEEP IN ALPHABETICAL ORDER-->
-        <junit.version>4.12</junit.version>
-
-        <!-- Other Properties -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Set Syntax level to Java9 so that IDEs don't complain about the module-info.java
          and so we can use try-with-resources and Lambdas in test Syntax -->
@@ -33,41 +70,52 @@
         <!-- Set the actual target to minimum Java version compatible with Matlab >2009a -->
         <matlab.target>1.6</matlab.target>
 
+        <!-- Other Settings -->
+        <gpg.passphrase/> <!-- set via settings.xml to sign release artifacts-->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
     </properties>
 
-    <!-- Dependency management. KEEP IN ALPHABETICAL ORDER-->
+    <!-- Dependency management (keep in alphabetical order) -->
     <dependencyManagement>
         <dependencies>
 
             <dependency> <!-- Unit Tests -->
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
 
         </dependencies>
     </dependencyManagement>
 
-    <!-- Source code and distribution management -->
-    <scm>
-        <developerConnection>
-            https://github.com/ennerf/MatlabTools
-        </developerConnection>
-        <url>https://github.com/ennerf/MatlabTools</url>
-    </scm>
-
+    <!-- Build Process -->
     <build>
+
+        <!-- Include the README, NOTICE and LICENSE files: -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}</directory>
+                <includes>
+                    <include>README*</include>
+                    <include>NOTICE*</include>
+                    <include>LICENSE*</include>
+                </includes>
+            </resource>
+        </resources>
+
         <pluginManagement>
             <plugins>
 
-                <!-- Compile in 2 stages so we can get Java9 module-info w/ target sources -->
-                <!-- https://maven.apache.org/plugins/maven-compiler-plugin/examples/module-info.html -->
+                <!-- Compile in 2 stages so we can get a Java 9 module-info w/ target sources -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.0</version>
                     <executions>
+
+                        <!-- https://maven.apache.org/plugins/maven-compiler-plugin/examples/module-info.html -->
 
                         <!-- 1) default-compile: Compile everything w/ Java 9 to make sure the module-info is correct -->
                         <!-- (called implicitly) -->
@@ -96,6 +144,87 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!-- Optional: ensure the manifest contains artifact version information: -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <!-- Required: source JAR -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>2.2.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Required: javadoc JAR -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.9.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadoc</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Release -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <configuration>
+                        <localCheckout>true</localCheckout>
+                        <pushChanges>false</pushChanges>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                        <!-- manual passphrase entry if unspecified -->
+                        <!--<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>-->
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-provider-gitexe</artifactId>
+                            <version>1.11.1</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <!-- Deployment -->
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.6.4</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <serverId>sonatype-nexus-staging</serverId>
+                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    </configuration>
                 </plugin>
 
             </plugins>
@@ -131,6 +260,36 @@
                 </pluginManagement>
             </build>
         </profile>
+
+        <!-- GPG Signature on release -->
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
     </profiles>
 
 </project>

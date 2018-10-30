@@ -2,9 +2,11 @@
 
 == Introduction
 
-`MatlabTools::IO` is a Java library for reading and writing MATLAB's https://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf[Level 5 MAT-File format], which has been the default for `.mat` and `.fig` files since https://en.wikipedia.org/wiki/MATLAB#Release_history[MATLAB 5.0 (R8)] in 1996. The Level 5 format includes `save` flags `-v6` and `-v7`, but not `-v4` or `-v7.3`. See MAT-File https://de.mathworks.com/help/matlab/import_export/mat-file-versions.html[Versions] for more info.
+`MatlabTools::IO` is a Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format.
 
-The overall design goals are; 1) to be as memory efficient as possible to support working with large amounts of data on heap constrained and allocation limited environments, 2) to allow users to serialize custom data classes without having to convert to temporary objects, 3) to provide a user-friendly API that follows MATLAB's semantic behavior and reduces casts and boiler plate code wherever possible.
+It's overall design goals are; 1) to support working with large amounts of data on heap constrained and allocation limited environments, 2) to allow users to serialize custom data classes without having to convert to temporary objects, 3) to provide a user-friendly API that adheres to MATLAB's semantic behavior.
+
+This library currently supports the https://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf[Level 5 MAT-File Format] which has been the default for `.mat` and `.fig` files since https://en.wikipedia.org/wiki/MATLAB#Release_history[MATLAB 5.0 (R8)] in 1996. This includes `save` flags `-v6` and `-v7`, but not `-v4` or `-v7.3`. See MAT-File https://de.mathworks.com/help/matlab/import_export/mat-file-versions.html[Versions] for more info.
 
 This library is free, written in 100% Java, and has been released under an Apache v2.0 license. It works with Java 6 and higher, including Java 9 and 10.
 
@@ -41,7 +43,7 @@ try(Sink sink = Sinks.newStreamingFile("data.mat")){
 }
 ```
 
-The `MatFile` can also be written to disk using a memory-mapped file. We can initialize the file size with the worst case, and then automatically truncate it once the `Sink` is closed.
+The `MatFile` can also be written to disk using a memory-mapped file. We can initialize the file with the maximum expected size, and then automatically truncate it once the `Sink` is closed.
 
 ```Java
 // Serialize to memory-mapped file w/ custom deflate level
@@ -158,3 +160,5 @@ Our current implementation supports reading all of the `.mat` and `.fig` files w
 https://github.com/diffplug/matfilerw[MatFileRW] (active fork of https://github.com/gradusnikov/jmatio[JMatIO] maintained by link:http://diffplug.com/[DiffPlug]) served as an inspiration for parts of the implementation as well as a source for test data. We ended up porting and supporting all of their unit tests with the exception of `Base64 MDL` decoding (which we couldn't figure out the use case for).
 
 The implementation for reading the undocumented `MCOS` (MATLAB Class Object System) data is based on https://github.com/mbauman[Matt Bauman]'s http://nbviewer.jupyter.org/gist/mbauman/9121961[reverse engineering efforts] as well as MatFileRW's implementation by https://github.com/MJDSys[Matthew Dawson].
+
+`Preconditions` was copied from link:https://github.com/google/guava[Guava].
