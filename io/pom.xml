@@ -10,12 +10,14 @@
 
     <artifactId>mat-io</artifactId>
     <version>0.2-SNAPSHOT</version>
-    <name>MAT-File IO</name>
     <packaging>jar</packaging>
 
+    <name>MAT-File IO</name>
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
+
+
 
     <dependencies>
 
