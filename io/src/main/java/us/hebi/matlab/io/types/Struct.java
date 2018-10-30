@@ -11,7 +11,7 @@ import java.util.List;
  * - When setting a new field to a value, all other elements
  * in the array w/ field are initialized to empty
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public interface Struct extends Array {

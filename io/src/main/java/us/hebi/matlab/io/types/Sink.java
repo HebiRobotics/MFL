@@ -12,7 +12,7 @@ import java.util.zip.Deflater;
  * Serves as a target for writing Mat files. Targets can include
  * files, buffers, memory-mapped files, OutputStreams, etc.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 May 2018
  */
 public interface Sink extends Closeable {
@@ -21,10 +21,10 @@ public interface Sink extends Closeable {
      * Sets the byte order of this sink to the native order
      * of the current platform. This matches the MATLAB behavior
      * for writing MAT files.
-     *
+     * <p>
      * While this is not strictly required, there is no downside,
      * and writing native order may be slightly faster.
-     *
+     * <p>
      * Equivalent to .order(ByteOrder.nativeOrder())
      *
      * @return this
@@ -79,28 +79,29 @@ public interface Sink extends Closeable {
      * <p>
      * Note that the child sink's byte order is the same as the parent's.
      *
-     * @param deflater
-     * @return
+     * @param deflater deflater
+     * @return child sink that writes deflated data into this sink
      */
     Sink writeDeflated(Deflater deflater);
 
     /**
      * Same behavior as
-     * <p>
-     * while(byteBuffer.remaining() > 0){
-     * writeByte((byte) byteBuffer.get());
-     * }
      *
-     * @param buffer
-     * @throws IOException
+     * <pre>{@code
+     * while(byteBuffer.remaining() > 0){
+     *     writeByte((byte) byteBuffer.get());
+     * }
+     * }</pre>
+     *
+     * @param buffer buffer
      */
     void writeByteBuffer(ByteBuffer buffer) throws IOException;
 
     /**
      * Reads N bytes from the input stream and writes them into this sink
      *
-     * @param input
-     * @param length
+     * @param input input source
+     * @param length number of bytes to be read
      * @throws IOException EOF if the source failed
      */
     void writeInputStream(InputStream input, long length) throws IOException;
@@ -108,9 +109,9 @@ public interface Sink extends Closeable {
     /**
      * Reads N bytes from the DataInput and writes them into this sink
      *
-     * @param input
-     * @param length
-     * @throws IOException
+     * @param input input source
+     * @param length number of bytes to be read
+     * @throws IOException EOF if the data input does not have enough data
      */
     void writeDataInput(DataInput input, long length) throws IOException;
 

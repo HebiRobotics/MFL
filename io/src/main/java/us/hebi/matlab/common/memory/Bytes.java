@@ -4,7 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 27 Aug 2018
  */
 public class Bytes {

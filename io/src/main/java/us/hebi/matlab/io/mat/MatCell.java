@@ -10,7 +10,7 @@ import java.util.Arrays;
 import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 29 Aug 2018
  */
 class MatCell extends AbstractCell implements Mat5Serializable {

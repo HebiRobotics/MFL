@@ -3,7 +3,7 @@ package us.hebi.matlab.io.types;
 /**
  * Forwards convenience overloads to a minimum required set
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 Sep 2018
  */
 public abstract class AbstractCellBase extends AbstractArray implements Cell {

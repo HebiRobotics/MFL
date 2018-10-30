@@ -7,7 +7,7 @@ import java.io.ObjectInputStream;
 import java.nio.ByteBuffer;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 01 Sep 2018
  */
 class MatJavaObject extends MatOpaque implements JavaObject {

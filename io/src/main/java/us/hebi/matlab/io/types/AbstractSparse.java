@@ -1,7 +1,7 @@
 package us.hebi.matlab.io.types;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 Sep 2018
  */
 public abstract class AbstractSparse extends AbstractMatrixBase implements Sparse {

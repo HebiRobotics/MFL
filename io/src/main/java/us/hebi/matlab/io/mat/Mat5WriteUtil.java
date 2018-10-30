@@ -20,7 +20,7 @@ import static us.hebi.matlab.io.types.MatlabType.*;
 /**
  * Static utility methods for serializing custom classes
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 26 Oct 2018
  */
 public class Mat5WriteUtil {

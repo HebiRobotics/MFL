@@ -16,7 +16,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
 import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 May 2018
  */
 public final class Mat5Writer {
@@ -42,7 +42,7 @@ public final class Mat5Writer {
      * Non-compressed data will continue to be written using the calling thread. Arrays will
      * always be written in the input order, even if the file uses mixed compression.
      *
-     * @param executorService
+     * @param executorService executorService
      * @return this
      */
     public Mat5Writer enableConcurrentCompression(ExecutorService executorService) {
@@ -54,7 +54,7 @@ public final class Mat5Writer {
      * temporary buffers should be allocated. Allocated buffers get released once they are
      * no longer needed. This is useful when working with buffer pools or memory mapped buffers.
      *
-     * @param bufferAllocator
+     * @param bufferAllocator bufferAllocator
      * @return this
      */
     public Mat5Writer enableConcurrentCompression(ExecutorService executorService, BufferAllocator bufferAllocator) {
@@ -181,7 +181,7 @@ public final class Mat5Writer {
      * once.
      *
      * @return this
-     * @throws IOException
+     * @throws IOException if writing to the Sink fails
      */
     public Mat5Writer flush() throws IOException {
         // Write all entries

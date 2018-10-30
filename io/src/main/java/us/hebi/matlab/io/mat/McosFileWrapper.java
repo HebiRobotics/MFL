@@ -23,7 +23,7 @@ import static us.hebi.matlab.io.mat.McosReference.*;
  * (http://nbviewer.jupyter.org/gist/mbauman/9121961) as well as the
  * implementation in JMatIO / MatFileRW by Matthew Dawson.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 05 Sep 2018
  */
 class McosFileWrapper extends MatOpaque {

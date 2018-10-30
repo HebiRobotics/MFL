@@ -19,7 +19,7 @@ import static us.hebi.matlab.common.util.Casts.*;
 import static us.hebi.matlab.common.util.Preconditions.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 08 Sep 2018
  */
 public class MatTestUtil {

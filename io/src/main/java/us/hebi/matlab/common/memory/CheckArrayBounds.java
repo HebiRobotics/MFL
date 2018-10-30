@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 import static us.hebi.matlab.common.memory.Bytes.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 28 Aug 2018
  */
 class CheckArrayBounds implements ByteConverter {

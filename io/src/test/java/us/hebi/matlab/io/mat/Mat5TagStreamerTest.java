@@ -10,7 +10,7 @@ import java.io.InputStream;
 import static org.junit.Assert.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 26 Aug 2018
  */
 public class Mat5TagStreamerTest {

@@ -47,9 +47,9 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
  * If the short gets returned as 'IM' it indicates that the byte order needs to be swapped.
  *
  * <p>
- * {@see http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf}
+ * @see <a href="http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf">MAT-File Format</a>
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 30 Aug 2018
  */
 public class Mat5File extends AbstractMatFile {

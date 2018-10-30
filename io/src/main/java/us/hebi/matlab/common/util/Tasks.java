@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 May 2018
  */
 public class Tasks {

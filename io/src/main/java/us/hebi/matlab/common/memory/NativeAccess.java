@@ -16,7 +16,7 @@ import java.nio.ByteOrder;
  * <p>
  * sun.misc.Unsafe.putInt(Object object, long offset);
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 28 Aug 2018
  */
 public interface NativeAccess {

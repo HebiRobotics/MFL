@@ -11,7 +11,7 @@ import java.io.IOException;
 import static org.junit.Assert.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 11 Sep 2018
  */
 public class SubsystemTest {

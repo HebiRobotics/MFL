@@ -6,7 +6,7 @@ package us.hebi.matlab.io.types;
  * - Contains other Arrays
  * - Can be N-dimensional
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public interface Cell extends Array {

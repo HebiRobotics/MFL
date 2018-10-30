@@ -5,7 +5,7 @@ import java.util.Locale;
 /**
  * Utility methods that provide information about the underlying platform.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 19 Oct 2018
  */
 public final class PlatformInfo {

@@ -3,7 +3,7 @@ package us.hebi.matlab.common.memory;
 import java.nio.ByteOrder;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 28 Aug 2018
  */
 class NativeOrderConverter implements NativeAccess {

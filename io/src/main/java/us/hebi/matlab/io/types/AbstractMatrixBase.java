@@ -5,7 +5,7 @@ import us.hebi.matlab.common.util.Casts;
 /**
  * Forwards convenience accessors to the minimum required set
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public abstract class AbstractMatrixBase extends AbstractArray implements Matrix {

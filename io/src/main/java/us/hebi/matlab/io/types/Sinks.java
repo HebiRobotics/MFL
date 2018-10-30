@@ -14,7 +14,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
 /**
  * Factory for creating sinks for various types of output targets
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 May 2018
  */
 public class Sinks {
@@ -23,9 +23,9 @@ public class Sinks {
      * Creates a new file that continuously expands until it is closed. Supports
      * files that can become larger than 2 GB.
      *
-     * @param file
-     * @return
-     * @throws IOException
+     * @param file target file
+     * @return sink writing to file
+     * @throws IOException if file can't be opened
      */
     public static Sink newStreamingFile(final File file) throws IOException {
         checkFile(file);
@@ -66,10 +66,10 @@ public class Sinks {
      * truncates the backing file to the actual size once closed. Supports a
      * max file size of 2 GB.
      *
-     * @param file
-     * @param maxExpectedSize
-     * @return
-     * @throws IOException
+     * @param file target file
+     * @param maxExpectedSize initial size of the file
+     * @return sink writing to file
+     * @throws IOException if file can't be opened
      */
     public static Sink newMappedFile(File file, int maxExpectedSize) throws IOException {
         checkFile(file);
@@ -102,8 +102,8 @@ public class Sinks {
      * Wraps an existing output stream. This does not support position seeking, which
      * may prohibit some functionality. Used internally for creating deflated sub-sinks.
      *
-     * @param outputStream
-     * @return
+     * @param outputStream outputStream
+     * @return sink writing to the output stream
      */
     public static Sink wrapNonSeeking(OutputStream outputStream) {
         return wrapNonSeeking(outputStream, defaultCopyBufferSize);

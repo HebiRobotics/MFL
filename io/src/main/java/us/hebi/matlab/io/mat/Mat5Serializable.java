@@ -10,13 +10,13 @@ import java.io.IOException;
  * <p>
  * The serialized bytes include any necessary tags (e.g. matrix tag) and padding
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 29 Aug 2018
  */
 public interface Mat5Serializable {
 
     /**
-     * @param name
+     * @param name name
      * @return Number of serialized bytes including the Matrix tag
      */
     int getMat5Size(String name);

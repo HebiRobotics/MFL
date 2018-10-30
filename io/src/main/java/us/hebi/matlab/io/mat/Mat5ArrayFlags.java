@@ -7,7 +7,7 @@ import us.hebi.matlab.io.types.*;
  * Utilities to deal with the int[2] array flags that are
  * at the beginning of each array.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 14 Sep 2018
  */
 class Mat5ArrayFlags {

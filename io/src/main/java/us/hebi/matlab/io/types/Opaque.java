@@ -5,7 +5,7 @@ package us.hebi.matlab.io.types;
  * things like the references of handle types as well as
  * serialized Java objects.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 04 Sep 2018
  */
 public interface Opaque extends Array {

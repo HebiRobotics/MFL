@@ -10,7 +10,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
  * should always have an empty name as structs store the name of each field,
  * and cell arrays don't use names at all.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 8 May 2018
  */
 public final class NamedArray {

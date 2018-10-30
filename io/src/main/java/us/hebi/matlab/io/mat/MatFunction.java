@@ -7,7 +7,7 @@ import java.io.IOException;
 import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 02 Sep 2018
  */
 class MatFunction extends AbstractArray implements FunctionHandle, Mat5Serializable {

@@ -16,7 +16,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
  * as an Opaque Object, i.e., single dimension element that contains
  * data about what it should look like.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 05 Sep 2018
  */
 class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, Mat5Serializable {

@@ -8,7 +8,7 @@ import java.security.AccessController;
 import java.security.PrivilegedExceptionAction;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 31 Aug 2018
  */
 class UnsafeAccess {

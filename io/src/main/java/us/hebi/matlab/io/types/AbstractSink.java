@@ -14,7 +14,7 @@ import static us.hebi.matlab.common.memory.Bytes.*;
 import static us.hebi.matlab.common.util.Preconditions.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 May 2018
  */
 public abstract class AbstractSink implements Sink {

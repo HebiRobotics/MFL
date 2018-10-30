@@ -13,7 +13,7 @@ import java.util.Map;
  * contain multiple such objects. The property map forms automatically
  * and in the same order as the properties were added.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 class McosObject {

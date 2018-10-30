@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Basic implementation for keeping track of the contents of a MAT file
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 04 May 2018
  */
 public abstract class AbstractMatFile extends AbstractMatFileBase {

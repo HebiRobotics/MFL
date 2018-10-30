@@ -11,7 +11,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
  * Utilities for working with native memory such as freeing the memory
  * backing direct ByteBuffers.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 31 Aug 2018
  */
 public class NativeMemory {

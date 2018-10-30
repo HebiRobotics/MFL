@@ -7,10 +7,10 @@ package us.hebi.matlab.io.types;
  * - non-complex matrices always read zero for the imaginary part
  * - returned value gives the same result as reading the value and casting it in MATLAB, e.g., 'x = int8(value(index))'
  * - Java has no unsigned values, so there are only accessors for signed values. Naming follows Java convention
- * -- single -> float
- * -- double -> double
- * -- int8 -> byte
- * -- int16 -> short
+ * -- single = float
+ * -- double = double
+ * -- int8 = byte
+ * -- int16 = short
  * -- etc.
  * - Reading unsigned values can be done using casts, e.g., short unsignedValue = Casts.uint8(matrix.getByte());
  * - index are longs as they may go beyond 2GB (although that will require support for Mat7.3)
@@ -20,7 +20,7 @@ package us.hebi.matlab.io.types;
  * However, most users use numerical arrays in this way and are more familiar
  * with the term.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public interface Matrix extends Array {

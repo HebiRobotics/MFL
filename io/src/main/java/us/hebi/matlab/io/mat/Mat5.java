@@ -13,7 +13,7 @@ import static us.hebi.matlab.io.types.AbstractArray.*;
  * Utility methods for creating Matlab classes that are compatible with
  * the Mat 5 file format.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 29 Aug 2018
  */
 public class Mat5 {
@@ -92,8 +92,8 @@ public class Mat5 {
      * Creates a column character vector identical to the
      * single quoted 'string' representation in MATLAB
      *
-     * @param value
-     * @return
+     * @param value input
+     * @return Char array
      */
     public static Char newString(String value) {
         return newString(value, CharEncoding.Utf8);
@@ -214,8 +214,8 @@ public class Mat5 {
      * the holding Matrix, so the buffer should not be held on to
      * or go into user managed space!
      *
-     * @param matrix
-     * @return
+     * @param matrix matrix
+     * @return internal matrix buffer
      */
     static ByteBuffer exportBytes(Matrix matrix) {
         if (matrix instanceof MatMatrix) {

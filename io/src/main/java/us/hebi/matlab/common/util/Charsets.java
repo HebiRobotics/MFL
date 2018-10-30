@@ -4,7 +4,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 08 Sep 2018
  */
 public class Charsets {

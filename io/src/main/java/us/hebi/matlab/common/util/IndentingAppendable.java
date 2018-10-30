@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Keeps track of indentations and indents all newlines
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 Sep 2018
  */
 public class IndentingAppendable implements Appendable {

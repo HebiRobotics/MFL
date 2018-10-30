@@ -22,7 +22,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
 /**
  * Available character encodings for character data in MAT files.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 May 2018
  */
 public enum CharEncoding {

@@ -29,9 +29,9 @@ import static us.hebi.matlab.io.mat.Mat5Reader.*;
  * [N byte ... data ...]
  * [0-7 byte padding]
  * <p>
- * {@see http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf}
+ * @see <a href="http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf">MAT-File Format</a>
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 30 Apr 2018
  */
 public class Mat5Tag {
@@ -54,7 +54,6 @@ public class Mat5Tag {
 
     /**
      * @return next tag, or null if the source is at the end
-     * @throws IOException
      */
     public static Mat5Tag readTagOrNull(Source source) throws IOException {
         try {
@@ -66,7 +65,6 @@ public class Mat5Tag {
 
     /**
      * @return next tag, or EOF Exception if the source is at the end
-     * @throws IOException
      */
     public static Mat5Tag readTag(Source source) throws IOException {
         final int tmp = source.readInt();

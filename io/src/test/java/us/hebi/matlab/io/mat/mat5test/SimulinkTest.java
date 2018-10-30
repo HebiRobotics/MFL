@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 /**
  * Tests copied from MatFileRW::SimulinkMatTest
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 09 Sep 2018
  */
 public class SimulinkTest {

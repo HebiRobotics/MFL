@@ -12,7 +12,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
 /**
  * Factory methods for creating sources from various underlying inputs
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 May 2018
  */
 public class Sources {

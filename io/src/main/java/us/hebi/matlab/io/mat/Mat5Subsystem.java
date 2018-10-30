@@ -17,7 +17,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
  * as an int8 array at the end of a file and internally contains a separate
  * MatFile with a slightly different format.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 04 Sep 2018
  */
 public final class Mat5Subsystem extends AbstractArray implements Mat5Serializable {

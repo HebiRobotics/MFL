@@ -19,7 +19,7 @@ import static us.hebi.matlab.common.util.Casts.*;
 /**
  * API Examples for creating MAT 5 files
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 May 2018
  */
 public class Mat5Examples {

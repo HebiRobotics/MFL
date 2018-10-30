@@ -5,7 +5,7 @@ import us.hebi.matlab.io.types.MatlabType;
 import us.hebi.matlab.io.types.ObjectStruct;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 Sep 2018
  */
 class MatObjectStruct extends MatStruct implements ObjectStruct {

@@ -20,7 +20,7 @@ import static us.hebi.matlab.common.memory.Bytes.*;
  * Matthew Dawson (matthew@mjdsystems.ca) as well as Piotr Smolinski
  * (piotr.smolinski.77@gmail.com)
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 08 Sep 2018
  */
 public class McosTest {

@@ -28,9 +28,9 @@ import static us.hebi.matlab.io.types.MatlabType.*;
 
 /**
  * Reads MAT 5 files with the format as documented here:
- * {@see http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf}
+ * @see <a href="http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf">MAT-File Format</a>
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 30 Apr 2018
  */
 public final class Mat5Reader {
@@ -94,7 +94,7 @@ public final class Mat5Reader {
     /**
      * Enables filtering of root-level entries based on the variable header
      *
-     * @param filter
+     * @param filter root-level filter
      * @return this
      */
     public Mat5Reader setArrayFilter(ArrayFilter filter) {
@@ -111,7 +111,7 @@ public final class Mat5Reader {
      * such as buffers or memory mapped files. If the source does not support it, the source
      * will continue to be read using a single thread.
      *
-     * @param executorService
+     * @param executorService executorService
      * @return this
      */
     public Mat5Reader enableConcurrentDecompression(ExecutorService executorService) {
@@ -125,7 +125,7 @@ public final class Mat5Reader {
      * common use case, but may be useful when working with buffer pools or large memory
      * mapped buffers.
      *
-     * @param bufferAllocator
+     * @param bufferAllocator bufferAllocator
      * @return this
      */
     public Mat5Reader setBufferAllocator(BufferAllocator bufferAllocator) {

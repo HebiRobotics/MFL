@@ -10,7 +10,7 @@ package us.hebi.matlab.io.types;
  * in this library, as we don't know what fields are
  * allowed in the first place.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public interface ObjectStruct extends Struct {

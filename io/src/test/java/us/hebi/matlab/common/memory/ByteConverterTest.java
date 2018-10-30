@@ -10,7 +10,7 @@ import static org.junit.Assert.*;
 import static us.hebi.matlab.common.memory.Bytes.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 26 Aug 2018
  */
 public class ByteConverterTest {

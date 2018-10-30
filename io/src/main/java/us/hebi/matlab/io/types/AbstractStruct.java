@@ -12,7 +12,7 @@ import java.util.List;
  * Note that we don't need to check indices as the array access already
  * takes care of that, i.e., throws an out of bounds exception.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 Sep 2018
  */
 public abstract class AbstractStruct extends AbstractStructBase {

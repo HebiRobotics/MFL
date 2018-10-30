@@ -13,7 +13,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 /**
  * Default char array implementation backed by a char buffer
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 29 Aug 2018
  */
 class MatChar extends AbstractCharBase implements Mat5Serializable {

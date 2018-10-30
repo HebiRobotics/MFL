@@ -34,7 +34,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
  *
  * This example that is not considered part of the stable API.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 08 May 2018
  */
 public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5Serializable {

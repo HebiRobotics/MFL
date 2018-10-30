@@ -12,7 +12,7 @@ import java.nio.channels.FileChannel;
 import static org.junit.Assert.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 20 Oct 2018
  */
 public class NativeMemoryTest {

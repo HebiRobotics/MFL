@@ -15,7 +15,7 @@ import static us.hebi.matlab.io.mat.mat5test.MatTestUtil.*;
 /**
  * Most tests and data copied from JMatIO / MatFileRW
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 04 May 2018
  */
 public class ArrayReadTest {

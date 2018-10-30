@@ -15,7 +15,7 @@ import static us.hebi.matlab.common.memory.Bytes.*;
  * that users see after loading a file, e.g., UInt64 data could be
  * stored as UInt8 if all variables are within range.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 20 Apr 2018
  */
 public enum Mat5Type {

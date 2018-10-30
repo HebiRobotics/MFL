@@ -8,7 +8,7 @@ import us.hebi.matlab.io.types.Struct;
 import static org.junit.Assert.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 08 Sep 2018
  */
 public class FigureTest {

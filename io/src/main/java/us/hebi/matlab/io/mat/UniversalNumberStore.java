@@ -27,7 +27,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
  * This hasn't been added yet because it's not clear whether
  * reading + modifying + saving MAT files is a common use case.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 May 2018
  */
 class UniversalNumberStore implements NumberStore {

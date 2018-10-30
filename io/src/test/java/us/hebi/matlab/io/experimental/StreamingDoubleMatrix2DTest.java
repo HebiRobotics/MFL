@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
 import static us.hebi.matlab.io.experimental.StreamingDoubleMatrix2D.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 08 May 2018
  */
 public class StreamingDoubleMatrix2DTest {

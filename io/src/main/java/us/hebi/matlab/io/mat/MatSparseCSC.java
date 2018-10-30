@@ -20,7 +20,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
  * intermediate format similar to EJML's DMatrixSparseTriplet to
  * DMatrixSparseCSC conversion.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 29 Aug 2018
  */
 class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {

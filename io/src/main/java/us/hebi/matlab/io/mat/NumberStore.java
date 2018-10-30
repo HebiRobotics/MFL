@@ -9,7 +9,7 @@ import java.io.IOException;
  * Provides a way to store numerical data with different types and
  * can be thought of as an array.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 May 2018
  */
 interface NumberStore extends Closeable {

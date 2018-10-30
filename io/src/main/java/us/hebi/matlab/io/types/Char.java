@@ -3,7 +3,7 @@ package us.hebi.matlab.io.types;
 /**
  * Represents MATLAB's 'char' type
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public interface Char extends Array {

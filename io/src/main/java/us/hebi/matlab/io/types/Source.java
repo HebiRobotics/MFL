@@ -13,7 +13,7 @@ import java.nio.ByteOrder;
  * All methods read exactly the specified number of bytes,
  * or throw an EOFException
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 26 Aug 2018
  */
 public interface Source extends Closeable {
@@ -57,10 +57,10 @@ public interface Source extends Closeable {
      * <p>
      * Note that closing the returned source does not close the parent source.
      *
-     * @param numBytes
-     * @param inflateBufferSize
-     * @return
-     * @throws IOException
+     * @param numBytes          maximum number of bytes that may be read from this source
+     * @param inflateBufferSize inflate buffer size
+     * @return child source that reads deflated data from this source
+     * @throws IOException if read errors occur
      */
     Source readInflated(int numBytes, int inflateBufferSize) throws IOException;
 
@@ -72,27 +72,28 @@ public interface Source extends Closeable {
      * Returning false means that child sources are independent and can be read from concurrently, i.e.,
      * the decompression may be done on a different thread.
      *
-     * @return true if a Source created by {@see readInflated} may be read by a different thread
+     * @return true if a Source created by {@link Source#readInflated} may be read by a different thread
      */
     boolean isMutatedByChildren();
 
     /**
      * Same behavior as
-     * <p>
+     * <pre>{@code
      * while(byteBuffer.remaining() > 0){
-     * byteBuffer.put(readByte());
+     *     byteBuffer.put(readByte());
      * }
+     * }</pre>
      *
-     * @param buffer
-     * @throws IOException
+     * @param buffer buffer
+     * @throws IOException if read errors occur
      */
     void readByteBuffer(ByteBuffer buffer) throws IOException;
 
     /**
      * Skips exactly the specified number of bytes or throws an EOFException
      *
-     * @param numBytes
-     * @throws IOException
+     * @param numBytes number of bytes to be skipped
+     * @throws IOException EOF if there is not enough data left
      */
     void skip(long numBytes) throws IOException;
 

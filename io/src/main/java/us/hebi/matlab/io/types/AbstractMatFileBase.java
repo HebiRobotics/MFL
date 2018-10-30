@@ -3,7 +3,7 @@ package us.hebi.matlab.io.types;
 /**
  * Forwards convenience overloads to avoid cluttering the implementation
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 14 Sep 2018
  */
 public abstract class AbstractMatFileBase implements MatFile {

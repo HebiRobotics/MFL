@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 import static us.hebi.matlab.common.memory.Bytes.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 31 Aug 2018
  */
 public class SinkTest {

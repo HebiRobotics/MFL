@@ -11,7 +11,7 @@ package us.hebi.matlab.io.types;
  * Note that index based access works on the non-zero values,
  * so there are only nzMax values.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public interface Sparse extends Matrix {

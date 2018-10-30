@@ -16,7 +16,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
  * Iterates through all tags in a MAT 5 file without trying to
  * decode them. Useful for debugging the actual file structure.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 03 Sep 2018
  */
 class Mat5TagStreamer {

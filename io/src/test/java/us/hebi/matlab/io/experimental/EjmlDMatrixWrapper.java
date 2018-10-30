@@ -16,7 +16,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 /**
  * Serializes an EJML double matrix into a MAT 5 file that can be read by MATLAB
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  */
 public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializable {
 

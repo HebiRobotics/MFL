@@ -12,7 +12,7 @@ import java.util.zip.Deflater;
 import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 07 May 2018
  */
 public class Mat5WriterTest {

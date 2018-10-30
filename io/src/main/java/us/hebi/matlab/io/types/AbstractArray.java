@@ -5,7 +5,7 @@ import java.io.IOException;
 import static us.hebi.matlab.common.util.Preconditions.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 02 May 2018
  */
 public abstract class AbstractArray implements Array {

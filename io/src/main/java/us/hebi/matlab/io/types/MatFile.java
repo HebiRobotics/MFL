@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 14 Sep 2018
  */
 public interface MatFile extends Closeable, Iterable<NamedArray> {

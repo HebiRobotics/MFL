@@ -8,12 +8,16 @@ package us.hebi.matlab.common.util;
  * That means that all negative values (top bit set) get converted
  * to zero, and that all values above get converted to the max value.
  * <p>
- * That behavior seems weird for the Java world, so unsigned casts do
- * a bitwise and to the next higher type (unsigned int8 -> short), and
- * the signed casts perform a range check and fail if a value is out
- * of range.
+ * That behavior seems weird for the Java world. Thus,
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * unsigned casts:
+ * cast to the next larger integer, e.g., uint8becomes short.
+ * uint64 are expressed as long.
+ *
+ * signed casts:
+ * perform a range check and fail if the value is out of range
+ *
+ * @author Florian Enner
  * @since 06 Sep 2018
  */
 public final class Casts {
@@ -100,8 +104,8 @@ public final class Casts {
     /**
      * Performs an integer division and makes sure that no remainder gets thrown away
      *
-     * @param numerator
-     * @param denominator
+     * @param numerator numerator
+     * @param denominator denominator
      * @return numerator / denominator
      * @throws IllegalArgumentException if there is a remainder
      */

@@ -11,7 +11,7 @@ import java.io.Closeable;
  * Note that all MATLAB variables are implemented as N-dimensional arrays,
  * and that singular values or structs are arrays with 1 row and 1 column.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 02 May 2018
  */
 public interface Array extends Closeable {

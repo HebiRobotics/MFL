@@ -17,7 +17,7 @@ import static us.hebi.matlab.common.util.Casts.*;
  * Demonstrates serialization of custom data sets by writing
  * EJML's sparse and dense matrices.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 16 Sep 2018
  */
 public class EjmlSerializationTest {

@@ -10,7 +10,7 @@ import static us.hebi.matlab.common.util.Preconditions.*;
 import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 29 Aug 2018
  */
 class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {

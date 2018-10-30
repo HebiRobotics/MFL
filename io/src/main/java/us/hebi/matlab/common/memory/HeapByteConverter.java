@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 import static java.nio.ByteOrder.*;
 
 /**
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 26 Aug 2018
  */
 class HeapByteConverter implements ByteConverter {

@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Utilities for creating useful toString() displays
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  * @since 16 Sep 2018
  */
 class StringHelper {

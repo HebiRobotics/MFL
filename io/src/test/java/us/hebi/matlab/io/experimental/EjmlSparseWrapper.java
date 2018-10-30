@@ -21,7 +21,7 @@ import static us.hebi.matlab.io.mat.Mat5WriteUtil.*;
  * Implementing 'Mat5Attributes' lets us get around the overhead of implementing
  * the entire Sparse interface, or alternatively manually writing the header.
  *
- * @author Florian Enner < florian @ hebirobotics.com >
+ * @author Florian Enner
  */
 public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
 
