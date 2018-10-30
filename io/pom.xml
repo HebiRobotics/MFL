@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-io</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <version>0.3</version>
     <packaging>jar</packaging>
 
     <name>MAT-File IO</name>
@@ -28,7 +27,8 @@
         <url>https://github.com/HebiRobotics/MatlabTools</url>
         <connection>scm:git:git://github.com/HebiRobotics/MatlabTools.git</connection>
         <developerConnection>scm:git:git@github.com:HebiRobotics/MatlabTools.git</developerConnection>
-    </scm>
+      <tag>io-0.3</tag>
+  </scm>
 
     <!-- Maven Central Distribution -->
     <distributionManagement>
@@ -66,7 +66,7 @@
         <matlab.target>1.6</matlab.target>
 
         <!-- Other Settings -->
-        <gpg.passphrase/> <!-- set via settings.xml to sign release artifacts-->
+        <gpg.passphrase /> <!-- set via settings.xml to sign release artifacts-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- For now, disable 'missing' warnings about undocumented @param and @throws -->
