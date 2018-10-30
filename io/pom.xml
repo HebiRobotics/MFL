@@ -9,14 +9,14 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <!-- =========================================================== -->
-    <!-- Project Settings                                            -->
-    <!-- =========================================================== -->
-    <artifactId>io</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <name>IO Tools</name>
+    <artifactId>mat-io</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <name>MAT-File IO</name>
     <packaging>jar</packaging>
+
+    <description>
+        Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
+    </description>
 
     <dependencies>
 
