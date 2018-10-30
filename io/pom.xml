@@ -17,8 +17,6 @@
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
 
-
-
     <dependencies>
 
         <dependency> <!-- for experimental conversion -->
