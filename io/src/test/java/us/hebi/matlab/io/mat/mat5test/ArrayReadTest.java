@@ -311,12 +311,12 @@ public class ArrayReadTest {
     @Test
     public void testSparseIteration() throws Exception {
         /*
+         * MATLAB generated values:
          * sp = sparse(8,9)
          * sp(:,3) = 0:7
          * sp(3,:) = 0:8
          */
-        Sparse sparse = MatTestUtil.readMat("arrays/denseRowColSparse.mat").getSparse("sp");
-        final List<SparseValue> expected = new ArrayList<SparseValue>(sparse.getNzMax());
+        final List<SparseValue> expected = new ArrayList<SparseValue>(14);
         expected.add(mlSparse(3, 2, 1));
         expected.add(mlSparse(2, 3, 1));
         expected.add(mlSparse(3, 3, 2));
@@ -332,13 +332,12 @@ public class ArrayReadTest {
         expected.add(mlSparse(3, 8, 7));
         expected.add(mlSparse(3, 9, 8));
 
+        // Read sparse from file
+        Sparse sparse = MatTestUtil.readMat("arrays/denseRowColSparse.mat").getSparse("sp");
         final List<SparseValue> actual = new ArrayList<SparseValue>(sparse.getNzMax());
-        sparse.forEach(new Sparse.SparseConsumer() {
-            public void accept(int row, int col, double real, double imaginary) {
-                actual.add(new SparseValue(row, col, real, imaginary));
-            }
-        });
+        sparse.forEach((row, col, real, imag) -> actual.add(new SparseValue(row, col, real, imag)));
 
+        // Compare values and column-major ordering
         assertEquals(expected, actual);
 
     }

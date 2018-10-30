@@ -140,15 +140,13 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
 
     @Override
     public void forEach(SparseConsumer action) {
-        double imag = 0;
-
         int i0 = (int) columnIndices.getLong(0);
         for (int col = 0; col < getNumCols(); col++) {
             int i1 = (int) columnIndices.getLong(col + 1);
 
             for (int i = i0; i < i1; i++) {
                 int row = (int) rowIndices.getLong(i);
-                if (complex) imag = imaginary.getDouble(i);
+                double imag = complex ? imaginary.getDouble(i) : 0;
                 action.accept(row, col, real.getDouble(i), imag);
             }
 
