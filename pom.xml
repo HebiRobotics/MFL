@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
-    <artifactId>tools-parent</artifactId>
+    <artifactId>matlab-tools</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
