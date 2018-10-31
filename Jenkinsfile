@@ -79,7 +79,7 @@ pipeline {
                         }
                     }
                 }
-
+/*
                 stage('Windows Java 9') {
                     agent {
                         node {
@@ -138,7 +138,7 @@ pipeline {
                             cleanWs()
                         }
                     }
-                }
+                }*/
 
             }
         }
