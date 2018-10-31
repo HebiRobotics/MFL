@@ -91,7 +91,7 @@ pipeline {
                         jdk 'jdk9'
                     }
                     steps {
-                        bat 'mvn clean package'
+                        bat 'mvn clean verify'
                     }
                     post {
                         always {
@@ -111,7 +111,7 @@ pipeline {
                         jdk 'jdk9'
                     }
                     steps {
-                        sh 'mvn clean package'
+                        sh 'mvn clean verify'
                     }
                     post {
                         always {
@@ -131,7 +131,7 @@ pipeline {
                         jdk 'jdk9'
                     }
                     steps {
-                        sh 'mvn clean package'
+                        sh 'mvn clean verify'
                     }
                     post {
                         always {
