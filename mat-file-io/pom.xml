@@ -11,6 +11,7 @@
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
+    <url>https://github.com/HebiRobotics/MatlabTools</url>
 
     <!-- Maven Central configuration copied from https://github.com/davidcarboni/releaser -->
     <!-- Required: license information: -->
