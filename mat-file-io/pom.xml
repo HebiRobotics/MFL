@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
@@ -6,11 +7,17 @@
     <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>MAT-File IO</name>
+    <name>Mat-File IO</name>
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
     <url>https://github.com/HebiRobotics/MatlabTools</url>
+
+    <organization>
+        <name>HEBI Robotics</name>
+        <url>http://www.hebirobotics.com</url>
+    </organization>
+    <inceptionYear>2018</inceptionYear>
 
     <!-- Maven Central configuration copied from https://github.com/davidcarboni/releaser -->
     <!-- Required: license information: -->
@@ -68,7 +75,12 @@
 
         <!-- Other Settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gpg.keyname /> <!-- set via settings.xml to sign release artifacts-->
+        <gpg.keyname/> <!-- set via settings.xml to sign release artifacts-->
+
+        <!-- License Headers (http://www.mojohaus.org/license-maven-plugin/update-file-header-mojo.html) -->
+        <license.licenseName>apache_v2</license.licenseName>
+        <license.addJavaLicenseAfterPackage>false</license.addJavaLicenseAfterPackage>
+        <license.trimHeaderLine>true</license.trimHeaderLine>
 
         <!-- For now, disable 'missing' warnings about undocumented @param and @throws -->
         <doclint>html,syntax,accessibility,reference</doclint>
@@ -145,6 +157,22 @@
                                 <exclude>module-info.java</exclude>
                             </excludes>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Add licenses to files -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.16</version>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
                     </execution>
                 </executions>
             </plugin>
