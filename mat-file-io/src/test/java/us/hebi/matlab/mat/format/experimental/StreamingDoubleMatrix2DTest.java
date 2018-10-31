@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,15 +24,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.types.Matrix;
-import us.hebi.matlab.mat.types.Sink;
-import us.hebi.matlab.mat.types.Sinks;
-import us.hebi.matlab.mat.types.Sources;
+import us.hebi.matlab.mat.format.Mat5File;
+import us.hebi.matlab.mat.types.*;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.concurrent.Executors;
+import java.util.zip.Deflater;
 
 import static org.junit.Assert.*;
+import static us.hebi.matlab.common.util.Casts.*;
 
 /**
  * @author Florian Enner
@@ -87,6 +88,49 @@ public class StreamingDoubleMatrix2DTest {
                 expected++;
             }
         }
+
+    }
+
+    @Test
+    public void testWriteStreamingConcurrentToFile() throws Exception {
+
+        // Create a few matrices with different dimensions
+        MatFile matFile = Mat5.newMatFile();
+        for (int i = 0; i < 7; i++) {
+            int cols = i * 3;
+            int rows = i * 5;
+            StreamingDoubleMatrix2D matrix = StreamingDoubleMatrix2D.createRowMajor(folder, "matrix" + i, cols);
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    matrix.addValue(row * col);
+                }
+            }
+            matFile.addArray(matrix.getName(), matrix);
+        }
+
+        // Create temporary file
+        File file = new File(getClass().getName() + ".mat");
+        assertTrue("Couldn't delete temporary file", !file.exists() || file.delete());
+
+        // Write to disk
+        try (MatFile mat = matFile;
+             Sink sink = Sinks.newMappedFile(file, sint32(matFile.getUncompressedSerializedSize()))) {
+            Mat5.newWriter(sink.nativeOrder())
+                    .enableConcurrentCompression(Executors.newCachedThreadPool())
+                    .setDeflateLevel(Deflater.BEST_SPEED)
+                    .writeMat(mat);
+        }
+
+        assertTrue("Output file does not exist", file.exists());
+        assertTrue("Output file is empty", file.length() > 0);
+
+        // Read result
+        try (Source source = Sources.openFile(file)) {
+            Mat5File result = Mat5.newReader(source).readMat();
+            result.close();
+        }
+
+        assertTrue("Couldn't delete temporary file", !file.exists() || file.delete());
 
     }
 

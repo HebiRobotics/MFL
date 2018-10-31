@@ -74,6 +74,9 @@ public final class Mat5Writer {
      * temporary buffers should be allocated. Allocated buffers get released once they are
      * no longer needed. This is useful when working with buffer pools or memory mapped buffers.
      *
+     * Note that for this particular case it is not necessary that the BufferAllocator zeroes
+     * the allocated ByteBuffers because the data is guaranteed to be overwritten.
+     *
      * @param bufferAllocator bufferAllocator
      * @return this
      */
