@@ -96,7 +96,7 @@ public class NativeMemory {
             try {
                 cleanMethod.invoke(getCleanerMethod.invoke(buffer));
             } catch (Exception e) {
-                throw new AssertionError("Java 6 Cleaner failed to free DirectBuffer", e);
+                throw new AssertionError("Java 6 Cleaner failed to free DirectBuffer");
             }
         }
 
@@ -105,7 +105,7 @@ public class NativeMemory {
                 getCleanerMethod = Class.forName("sun.nio.ch.DirectBuffer").getMethod("cleaner");
                 cleanMethod = Class.forName("sun.misc.Cleaner").getMethod("clean");
             } catch (Exception e) {
-                throw new AssertionError("Java 6 Cleaner not available", e);
+                throw new AssertionError("Java 6 Cleaner not available");
             }
         }
 
@@ -123,7 +123,7 @@ public class NativeMemory {
             try {
                 INVOKE_CLEANER.invoke(UnsafeAccess.UNSAFE, buffer);
             } catch (Exception e) {
-                throw new AssertionError("Java 9 Cleaner failed to free DirectBuffer", e);
+                throw new AssertionError("Java 9 Cleaner failed to free DirectBuffer");
             }
         }
 
@@ -131,7 +131,7 @@ public class NativeMemory {
             try {
                 INVOKE_CLEANER = UnsafeAccess.UNSAFE.getClass().getMethod("invokeCleaner", ByteBuffer.class);
             } catch (Exception e) {
-                throw new AssertionError("Java 9 Cleaner not available", e);
+                throw new AssertionError("Java 9 Cleaner not available");
             }
         }
 
