@@ -8,8 +8,8 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>mat-io</artifactId>
-    <version>0.2-SNAPSHOT</version>
+    <artifactId>mat-file-io</artifactId>
+    <version>0.1-SNAPSHOT</version>
     <name>MAT-File IO</name>
     <packaging>jar</packaging>
 

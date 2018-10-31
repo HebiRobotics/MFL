@@ -57,7 +57,7 @@
 
     <!-- Sub-Modules -->
     <modules>
-        <module>io</module>
+        <module>mat-file-io</module>
     </modules>
 
     <properties>
