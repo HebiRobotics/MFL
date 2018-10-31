@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-file-io</artifactId>
-    <version>0.1.2-SNAPSHOT</version>
+    <version>0.1.2</version>
     <packaging>jar</packaging>
 
     <name>Mat-File IO</name>
@@ -35,7 +34,7 @@
         <url>https://github.com/HebiRobotics/MatlabTools</url>
         <connection>scm:git:git://github.com/HebiRobotics/MatlabTools.git</connection>
         <developerConnection>scm:git:git@github.com:HebiRobotics/MatlabTools.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>mat-file-io-0.1.2</tag>
     </scm>
 
     <!-- Maven Central Distribution -->
@@ -75,7 +74,7 @@
 
         <!-- Other Settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gpg.keyname/> <!-- set via settings.xml to sign release artifacts-->
+        <gpg.keyname /> <!-- set via settings.xml to sign release artifacts-->
 
         <!-- License Headers (http://www.mojohaus.org/license-maven-plugin/update-file-header-mojo.html) -->
         <license.licenseName>apache_v2</license.licenseName>
