@@ -14,7 +14,7 @@
 
     <!-- Sub-Projects -->
     <modules>
-        <module>io</module>
+        <module>mat-file-io</module>
     </modules>
 
     <properties>
