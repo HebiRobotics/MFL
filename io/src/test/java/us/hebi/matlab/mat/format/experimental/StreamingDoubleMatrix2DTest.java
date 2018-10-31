@@ -1,4 +1,4 @@
-package us.hebi.matlab.mat.experimental;
+package us.hebi.matlab.mat.format.experimental;
 
 import org.junit.After;
 import org.junit.Before;
@@ -13,7 +13,6 @@ import java.io.File;
 import java.nio.ByteBuffer;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.mat.experimental.StreamingDoubleMatrix2D.*;
 
 /**
  * @author Florian Enner < florian @ hebirobotics.com >
@@ -39,7 +38,7 @@ public class StreamingDoubleMatrix2DTest {
     public void testWriteIncrementalStreaming() throws Exception {
         int numRows = 12;
         int numCols = 8;
-        StreamingDoubleMatrix2D matrix = createRowMajor(folder, "position", numCols);
+        StreamingDoubleMatrix2D matrix = StreamingDoubleMatrix2D.createRowMajor(folder, "position", numCols);
         for (int i = 0; i < numCols * numRows; i++) {
             matrix.addValue(i);
         }

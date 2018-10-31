@@ -1,4 +1,4 @@
-package us.hebi.matlab.mat.experimental;
+package us.hebi.matlab.mat.format.experimental;
 
 import org.ejml.data.DMatrix;
 import us.hebi.matlab.mat.format.Mat5;
