@@ -12,7 +12,20 @@ This library is free, written in 100% Java, and has been released under an Apach
 
 == Maven Central
 
-TBD
+Mat-File IO is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
+
+```XML
+<dependency>
+    <groupId>us.hebi.matlab</groupId>
+    <artifactId>mat-file-io</artifactId>
+    <version>0.1.1</version>
+</dependency>
+```
+
+[NOTE]
+====
+The initial release was done as version 0.x because we are still doing final integration tests. However, it is likely that there won't be any more breaking changes, so 1.0 is expected to be fully compatible and should be released in the near future.
+====
 
 == Basic Usage
 

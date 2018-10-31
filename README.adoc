@@ -10,6 +10,14 @@ Migrating our internal libraries to open source is an ongoing effort, so we will
 
 link:./mat-file-io[Mat-File IO] is a Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format.
 
+```XML
+<dependency>
+    <groupId>us.hebi.matlab</groupId>
+    <artifactId>mat-file-io</artifactId>
+    <version>0.1.1</version>
+</dependency>
+```
+
 It's overall design goals are; 1) to support working with large amounts of data on heap constrained and allocation limited environments, 2) to allow users to serialize custom data classes without having to convert to temporary objects, 3) to provide a user-friendly API that adheres to MATLAB's semantic behavior.
 
 This library is free, written in 100% Java, and has been released under an Apache v2.0 license. It works with Java 6 and higher, including Java 9 and 10.
