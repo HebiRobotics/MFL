@@ -66,8 +66,8 @@
         <matlab.target>1.6</matlab.target>
 
         <!-- Other Settings -->
-        <gpg.passphrase/> <!-- set via settings.xml to sign release artifacts-->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <gpg.passphrase/> <!-- set via settings.xml to sign release artifacts-->
 
         <!-- For now, disable 'missing' warnings about undocumented @param and @throws -->
         <doclint>html,syntax,accessibility,reference</doclint>
@@ -110,7 +110,7 @@
 
         <plugins>
 
-            <!-- Compile in 2 stages so we can get a Java 9 module-info w/ target sources -->
+            <!-- Java 9 and later: compile in 2 stages so we can get a module-info w/ target sources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -163,7 +163,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Required: source JAR -->
+            <!-- Required: Source Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
@@ -179,7 +179,7 @@
                 </executions>
             </plugin>
 
-            <!-- Required: javadoc JAR -->
+            <!-- Required: Javadoc Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -233,7 +233,7 @@
     </build>
 
     <profiles>
-        <!-- Java < 9: ignore module-info-->
+        <!-- Java 8 and below: ignore module-info -->
         <profile>
             <id>noJava9</id>
             <activation>

@@ -19,11 +19,8 @@
 
     <properties>
 
-        <!-- Set Syntax level to Java9 so that IDEs don't complain about the module-info.java
-         and so we can use try-with-resources and Lambdas in test Syntax -->
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
-
+        <maven.compiler.source>6</maven.compiler.source>
+        <maven.compiler.target>6</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     </properties>
