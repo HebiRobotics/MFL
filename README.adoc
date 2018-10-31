@@ -14,7 +14,7 @@ link:./mat-file-io[Mat-File IO] is a Java library for reading and writing MAT Fi
 <dependency>
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-file-io</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
