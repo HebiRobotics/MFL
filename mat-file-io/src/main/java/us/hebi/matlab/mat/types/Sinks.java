@@ -23,10 +23,12 @@ package us.hebi.matlab.mat.types;
 import us.hebi.glue.Unsafe9;
 import us.hebi.matlab.common.util.Casts;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 
 import static us.hebi.matlab.common.util.Preconditions.*;
@@ -50,31 +52,59 @@ public class Sinks {
     public static Sink newStreamingFile(final File file) throws IOException {
         checkFile(file);
         final FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-        final OutputStream out = Channels.newOutputStream(channel);
-        final OutputStream buffered = new BufferedOutputStream(out);
+        final ByteBuffer directBuffer = ByteBuffer.allocateDirect(8 * defaultCopyBufferSize);
 
-        return new OutputStreamSink(buffered, defaultCopyBufferSize) {
-
+        return new AbstractSink(defaultCopyBufferSize) {
             @Override
             public long position() throws IOException {
-                buffered.flush();
-                return channel.position();
+                return channel.position() + directBuffer.position();
             }
 
             @Override
             public void position(long position) throws IOException {
-                buffered.flush();
+                flush();
                 channel.position(position);
             }
 
             @Override
-            public void close() throws IOException {
-                buffered.close();
-                out.close();
-                channel.close();
+            public void writeByteBuffer(ByteBuffer buffer) throws IOException {
+                flush();
+                channel.write(buffer);
             }
 
+            @Override
+            public void writeBytes(byte[] buffer, int offset, int length) throws IOException {
+                while (length > 0) {
+
+                    // Copy to buffer
+                    final int n = Math.min(length, directBuffer.remaining());
+                    directBuffer.put(buffer, offset, n);
+                    offset += n;
+                    length -= n;
+
+                    // Flush when necessary
+                    if (directBuffer.remaining() == 0)
+                        flush();
+
+                }
+            }
+
+            private void flush() throws IOException {
+                if (directBuffer.position() == 0)
+                    return;
+                directBuffer.flip();
+                channel.write(directBuffer);
+                directBuffer.clear();
+            }
+
+            @Override
+            public void close() throws IOException {
+                flush();
+                channel.close();
+                Unsafe9.invokeCleaner(directBuffer);
+            }
         };
+
     }
 
     public static Sink newStreamingFile(String file) throws IOException {
