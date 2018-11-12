@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
@@ -64,17 +65,17 @@
 
     <properties>
 
-        <!-- Set Syntax level to Java9 so that IDEs don't complain about the module-info.java
-         and so we can use try-with-resources and Lambdas in test Syntax -->
-        <maven.compiler.source>9</maven.compiler.source>
-        <maven.compiler.target>9</maven.compiler.target>
+        <!-- Set Syntax level to Java 8 so that IDEs (IntelliJ) don't complain about using
+        Java 8 syntax (e.g. try-with-resources) in unit tests -->
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
 
         <!-- Set the actual target to minimum Java version compatible with Matlab >2009a -->
         <matlab.target>1.6</matlab.target>
 
         <!-- Other Settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gpg.keyname /> <!-- set via settings.xml to sign release artifacts-->
+        <gpg.keyname/> <!-- set via settings.xml to sign release artifacts-->
 
         <!-- License Headers (http://www.mojohaus.org/license-maven-plugin/update-file-header-mojo.html) -->
         <license.licenseName>apache_v2</license.licenseName>
@@ -88,6 +89,12 @@
 
     <!-- Dependency management (keep in alphabetical order) -->
     <dependencies>
+
+        <dependency>
+            <groupId>us.hebi.glue</groupId>
+            <artifactId>glue</artifactId>
+            <version>1.0</version>
+        </dependency>
 
         <dependency> <!-- for experimental conversion -->
             <groupId>org.ejml</groupId>
@@ -116,6 +123,7 @@
                     <include>README*</include>
                     <include>NOTICE*</include>
                     <include>LICENSE*</include>
+                    <include>CHANGELOG*</include>
                 </includes>
             </resource>
         </resources>
@@ -128,44 +136,20 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <executions>
-
-                    <!-- https://maven.apache.org/plugins/maven-compiler-plugin/examples/module-info.html -->
-
-                    <!-- 1) default-compile: Compile everything w/ Java 9 to make sure the module-info is correct -->
-                    <!-- (called implicitly) -->
-
-                    <!-- 2) default-testCompile: Compile tests w/ Java 9 so we can use advanced syntax -->
-                    <!-- (called implicitly) -->
-
-                    <!-- 3) Re-compile everything for target VM except the module-info.java -->
+                    <!-- 1) default-compile: compiles sources w/ Java 8 -->
+                    <!-- 2) default-testCompile: compiles tests w/ Java 8 -->
+                    <!-- 3) Re-compiles sources for target VM -->
                     <execution>
                         <id>target-compile</id>
                         <goals>
                             <goal>compile</goal>
                         </goals>
                         <configuration>
-                            <!-- Note:
-                            Do not set "<release>6</release>" as that disables jdk.unsupported! It will also
-                            ignore the module-info.java file as well as disable the manual 'add-module' compiler
-                            argument, which makes it impossible to use sun.misc.Unsafe. After a lot of tinkering,
-                            the only way I got it to work was to have an existing module-info from the previous
-                            compilation step, and to revert to just using the 'target' & 'source' options. -->
                             <source>${matlab.target}</source>
                             <target>${matlab.target}</target>
-                            <excludes>
-                                <exclude>module-info.java</exclude>
-                            </excludes>
-                            <jdkToolchain>
-                                <version>[1.6,9)</version>
-                            </jdkToolchain>
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <jdkToolchain>
-                        <version>[9,)</version>
-                    </jdkToolchain>
-                </configuration>
             </plugin>
 
             <!-- Add licenses to files -->
@@ -195,6 +179,9 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
                         </manifest>
+                        <manifestEntries>
+                            <Automatic-Module-Name>us.hebi.matlab.mat</Automatic-Module-Name>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -260,34 +247,6 @@
     </build>
 
     <profiles>
-        <!-- Java 8 and below: ignore module-info -->
-        <profile>
-            <id>noJava9</id>
-            <activation>
-                <!-- https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html -->
-                <!--<jdk>(,9)</jdk>--> <!-- makes IntelliJ 2018.2 always default to 1.6 sources, so do manually -->
-            </activation>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-compiler-plugin</artifactId>
-                            <version>3.8.0</version>
-                            <configuration>
-                                <excludes>
-                                    <exclude>module-info.java</exclude>
-                                </excludes>
-                                <source>${matlab.target}</source>
-                                <target>${matlab.target}</target>
-                                <testSource>8</testSource>
-                                <testTarget>8</testTarget>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
 
         <!-- GPG Signature on release -->
         <profile>

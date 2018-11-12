@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.memory.NativeMemory;
+import us.hebi.glue.Unsafe9;
 import us.hebi.matlab.mat.types.*;
 
 import java.nio.ByteBuffer;
@@ -220,7 +220,7 @@ public class Mat5 {
         @Override
         public void release(ByteBuffer buffer) {
             if (buffer.isDirect()) {
-                NativeMemory.freeDirectBuffer(buffer);
+                Unsafe9.invokeCleaner(buffer);
             }
         }
     };

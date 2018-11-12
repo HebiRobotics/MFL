@@ -35,6 +35,7 @@ public class ByteConverters {
     }
 
     public static ByteConverter getFastest(boolean checkBounds) {
+        UnsafeAccess.requireUnsafe();
         if (UnsafeAccess.isAvailable())
             return checkBounds ? unsafeConverterWithBoundsCheck : rawUnsafeConverter;
         return heapConverter;

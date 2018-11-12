@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.common.memory.NativeMemory;
+import us.hebi.glue.Unsafe9;
 import us.hebi.matlab.common.util.Casts;
 
 import java.io.*;
@@ -86,7 +86,7 @@ public class Sinks {
      * truncates the backing file to the actual size once closed. Supports a
      * max file size of 2 GB.
      *
-     * @param file target file
+     * @param file            target file
      * @param maxExpectedSize initial size of the file
      * @return sink writing to file
      * @throws IOException if file can't be opened
@@ -106,7 +106,7 @@ public class Sinks {
             public void close() throws IOException {
                 super.close();
                 long finalSize = buffer.position();
-                NativeMemory.freeDirectBuffer(buffer);
+                Unsafe9.invokeCleaner(buffer);
                 channel.truncate(finalSize);
                 channel.close();
             }

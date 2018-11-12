@@ -26,14 +26,8 @@ For more information and usage examples, please refer to the link:./mat-file-io[
 
 == Building Sources
 
-The created sources include Java 9's `module-info.java`, but are otherwise backwards compatible with Java 6. The contained unit tests may use Java 8 syntax, so the project needs to be compiled with at least JDK 8.
-
-Building with JDK 9 and above
+The created sources include unit tests that make use of Java 7 and 8 syntax, so the project needs to be compiled with at least JDK 8.
 
     mvn package
-
-Building with JDK 8
-
-    mvn package -PnoJava9
 
 For more information, please check the CI build-script link:Jenkinsfile[]
