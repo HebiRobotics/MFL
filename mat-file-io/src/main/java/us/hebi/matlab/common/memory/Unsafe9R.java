@@ -20,10 +20,13 @@
 
 package us.hebi.matlab.common.memory;
 
-import us.hebi.matlab.common.util.PlatformInfo;
+import sun.misc.Unsafe;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.security.AccessController;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * Provides reflective access to new methods that were added to sun.misc.Unsafe
@@ -62,82 +65,82 @@ public class Unsafe9R {
     public static void invokeCleaner(ByteBuffer directBuffer) {
         if (!directBuffer.isDirect())
             throw new IllegalArgumentException("buffer is non-direct");
-        cleaner.invokeCleaner(directBuffer);
+        if (useJava9)
+            Java9.invokeCleaner(directBuffer);
+        else {
+            Java6.invokeCleaner(directBuffer);
+        }
     }
 
     static {
 
         // Get Java version
         String version = System.getProperty("java.specification.version", "6");
-        String majorPart = version.startsWith("1.") ? version.substring(2) : version;
-        int majorVersion = Integer.parseInt(majorPart);
+        String majorVersion = version.startsWith("1.") ? version.substring(2) : version;
+        useJava9 = Integer.parseInt(majorVersion) >= 9;
 
-        if (majorVersion >= 9) {
-            cleaner = new Java9Cleaner();
-        }else{
-            cleaner = new Java6Cleaner();
+    }
+
+    private static final boolean useJava9;
+
+    private static class Java9 {
+
+        static void invokeCleaner(ByteBuffer buffer) {
+            try {
+                INVOKE_CLEANER.invoke(UNSAFE, buffer);
+            } catch (Exception e) {
+                throw new IllegalStateException("Java 9 Cleaner failed to free DirectBuffer", e);
+            }
+        }
+
+        static final Unsafe UNSAFE;
+        static final Method INVOKE_CLEANER;
+
+        static {
+            try {
+                final PrivilegedExceptionAction<Unsafe> action =
+                        new PrivilegedExceptionAction<Unsafe>() {
+                            @Override
+                            public Unsafe run() throws Exception {
+                                final Field f = Unsafe.class.getDeclaredField("theUnsafe");
+                                f.setAccessible(true);
+                                return (Unsafe) f.get(null);
+                            }
+                        };
+                UNSAFE = AccessController.doPrivileged(action);
+                INVOKE_CLEANER = UNSAFE.getClass().getMethod("invokeCleaner", ByteBuffer.class);
+
+            } catch (final Exception ex) {
+                throw new IllegalStateException("Java 9 Cleaner not available", ex);
+            }
+
         }
 
     }
 
-    private static final Cleaner cleaner;
+    private static class Java6 {
 
-    private interface Cleaner {
-        void invokeCleaner(ByteBuffer buffer);
-    }
-
-    /**
-     * sun.nio.ch.DirectBuffer::cleaner()
-     * sun.misc.Cleaner::invokeCleaner()
-     */
-    private static class Java6Cleaner implements Cleaner {
-        @Override
-        public void invokeCleaner(ByteBuffer buffer) {
+        static void invokeCleaner(ByteBuffer buffer) {
             try {
                 Object cleaner = GET_CLEANER.invoke(buffer);
                 if (cleaner != null)
                     INVOKE_CLEANER.invoke(cleaner);
             } catch (Exception e) {
-                throw new AssertionError("Java 6 Cleaner failed to free DirectBuffer", e);
+                throw new IllegalStateException("Java 6 Cleaner failed to free DirectBuffer", e);
             }
         }
 
-        Java6Cleaner() {
+        static {
             try {
                 GET_CLEANER = Class.forName("sun.nio.ch.DirectBuffer").getMethod("cleaner");
                 INVOKE_CLEANER = Class.forName("sun.misc.Cleaner").getMethod("clean");
             } catch (Exception e) {
-                throw new AssertionError("Java 6 Cleaner not available", e);
+                throw new IllegalStateException("Java 6 Cleaner not available", e);
             }
         }
 
-        final Method GET_CLEANER;
-        final Method INVOKE_CLEANER;
-
-    }
-
-    /**
-     * sun.misc.Unsafe::invokeCleaner(buffer)
-     */
-    private static class Java9Cleaner implements Cleaner {
-        @Override
-        public void invokeCleaner(ByteBuffer buffer) {
-            try {
-                INVOKE_CLEANER.invoke(UnsafeAccess.UNSAFE, buffer);
-            } catch (Exception e) {
-                throw new AssertionError("Java 9 Cleaner failed to free DirectBuffer", e);
-            }
-        }
-
-        Java9Cleaner() {
-            try {
-                INVOKE_CLEANER = UnsafeAccess.UNSAFE.getClass().getMethod("invokeCleaner", ByteBuffer.class);
-            } catch (Exception e) {
-                throw new AssertionError("Java 9 Cleaner not available", e);
-            }
-        }
-
-        final Method INVOKE_CLEANER;
+        static final Method GET_CLEANER;
+        static final Method INVOKE_CLEANER;
 
     }
 
