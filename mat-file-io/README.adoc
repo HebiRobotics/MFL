@@ -152,7 +152,7 @@ In order for a class to be serializable, it needs to implement the `Array` inter
 
 * link:./src/test/java/us/hebi/matlab/mat/format/experimental/EjmlSparseWrapper.java[EjmlSparseWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
 
-* link:./src/main/java/us/hebi/matlab/mat/format/experimental/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
+* link:./src/test/java/us/hebi/matlab/mat/format/experimental/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
 
 == General Notes
 
