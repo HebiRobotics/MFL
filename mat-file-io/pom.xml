@@ -90,12 +90,6 @@
     <!-- Dependency management (keep in alphabetical order) -->
     <dependencies>
 
-        <dependency>
-            <groupId>us.hebi.glue</groupId>
-            <artifactId>glue</artifactId>
-            <version>1.0</version>
-        </dependency>
-
         <dependency> <!-- for experimental conversion -->
             <groupId>org.ejml</groupId>
             <artifactId>ejml-all</artifactId>

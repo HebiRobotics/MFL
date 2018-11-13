@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.format.mat5test;
 
-import us.hebi.glue.Unsafe9;
+import us.hebi.matlab.common.memory.Unsafe9R;
 import us.hebi.matlab.mat.format.BufferAllocator;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5File;
@@ -139,7 +139,7 @@ public class MatTestUtil {
         @Override
         public synchronized void release(ByteBuffer buffer) {
             numReleased++;
-            Unsafe9.invokeCleaner(buffer);
+            Unsafe9R.invokeCleaner(buffer);
         }
 
         synchronized void verifyAllReleased() {

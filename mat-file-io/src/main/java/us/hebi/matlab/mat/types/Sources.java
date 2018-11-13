@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.glue.Unsafe9;
+import us.hebi.matlab.common.memory.Unsafe9R;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -64,7 +64,7 @@ public class Sources {
             @Override
             public void close() throws IOException {
                 super.close();
-                Unsafe9.invokeCleaner(buffer);
+                Unsafe9R.invokeCleaner(buffer);
                 channel.close();
             }
         };

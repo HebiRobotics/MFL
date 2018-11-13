@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.glue.Unsafe9;
+import us.hebi.matlab.common.memory.Unsafe9R;
 import us.hebi.matlab.common.util.Casts;
 
 import java.io.File;
@@ -101,7 +101,7 @@ public class Sinks {
             public void close() throws IOException {
                 flush();
                 channel.close();
-                Unsafe9.invokeCleaner(directBuffer);
+                Unsafe9R.invokeCleaner(directBuffer);
             }
         };
 
@@ -136,7 +136,7 @@ public class Sinks {
             public void close() throws IOException {
                 super.close();
                 long finalSize = buffer.position();
-                Unsafe9.invokeCleaner(buffer);
+                Unsafe9R.invokeCleaner(buffer);
                 channel.truncate(finalSize);
                 channel.close();
             }
