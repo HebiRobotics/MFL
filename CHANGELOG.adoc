@@ -1,0 +1,21 @@
+= Mat-File IO - Changelog
+
+== 0.2
+* Moved `common.util` to `mat.util`
+* Removed unused utilities
+* Removed multi-release jar dependency due to lack of support for some build tools (e.g. obfuscation)
+* Improved streaming file sink implementation
+* Changed `StreamingDoubleMatrix2D` to be a test example
+* `MatFile` API
+** Renamed `size()` to `getNumEntries()`
+** Added `clear()`
+** Added `getEntries()` for accessing `Iterable<NamedArray>`
+
+== 0.1.2
+* fixed binary incompatibilities with Java 6 that were introduced by compiling with JDK 9
+
+== 0.1.1
+* added license headers to all files
+
+== 0.1
+* initial release

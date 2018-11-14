@@ -31,7 +31,7 @@ pipeline {
                         jdk 'jdk8'
                     }
                     steps {
-                        bat 'mvn clean package -PnoJava9'
+                        bat 'mvn clean verify'
                     }
                     post {
                         always {
@@ -51,7 +51,7 @@ pipeline {
                         jdk 'jdk8'
                     }
                     steps {
-                        sh 'mvn clean package -PnoJava9'
+                        sh 'mvn clean verify'
                     }
                     post {
                         always {
@@ -71,7 +71,7 @@ pipeline {
                         jdk 'jdk8'
                     }
                     steps {
-                        sh 'mvn clean package -PnoJava9'
+                        sh 'mvn clean verify'
                     }
                     post {
                         always {
@@ -79,7 +79,6 @@ pipeline {
                         }
                     }
                 }
-/*
                 stage('Windows Java 9') {
                     agent {
                         node {
@@ -138,7 +137,7 @@ pipeline {
                             cleanWs()
                         }
                     }
-                }*/
+                }
 
             }
         }
