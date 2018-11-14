@@ -4,14 +4,14 @@
 
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-file-io</artifactId>
-    <version>0.1.3-SNAPSHOT</version>
+    <version>0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Mat-File IO</name>
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
-    <url>https://github.com/HebiRobotics/MatlabTools</url>
+    <url>https://github.com/HebiRobotics/MatFileIO</url>
 
     <organization>
         <name>HEBI Robotics</name>
@@ -32,9 +32,9 @@
 
     <!-- Required: source control information: -->
     <scm>
-        <url>https://github.com/HebiRobotics/MatlabTools</url>
-        <connection>scm:git:git://github.com/HebiRobotics/MatlabTools.git</connection>
-        <developerConnection>scm:git:git@github.com:HebiRobotics/MatlabTools.git</developerConnection>
+        <url>https://github.com/HebiRobotics/MatFileIO</url>
+        <connection>scm:git:git://github.com/HebiRobotics/MatFileIO.git</connection>
+        <developerConnection>scm:git:git@github.com:HebiRobotics/MatFileIO.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
