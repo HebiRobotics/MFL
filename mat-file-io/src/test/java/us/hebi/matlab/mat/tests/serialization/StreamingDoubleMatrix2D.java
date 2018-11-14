@@ -18,7 +18,7 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.format.experimental;
+package us.hebi.matlab.mat.tests.serialization;
 
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5Serializable;

@@ -21,7 +21,7 @@
 package us.hebi.matlab.mat.format;
 
 import org.junit.Test;
-import us.hebi.matlab.mat.format.mat5test.MatTestUtil;
+import us.hebi.matlab.mat.tests.mat5.MatTestUtil;
 import us.hebi.matlab.mat.types.Source;
 import us.hebi.matlab.mat.types.Sources;
 

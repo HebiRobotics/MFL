@@ -33,7 +33,7 @@ The **link:./src/main/java/us/hebi/matlab/mat/format/Mat5.java[Mat5]** class con
 
 Similarly to MATLAB, all types are internally represented as a multi-dimensional `Array`. For example, a scalar struct is really a `1x1` array of structs. Most types offer convenience overloads for scalar, linear, 2-dimensional, and N-dimensional access.
 
-Below are some example snippets on how to use the API. For more examples, please refer to **link:./src/test/java/us/hebi/matlab/mat/Mat5Examples.java[Mat5Examples]** and the various unit tests.
+Below are some example snippets on how to use the API. For more examples, please refer to **link:./src/test/java/us/hebi/matlab/mat/tests/Mat5Examples.java[Mat5Examples]** and the various unit tests.
 
 === Creating and Writing MAT Files
 
@@ -148,11 +148,11 @@ We often encountered cases where we needed to serialize data from an existing ma
 
 In order for a class to be serializable, it needs to implement the `Array` interface (easiest way is  to extend `AbstractArray`) as well as the `Mat5Serializable` interface. Below are examples:
 
-* link:./src/test/java/us/hebi/matlab/mat/format/experimental/EjmlDMatrixWrapper.java[EjmlDMatrixWrapper] serializes link:http://ejml.org[EJML]'s `DMatrix` type
+* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/EjmlDMatrixWrapper.java[EjmlDMatrixWrapper] serializes link:http://ejml.org[EJML]'s `DMatrix` type
 
-* link:./src/test/java/us/hebi/matlab/mat/format/experimental/EjmlSparseWrapper.java[EjmlSparseWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
+* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/EjmlSparseWrapper.java[EjmlSparseWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
 
-* link:./src/test/java/us/hebi/matlab/mat/format/experimental/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
+* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
 
 == General Notes
 
