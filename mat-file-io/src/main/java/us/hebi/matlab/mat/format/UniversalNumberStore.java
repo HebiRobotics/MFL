@@ -66,14 +66,6 @@ class UniversalNumberStore implements NumberStore {
         this.numElements = buffer.remaining() / type.bytes();
     }
 
-    UniversalNumberStore(Mat5Type tagType, int numElements, BufferAllocator bufferAllocator) {
-        this.type = tagType;
-        this.numElements = numElements;
-        this.buffer = bufferAllocator.allocate(numElements * tagType.bytes());
-        this.buffer.order(Mat5.DEFAULT_ORDER);
-        this.bufferAllocator = bufferAllocator;
-    }
-
     @Override
     public int getNumElements() {
         return numElements;

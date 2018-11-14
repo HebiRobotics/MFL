@@ -201,7 +201,9 @@ public class Mat5 {
 
     private static NumberStore createStore(MatlabType type, int[] dims, BufferAllocator bufferAllocator) {
         Mat5Type tagType = Mat5Type.fromNumericalType(type);
-        return new UniversalNumberStore(tagType, getNumElements(dims), bufferAllocator);
+        int numBytes = getNumElements(dims) * tagType.bytes();
+        ByteBuffer buffer = bufferAllocator.allocate(numBytes);
+        return new UniversalNumberStore(tagType, buffer, bufferAllocator);
     }
 
     static BufferAllocator getDefaultBufferAllocator() {
@@ -216,9 +218,10 @@ public class Mat5 {
     private final static BufferAllocator DEFAULT_BUFFER_ALLOCATOR = new BufferAllocator() {
         @Override
         public ByteBuffer allocate(int numBytes) {
-            if (numBytes <= 4096) // (arbitrary) threshold for staying on-heap
-                return ByteBuffer.allocate(numBytes);
-            return ByteBuffer.allocateDirect(numBytes);
+            ByteBuffer buffer = numBytes <= 4096 ? // (arbitrary) threshold for staying on-heap
+                    ByteBuffer.allocate(numBytes) : ByteBuffer.allocateDirect(numBytes);
+            buffer.order(DEFAULT_ORDER);
+            return buffer;
         }
 
         @Override
