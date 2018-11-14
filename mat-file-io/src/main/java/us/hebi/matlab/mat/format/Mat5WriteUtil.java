@@ -20,8 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.util.Casts;
-import us.hebi.matlab.common.util.Charsets;
+import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.types.Array;
 import us.hebi.matlab.mat.types.Opaque;
 import us.hebi.matlab.mat.types.Sink;
@@ -30,7 +29,7 @@ import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.zip.Deflater;
 
-import static us.hebi.matlab.common.util.Casts.*;
+import static us.hebi.matlab.mat.util.Casts.*;
 import static us.hebi.matlab.mat.format.Mat5Type.Int32;
 import static us.hebi.matlab.mat.format.Mat5Type.Int8;
 import static us.hebi.matlab.mat.format.Mat5Type.*;

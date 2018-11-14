@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.Arrays;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**

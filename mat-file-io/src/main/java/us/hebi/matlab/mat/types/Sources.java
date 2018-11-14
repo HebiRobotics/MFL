@@ -20,14 +20,14 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.common.memory.Unsafe9R;
+import us.hebi.matlab.mat.util.Unsafe9R;
 
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Factory methods for creating sources from various underlying inputs

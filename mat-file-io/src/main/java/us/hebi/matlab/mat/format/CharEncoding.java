@@ -20,8 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.memory.Bytes;
-import us.hebi.matlab.common.util.Charsets;
+import us.hebi.matlab.mat.util.Bytes;
 import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Source;
 
@@ -35,9 +34,9 @@ import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
 
 import static java.nio.ByteOrder.*;
-import static us.hebi.matlab.common.memory.Bytes.*;
-import static us.hebi.matlab.common.util.Casts.*;
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
+import static us.hebi.matlab.mat.util.Casts.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Available character encodings for character data in MAT files.

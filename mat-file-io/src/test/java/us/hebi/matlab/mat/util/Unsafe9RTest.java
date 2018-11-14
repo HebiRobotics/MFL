@@ -18,10 +18,9 @@
  * #L%
  */
 
-package us.hebi.matlab.common.memory;
+package us.hebi.matlab.mat.util;
 
 import org.junit.Test;
-import us.hebi.matlab.common.util.PlatformInfo;
 
 import java.io.File;
 import java.io.IOException;

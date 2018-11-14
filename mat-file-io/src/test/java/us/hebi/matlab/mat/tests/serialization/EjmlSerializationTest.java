@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.common.util.Casts.*;
+import static us.hebi.matlab.mat.util.Casts.*;
 
 /**
  * Demonstrates serialization of custom data sets by writing

@@ -22,12 +22,12 @@ package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
-import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.mat.util.Casts;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
 
 /**
  * Represents the type that the data is physically stored inside

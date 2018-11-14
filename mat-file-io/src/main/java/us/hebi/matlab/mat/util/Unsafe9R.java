@@ -18,7 +18,7 @@
  * #L%
  */
 
-package us.hebi.matlab.common.memory;
+package us.hebi.matlab.mat.util;
 
 import sun.misc.Unsafe;
 

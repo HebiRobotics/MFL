@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.types;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * @author Florian Enner

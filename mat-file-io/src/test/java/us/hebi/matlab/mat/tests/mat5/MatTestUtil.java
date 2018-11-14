@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.tests.mat5;
 
-import us.hebi.matlab.common.memory.Unsafe9R;
+import us.hebi.matlab.mat.util.Unsafe9R;
 import us.hebi.matlab.mat.format.BufferAllocator;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5File;
@@ -35,8 +35,8 @@ import java.util.concurrent.Executors;
 import java.util.zip.Deflater;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.common.util.Casts.*;
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Casts.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * @author Florian Enner

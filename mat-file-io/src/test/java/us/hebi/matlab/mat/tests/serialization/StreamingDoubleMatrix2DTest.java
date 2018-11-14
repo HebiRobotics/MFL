@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 import java.util.zip.Deflater;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.common.util.Casts.*;
+import static us.hebi.matlab.mat.util.Casts.*;
 
 /**
  * @author Florian Enner

@@ -20,7 +20,6 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.util.Charsets;
 import us.hebi.matlab.mat.types.*;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Date;
 
-import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 

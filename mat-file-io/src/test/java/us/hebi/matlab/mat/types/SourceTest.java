@@ -27,7 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
 
 /**
  * @author Florian Enner

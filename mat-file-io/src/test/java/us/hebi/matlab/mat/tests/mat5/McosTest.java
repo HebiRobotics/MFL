@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
 
 /**
  * Tests and files partially copied copied from MatFileRW authored by

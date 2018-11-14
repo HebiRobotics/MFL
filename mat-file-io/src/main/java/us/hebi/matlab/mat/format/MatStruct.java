@@ -24,13 +24,12 @@ import us.hebi.matlab.mat.types.AbstractStruct;
 import us.hebi.matlab.mat.types.Array;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
-import us.hebi.matlab.common.util.Charsets;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;

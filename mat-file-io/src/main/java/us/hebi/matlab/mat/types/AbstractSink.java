@@ -20,9 +20,9 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.common.memory.ByteConverter;
-import us.hebi.matlab.common.memory.ByteConverters;
-import us.hebi.matlab.common.memory.Bytes;
+import us.hebi.matlab.mat.util.ByteConverter;
+import us.hebi.matlab.mat.util.ByteConverters;
+import us.hebi.matlab.mat.util.Bytes;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -30,8 +30,8 @@ import java.nio.ByteOrder;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 
-import static us.hebi.matlab.common.memory.Bytes.*;
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * @author Florian Enner

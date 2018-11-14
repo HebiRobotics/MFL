@@ -18,11 +18,11 @@
  * #L%
  */
 
-package us.hebi.matlab.common.memory;
+package us.hebi.matlab.mat.util;
 
 import java.nio.ByteOrder;
 
-import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
 
 /**
  * @author Florian Enner

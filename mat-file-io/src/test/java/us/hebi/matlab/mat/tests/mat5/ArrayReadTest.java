@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.common.util.Casts.*;
+import static us.hebi.matlab.mat.util.Casts.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.tests.mat5.MatTestUtil.*;
 

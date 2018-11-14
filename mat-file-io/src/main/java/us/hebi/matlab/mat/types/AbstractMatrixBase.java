@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.mat.util.Casts;
 
 /**
  * Forwards convenience accessors to the minimum required set

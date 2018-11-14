@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.common.util.IndentingAppendable;
+import us.hebi.matlab.mat.util.IndentingAppendable;
 
 import java.util.Arrays;
 import java.util.Collection;

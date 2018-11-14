@@ -26,7 +26,7 @@ import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**

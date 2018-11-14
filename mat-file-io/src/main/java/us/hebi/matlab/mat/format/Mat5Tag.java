@@ -25,7 +25,7 @@ import us.hebi.matlab.mat.types.Source;
 import java.io.EOFException;
 import java.io.IOException;
 
-import static us.hebi.matlab.common.memory.Bytes.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
 import static us.hebi.matlab.mat.format.Mat5Reader.*;
 
 /**

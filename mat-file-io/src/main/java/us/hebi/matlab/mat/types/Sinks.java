@@ -20,8 +20,8 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.common.memory.Unsafe9R;
-import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.mat.util.Unsafe9R;
+import us.hebi.matlab.mat.util.Casts;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +31,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Factory for creating sinks for various types of output targets

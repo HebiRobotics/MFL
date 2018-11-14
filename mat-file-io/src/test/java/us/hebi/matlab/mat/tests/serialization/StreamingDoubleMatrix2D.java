@@ -33,8 +33,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import static us.hebi.matlab.common.memory.Bytes.*;
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 

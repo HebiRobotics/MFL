@@ -20,14 +20,14 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.types.AbstractSparse;
 import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sparse;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**

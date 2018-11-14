@@ -20,8 +20,8 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.util.Tasks;
-import us.hebi.matlab.common.util.Tasks.IoTask;
+import us.hebi.matlab.mat.util.Tasks;
+import us.hebi.matlab.mat.util.Tasks.IoTask;
 import us.hebi.matlab.mat.types.*;
 import us.hebi.matlab.mat.types.Cell;
 import us.hebi.matlab.mat.types.Matrix;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5Type.Int32;
 import static us.hebi.matlab.mat.format.Mat5Type.Int8;

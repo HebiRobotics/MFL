@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.util.IndentingAppendable;
+import us.hebi.matlab.mat.util.IndentingAppendable;
 import us.hebi.matlab.mat.types.Source;
 import us.hebi.matlab.mat.types.Sources;
 
@@ -30,7 +30,7 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Stack;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Iterates through all tags in a MAT 5 file without trying to

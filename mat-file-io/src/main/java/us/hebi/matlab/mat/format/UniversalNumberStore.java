@@ -20,15 +20,15 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.memory.Bytes;
-import us.hebi.matlab.common.util.Casts;
+import us.hebi.matlab.mat.util.Bytes;
+import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static us.hebi.matlab.common.util.Casts.*;
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Casts.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * MAT files can store numerical data in a compressed format, i.e.,

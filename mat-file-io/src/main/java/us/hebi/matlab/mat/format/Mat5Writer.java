@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.util.Tasks;
+import us.hebi.matlab.mat.util.Tasks;
 import us.hebi.matlab.mat.types.*;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.zip.Deflater;
 
-import static us.hebi.matlab.common.util.Preconditions.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**

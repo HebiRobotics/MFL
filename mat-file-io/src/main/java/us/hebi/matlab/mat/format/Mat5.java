@@ -20,7 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.common.memory.Unsafe9R;
+import us.hebi.matlab.mat.util.Unsafe9R;
 import us.hebi.matlab.mat.types.*;
 
 import java.nio.ByteBuffer;
