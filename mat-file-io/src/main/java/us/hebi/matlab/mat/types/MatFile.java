@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,13 +22,12 @@ package us.hebi.matlab.mat.types;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Iterator;
 
 /**
  * @author Florian Enner
  * @since 14 Sep 2018
  */
-public interface MatFile extends Closeable, Iterable<NamedArray> {
+public interface MatFile extends Closeable {
 
     Matrix getMatrix(String name);
 
@@ -65,12 +64,19 @@ public interface MatFile extends Closeable, Iterable<NamedArray> {
     MatFile addArray(NamedArray entry);
 
     /**
-     * @return number of contained arrays
+     * @return number of arrays at the root level
      */
-    int size();
+    int getNumEntries();
 
-    @Override
-    Iterator<NamedArray> iterator();
+    /**
+     * @return iterable of named arrays at the root level
+     */
+    Iterable<NamedArray> getEntries();
+
+    /**
+     * Clears the contained entries (without closing them)
+     */
+    void clear();
 
     /**
      * Closes all contained arrays

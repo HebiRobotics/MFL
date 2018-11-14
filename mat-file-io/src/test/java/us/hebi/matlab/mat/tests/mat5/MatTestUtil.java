@@ -20,11 +20,11 @@
 
 package us.hebi.matlab.mat.tests.mat5;
 
-import us.hebi.matlab.mat.util.Unsafe9R;
 import us.hebi.matlab.mat.format.BufferAllocator;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5File;
 import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.util.Unsafe9R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,25 +54,25 @@ public class MatTestUtil {
 
     public static Mat5File readMat(String name, boolean testRoundTrip, boolean reduced) throws IOException {
         // Read from original file using single-threaded reader
-        Mat5File results = readMat(MatTestUtil.class, name, reduced);
+        Mat5File resultMat = readMat(MatTestUtil.class, name, reduced);
         if (debugPrint) {
-            System.out.println("source = " + results);
-            for (NamedArray result : results) {
+            System.out.println("source = " + resultMat);
+            for (NamedArray result : resultMat.getEntries()) {
                 System.out.println(result);
             }
         }
 
         if (!testRoundTrip)
-            return results;
+            return resultMat;
 
         // Write contents to buffer using single threaded writer
         int errorPadding = 128;
-        long maxSize = results.getUncompressedSerializedSize() + errorPadding;
+        long maxSize = resultMat.getUncompressedSerializedSize() + errorPadding;
         ByteBuffer buffer = ByteBuffer.allocate(sint32(maxSize));
         try (Sink sink = Sinks.wrap(buffer).order(testOrder)) {
             Mat5.newWriter(sink)
                     .setDeflateLevel(deflateLevel)
-                    .writeMat(results);
+                    .writeMat(resultMat);
         }
 
         // Write contents to a 2nd buffer using concurrent writer
@@ -81,7 +81,7 @@ public class MatTestUtil {
             Mat5.newWriter(sink)
                     .setDeflateLevel(deflateLevel)
                     .enableConcurrentCompression(executorService)
-                    .writeMat(results);
+                    .writeMat(resultMat);
         }
 
         // Make sure content of buffer 1 & 2 are the same
@@ -105,18 +105,18 @@ public class MatTestUtil {
         buffer.rewind();
         try (Source source = Sources.wrap(buffer)) {
 
-            Mat5File file = Mat5.newReader(source)
+            Mat5File matFile = Mat5.newReader(source)
                     .enableConcurrentDecompression(executorService)
                     .setReducedHeader(reduced)
                     .readMat();
 
             if (debugPrint) {
-                System.out.println("roundtrip = " + file);
-                for (NamedArray result : file) {
-                    System.out.println(result);
+                System.out.println("roundtrip = " + matFile);
+                for (NamedArray array : matFile.getEntries()) {
+                    System.out.println(array);
                 }
             }
-            return file;
+            return matFile;
         }
 
     }

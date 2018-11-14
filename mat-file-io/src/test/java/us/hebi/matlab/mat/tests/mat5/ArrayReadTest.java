@@ -398,7 +398,7 @@ public class ArrayReadTest {
         // We don't test round-trip as empty array names aren't legal in MATLAB. The only empty
         // name should be the subsystem
         MatFile matFile = MatTestUtil.readMat("arrays/emptyname.mat", false);
-        assertEquals(3, matFile.size());
+        assertEquals(3, matFile.getNumEntries());
         assertEquals(1, uint8(matFile.getMatrix(0).getByte(0)));
         assertEquals(2, uint8(matFile.getMatrix(1).getByte(0)));
         assertEquals(3, uint8(matFile.getMatrix(2).getByte(0)));

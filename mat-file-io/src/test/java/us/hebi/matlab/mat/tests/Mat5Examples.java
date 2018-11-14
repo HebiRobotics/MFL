@@ -223,7 +223,7 @@ public class Mat5Examples {
                 .setArrayFilter(header -> header.getNumElements() == 1)
                 .readMat();
 
-        assertEquals(2, result.size());
+        assertEquals(2, result.getNumEntries());
         result.getMatrix("scalar");
         result.getMatrix("complexScalar");
 

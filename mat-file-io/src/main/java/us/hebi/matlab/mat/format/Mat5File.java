@@ -270,13 +270,13 @@ public class Mat5File extends AbstractMatFile {
     }
 
     public Mat5File addArray(NamedArray entry) {
-        if (reduced && size() >= 2)
+        if (reduced && getNumEntries() >= 2)
             throw new IllegalStateException("Reduced MAT 5 files may not contain more than 2 entries");
 
         // Make sure that the optional subsystem is
         // located at the end of the file
         if (getLast() instanceof Mat5Subsystem) {
-            entries.add(size() - 1, entry);
+            entries.add(getNumEntries() - 1, entry);
         } else {
             entries.add(entry);
         }
@@ -285,7 +285,7 @@ public class Mat5File extends AbstractMatFile {
     }
 
     private Array getLast() {
-        return size() == 0 ? null : entries.get(size() - 1).getValue();
+        return getNumEntries() == 0 ? null : entries.get(getNumEntries() - 1).getValue();
     }
 
     private final String description;

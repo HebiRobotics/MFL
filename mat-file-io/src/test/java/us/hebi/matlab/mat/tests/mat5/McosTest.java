@@ -48,7 +48,7 @@ public class McosTest {
     @Test
     public void testParsingSimpleEmptyMCOS() throws IOException {
         Mat5File mat = MatTestUtil.readMat("mcos/simpleempty.mat");
-        assertEquals(2, mat.size());
+        assertEquals(2, mat.getNumEntries());
         assertNotNull(mat.getSubsystem());
 
         List<String> expectedNames = Collections.emptyList();
@@ -59,7 +59,7 @@ public class McosTest {
     @Test
     public void testParsingMultipleSimpleEmptyMCOS() throws IOException {
         Mat5File mat = MatTestUtil.readMat("mcos/simpleempty_multiple.mat");
-        assertEquals(3, mat.size());
+        assertEquals(3, mat.getNumEntries());
         assertNotNull(mat.getSubsystem());
 
         List<String> expectedNames = Collections.emptyList();
@@ -73,7 +73,7 @@ public class McosTest {
     @Test
     public void testParsingSimpleSingleTextUnmodifiedMCOS() throws IOException {
         Mat5File mat = MatTestUtil.readMat("mcos/simplesingletext_unmodified.mat");
-        assertEquals(2, mat.size());
+        assertEquals(2, mat.getNumEntries());
         assertNotNull(mat.getSubsystem());
 
         List<String> expectedNames = Collections.singletonList("test_text");
@@ -86,7 +86,7 @@ public class McosTest {
     @Test
     public void testParsingSimpleSingleTextMultipleMCOS() throws IOException {
         Mat5File mat = MatTestUtil.readMat("mcos/simplesingletext_multiple.mat");
-        assertEquals(4, mat.size());
+        assertEquals(4, mat.getNumEntries());
         assertNotNull(mat.getSubsystem());
 
         List<String> expectedNames = Collections.singletonList("test_text");
@@ -128,7 +128,7 @@ public class McosTest {
     @Test
     public void testMultipleMCOSInArray() throws Exception {
         Mat5File mat = MatTestUtil.readMat("mcos/simplesingletext_multiplearray.mat");
-        assertEquals(2, mat.size());
+        assertEquals(2, mat.getNumEntries());
         assertNotNull(mat.getSubsystem());
 
         ObjectStruct a = mat.getObject("a");
@@ -149,7 +149,7 @@ public class McosTest {
     @Test
     public void testReadingTimeSeries() throws IOException {
         Mat5File mat = MatTestUtil.readMat("mcos/timeseries.mat");
-        assertEquals(2, mat.size());
+        assertEquals(2, mat.getNumEntries());
         assertNotNull(mat.getSubsystem());
 
         ObjectStruct test = mat.getStruct("s").getObject("test");
