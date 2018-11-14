@@ -2,3 +2,4 @@
 *.iml
 /.idea
 settings.xml
+target/
