@@ -3,7 +3,7 @@
 
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-file-io</artifactId>
-    <version>0.2</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Mat-File IO</name>
@@ -34,7 +34,7 @@
         <url>https://github.com/HebiRobotics/MatFileIO</url>
         <connection>scm:git:git://github.com/HebiRobotics/MatFileIO.git</connection>
         <developerConnection>scm:git:git@github.com:HebiRobotics/MatFileIO.git</developerConnection>
-        <tag>mat-file-io-0.2</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Maven Central Distribution -->
