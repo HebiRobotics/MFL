@@ -148,7 +148,7 @@ public class Mat5 {
     }
 
     public static Matrix newLogical(int[] dims) {
-        return createMatrix(dims, MatlabType.Int8, true, false);
+        return newNumerical(dims, MatlabType.Int8, true, false);
     }
 
     public static Matrix newMatrix(int rows, int cols) {
@@ -164,7 +164,7 @@ public class Mat5 {
     }
 
     public static Matrix newMatrix(int[] dims, MatlabType type) {
-        return createMatrix(dims, type, false, false);
+        return newNumerical(dims, type, false, false);
     }
 
     public static Matrix newComplex(int rows, int cols) {
@@ -180,7 +180,7 @@ public class Mat5 {
     }
 
     public static Matrix newComplex(int[] dims, MatlabType type) {
-        return createMatrix(dims, type, false, true);
+        return newNumerical(dims, type, false, true);
     }
 
     public static int getSerializedSize(String name, Array array) {
@@ -190,14 +190,18 @@ public class Mat5 {
         throw new IllegalArgumentException("Array does not support the MAT5 format");
     }
 
-    private static Matrix createMatrix(int[] dims, MatlabType type, boolean logical, boolean complex) {
-        return new MatMatrix(dims, false, type, logical,
-                createStore(type, dims), complex ? createStore(type, dims) : null);
+    private static Matrix newNumerical(int[] dims, MatlabType type, boolean logical, boolean complex) {
+        return newNumerical(dims, type, logical, complex, getDefaultBufferAllocator());
     }
 
-    private static NumberStore createStore(MatlabType type, int[] dims) {
+    public static Matrix newNumerical(int[] dims, MatlabType type, boolean logical, boolean complex, BufferAllocator allocator) {
+        return new MatMatrix(dims, false, type, logical,
+                createStore(type, dims, allocator), complex ? createStore(type, dims, allocator) : null);
+    }
+
+    private static NumberStore createStore(MatlabType type, int[] dims, BufferAllocator bufferAllocator) {
         Mat5Type tagType = Mat5Type.fromNumericalType(type);
-        return new UniversalNumberStore(tagType, getNumElements(dims), getDefaultBufferAllocator());
+        return new UniversalNumberStore(tagType, getNumElements(dims), bufferAllocator);
     }
 
     static BufferAllocator getDefaultBufferAllocator() {
