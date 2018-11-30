@@ -62,6 +62,11 @@ public class MatTestUtil {
             }
         }
 
+        // Assert that equality is working
+        Mat5File secondLoad = readMat(MatTestUtil.class, name, reduced);
+        assertEquals("Loading the file a second time should be equal to the first load", resultMat, secondLoad);
+        assertEquals("Loading the file a second time should have the same hash as the first load", resultMat.hashCode(), secondLoad.hashCode());
+
         if (!testRoundTrip)
             return resultMat;
 
