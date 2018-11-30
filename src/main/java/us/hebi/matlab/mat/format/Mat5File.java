@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Bytes.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
@@ -302,4 +303,18 @@ public class Mat5File extends AbstractMatFile {
 
     private static final String MAT5_IDENTIFIER = "MATLAB 5.0 MAT-file";
 
+    @Override
+    protected int subHashCode() {
+        return Objects.hash(description, subsysOffset, byteOrder, version, reduced);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        Mat5File other = (Mat5File) otherGuaranteedSameClass;
+        return Objects.equals(other.description, description) &&
+                Objects.equals(other.subsysOffset, subsysOffset) &&
+                Objects.equals(other.byteOrder, byteOrder) &&
+                Objects.equals(other.version, version) &&
+                Objects.equals(other.reduced, reduced);
+    }
 }
