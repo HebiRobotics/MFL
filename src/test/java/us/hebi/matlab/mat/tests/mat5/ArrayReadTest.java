@@ -47,6 +47,16 @@ public class ArrayReadTest {
     }
 
     @Test
+    public void testReadingNaNEquality() throws Exception {
+        Matrix real = MatTestUtil.readMat("arrays/nan.mat").getMatrix("x");
+        Matrix realChanged = MatTestUtil.readMat("arrays/nan.mat").getMatrix("x");
+        realChanged.setDouble(0, 5.0);
+        assertNotEquals("When the value has changed, they should not be equal.", real, realChanged);
+        real.setDouble(0, 5.0);
+        assertEquals("But when they are the same, they should not be equal again.", real, realChanged);
+    }
+
+    @Test
     public void testSingle() throws Exception {
         Matrix real = MatTestUtil.readMat("arrays/single.mat").getMatrix("arr");
         assertEquals(MatlabType.Single, real.getType());
