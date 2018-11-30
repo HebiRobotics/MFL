@@ -23,6 +23,7 @@ package us.hebi.matlab.mat.format;
 import us.hebi.matlab.mat.types.*;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
@@ -76,4 +77,16 @@ class MatOpaque extends AbstractArray implements Opaque, Mat5Serializable {
     private final Array content;
     private static final int[] SINGLE_DIM = new int[]{1, 1};
 
+    @Override
+    protected int subHashCode() {
+        return Objects.hash(objectType, className, content);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatOpaque other = (MatOpaque) otherGuaranteedSameClass;
+        return other.objectType.equals(objectType) &&
+                other.className.equals(className) &&
+                other.content.equals(content);
+    }
 }

@@ -26,6 +26,7 @@ import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sparse;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
@@ -211,4 +212,21 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
         if (complex) imaginary.writeMat5(sink);
     }
 
+    @Override
+    protected int subHashCode() {
+        return Objects.hash(nzMax, logical, complex, imaginary, real, rowIndices, columnIndices);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatSparseCSC other = (MatSparseCSC) otherGuaranteedSameClass;
+        // all the primitive fields have to match before we bother looking at the data
+        return other.nzMax == nzMax && 
+                other.logical == logical &&
+                other.complex == complex &&
+                Objects.equals(other.imaginary, imaginary) &&
+                other.rowIndices.equals(rowIndices) &&
+                other.columnIndices.equals(columnIndices) &&
+                other.real.equals(real);
+    }
 }

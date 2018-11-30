@@ -26,6 +26,7 @@ import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Casts.*;
 import static us.hebi.matlab.mat.util.Preconditions.*;
@@ -217,4 +218,20 @@ class UniversalNumberStore implements NumberStore {
     private ByteBuffer buffer;
     private BufferAllocator bufferAllocator;
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, buffer);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } else if (other instanceof UniversalNumberStore) {
+            UniversalNumberStore store = (UniversalNumberStore) other;
+            return type == store.type && buffer.equals(store.buffer);
+        } else {
+            return false;
+        }
+    }
 }

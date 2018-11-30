@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
@@ -202,4 +203,19 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
     final int classId;
     final McosObject[] objects;
 
+    @Override
+    protected int subHashCode() {
+        return Objects.hash(objectType, className, content, Arrays.hashCode(objectIds), classId, Arrays.hashCode(objects));
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        McosReference other = (McosReference) otherGuaranteedSameClass;
+        return other.objectType.equals(objectType) &&
+                other.className.equals(className) &&
+                other.classId == classId &&
+                other.content.equals(content) &&
+                Arrays.equals(other.objectIds, objectIds) &&
+                Arrays.equals(other.objects, objects);
+    }
 }

@@ -164,4 +164,13 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
     final Sink[] columnSinks;
     private final String name;
 
+    @Override
+    protected int subHashCode() {
+        return System.identityHashCode(this);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        return false;
+    }
 }

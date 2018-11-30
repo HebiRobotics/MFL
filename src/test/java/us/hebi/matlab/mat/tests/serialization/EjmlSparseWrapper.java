@@ -120,4 +120,14 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
 
     final DMatrixSparseCSC sparse;
 
+    @Override
+    protected int subHashCode() {
+        return sparse.hashCode();
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        EjmlSparseWrapper other = (EjmlSparseWrapper) otherGuaranteedSameClass;
+        return other.sparse.equals(sparse);
+    }
 }

@@ -25,6 +25,8 @@ import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
@@ -154,4 +156,19 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
     private final boolean complex;
     private final MatlabType type;
 
+    @Override
+    protected int subHashCode() {
+        return Objects.hash(logical, real, imaginary, complex, type);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatMatrix other = (MatMatrix) otherGuaranteedSameClass;
+        // all the primitive fields have to match before we bother looking at the data
+        return other.logical == logical && 
+                other.complex == complex &&
+                other.type == type &&
+                other.real.equals(real) &&
+                Objects.equals(other.complex, complex);
+    }
 }
