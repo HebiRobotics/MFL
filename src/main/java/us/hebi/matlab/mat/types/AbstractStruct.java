@@ -133,7 +133,7 @@ public abstract class AbstractStruct extends AbstractStructBase {
                 other.fields.equals(fields) &&
                 other.values.size() == values.size()) {
             for (int i = 0; i < values.size(); ++i) {
-                if (!other.values.get(i).equals(values.get(i))) {
+                if (!Arrays.equals(other.values.get(i), values.get(i))) {
                     return false;
                 }
             }
