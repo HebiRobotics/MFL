@@ -25,7 +25,6 @@ import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
@@ -169,6 +168,6 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
                 other.complex == complex &&
                 other.type == type &&
                 other.real.equals(real) &&
-                Objects.equals(other.complex, complex);
+                Objects.equals(other.imaginary, imaginary);
     }
 }
