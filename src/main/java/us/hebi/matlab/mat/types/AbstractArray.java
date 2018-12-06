@@ -117,6 +117,7 @@ public abstract class AbstractArray implements Array {
         this.dims = checkNotNull(dims);
         checkArgument(dims.length >= 2, "Every array must have at least two dimensions");
         this.dimStrides = calculateColMajorStrides(dims);
+        this.isGlobal = isGlobal;
     }
 
     @Override
