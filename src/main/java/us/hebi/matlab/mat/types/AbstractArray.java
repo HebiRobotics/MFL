@@ -22,6 +22,8 @@ package us.hebi.matlab.mat.types;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 
+import java.util.Arrays;
+
 /**
  * @author Florian Enner
  * @since 02 May 2018
@@ -115,6 +117,7 @@ public abstract class AbstractArray implements Array {
         this.dims = checkNotNull(dims);
         checkArgument(dims.length >= 2, "Every array must have at least two dimensions");
         this.dimStrides = calculateColMajorStrides(dims);
+        this.isGlobal = isGlobal;
     }
 
     @Override
@@ -129,4 +132,33 @@ public abstract class AbstractArray implements Array {
     // Internal state
     private final int[] dimStrides;
 
+    @Override
+    public final int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(dims);
+        result = prime * result + (isGlobal ? 1231 : 1237);
+        result = prime * result + subHashCode();
+        return result;
+    }
+
+    @Override
+    public final boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } else if (other == null) {
+            return false;
+        } else if (other.getClass().equals(this.getClass())) {
+            AbstractArray otherArray = (AbstractArray) other;
+            return otherArray.isGlobal == isGlobal &&
+                    Arrays.equals(otherArray.dims, dims) &&
+                    subEqualsGuaranteedSameClass(other);
+        } else {
+            return false;
+        }
+    }
+
+    protected abstract int subHashCode();
+
+    protected abstract boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass);
 }

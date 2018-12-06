@@ -1,5 +1,10 @@
 = Mat-File IO - Changelog
 
+== 0.3
+* Added `hashCode()` and `equals()` to all Arrays. Thanks `@nedtwigg`
+* Fixed a bug that caused the `global` flag to be ignored during construction. Thanks `@nedtwigg`
+* Fixed a bug that caused field names inside structs and objects to be serialized incorrectly
+
 == 0.2
 * Moved `common.util` to `mat.util`
 * Removed unused utilities

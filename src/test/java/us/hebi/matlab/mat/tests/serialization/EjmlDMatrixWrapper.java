@@ -78,4 +78,14 @@ public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializabl
 
     final DMatrix matrix;
 
+    @Override
+    protected int subHashCode() {
+        return matrix.hashCode();
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        EjmlDMatrixWrapper other = (EjmlDMatrixWrapper) otherGuaranteedSameClass;
+        return other.matrix.equals(matrix);
+    }
 }
