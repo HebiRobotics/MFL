@@ -145,15 +145,4 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         }
 
     }
-
-    @Override
-    protected int subSubHashCode() {
-        return 0;
-    }
-
-    @Override
-    protected boolean subSubEquals(Object otherGuaranteedSameClass) {
-        // MatStruct doesn't add any fields beyond those built-in to AbstractStructBase
-        return true;
-    }
 }

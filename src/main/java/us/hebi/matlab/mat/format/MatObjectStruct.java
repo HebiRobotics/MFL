@@ -53,13 +53,13 @@ class MatObjectStruct extends MatStruct implements ObjectStruct {
     private final String className;
 
     @Override
-    protected int subSubHashCode() {
-        return className.hashCode();
+    protected int subHashCode() {
+        return 31 * className.hashCode() + super.subHashCode();
     }
 
     @Override
-    protected boolean subSubEquals(Object otherGuaranteedSameClass) {
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
         MatObjectStruct other = (MatObjectStruct) otherGuaranteedSameClass;
-        return other.className.equals(className);
+        return other.className.equals(className) && super.subEqualsGuaranteedSameClass(other);
     }
 }

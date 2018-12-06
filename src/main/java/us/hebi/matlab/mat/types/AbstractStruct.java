@@ -123,13 +123,10 @@ public abstract class AbstractStruct extends AbstractStructBase {
         return result;
     }
 
-    protected abstract int subSubHashCode();
-
     @Override
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
         AbstractStruct other = (AbstractStruct) otherGuaranteedSameClass;
-        if (subSubEquals(otherGuaranteedSameClass) &&
-                other.indexMap.equals(indexMap) &&
+        if (other.indexMap.equals(indexMap) &&
                 other.fields.equals(fields) &&
                 other.values.size() == values.size()) {
             for (int i = 0; i < values.size(); ++i) {
@@ -142,6 +139,4 @@ public abstract class AbstractStruct extends AbstractStructBase {
             return false;
         }
     }
-
-    protected abstract boolean subSubEquals(Object otherGuaranteedSameClass);
 }
