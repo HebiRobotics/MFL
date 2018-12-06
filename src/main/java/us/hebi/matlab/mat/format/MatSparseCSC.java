@@ -22,6 +22,7 @@ package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.types.AbstractSparse;
+import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sparse;
 
@@ -211,4 +212,25 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
         if (complex) imaginary.writeMat5(sink);
     }
 
+    @Override
+    protected int subHashCode() {
+        return Compat.hash(nzMax, logical, complex,
+                UniversalNumberStore.hashCodeForType(imaginary, logical, MatlabType.Double),
+                UniversalNumberStore.hashCodeForType(real, logical, MatlabType.Double),
+                UniversalNumberStore.hashCodeForType(rowIndices, logical, MatlabType.Int64),
+                UniversalNumberStore.hashCodeForType(columnIndices, logical, MatlabType.Int64));
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatSparseCSC other = (MatSparseCSC) otherGuaranteedSameClass;
+        // all the primitive fields have to match before we bother looking at the data
+        return other.nzMax == nzMax && 
+                other.logical == logical &&
+                other.complex == complex &&
+                UniversalNumberStore.equalForType(other.imaginary, imaginary, logical, MatlabType.Double) &&
+                UniversalNumberStore.equalForType(other.real, real, logical, MatlabType.Double) &&
+                UniversalNumberStore.equalForType(other.rowIndices, rowIndices, logical, MatlabType.Int64) &&
+                UniversalNumberStore.equalForType(other.columnIndices, columnIndices, logical, MatlabType.Int64);
+    }
 }

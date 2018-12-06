@@ -68,4 +68,14 @@ class MatFunction extends AbstractArray implements FunctionHandle, Mat5Serializa
 
     final Struct content;
 
+    @Override
+    protected int subHashCode() {
+        return content.hashCode();
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatFunction other = (MatFunction) otherGuaranteedSameClass;
+        return other.content.equals(content);
+    }
 }

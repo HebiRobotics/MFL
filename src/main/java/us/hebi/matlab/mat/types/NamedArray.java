@@ -56,4 +56,20 @@ public final class NamedArray {
     private final String name;
     private final Array value;
 
+    @Override
+    public int hashCode() {
+        return 31 * name.hashCode() + value.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        } else if (obj instanceof NamedArray) {
+            NamedArray other = (NamedArray) obj;
+            return other.name.equals(name) && other.value.equals(value);
+        } else {
+            return false;
+        }
+    }
 }

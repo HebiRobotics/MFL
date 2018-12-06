@@ -145,5 +145,4 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         }
 
     }
-
 }

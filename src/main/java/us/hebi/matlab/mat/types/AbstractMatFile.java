@@ -111,4 +111,26 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
     protected final HashMap<String, Array> lookup = new HashMap<String, Array>();
     protected final List<NamedArray> entries = new ArrayList<NamedArray>();
 
+    @Override
+    public final int hashCode() {
+        return 31 * subHashCode() + entries.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        } else if (other == null) {
+            return false;
+        } else if (other.getClass().equals(this.getClass())) {
+            AbstractMatFile otherFile = (AbstractMatFile) other;
+            return subEqualsGuaranteedSameClass(other) && otherFile.entries.equals(entries);
+        } else {
+            return false;
+        }
+    }
+
+    protected abstract int subHashCode();
+
+    protected abstract boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass);
 }

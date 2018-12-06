@@ -68,4 +68,14 @@ class MatCell extends AbstractCell implements Mat5Serializable {
         }
     }
 
+    @Override
+    protected int subHashCode() {
+        return Arrays.hashCode(contents);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatCell other = (MatCell) otherGuaranteedSameClass;
+        return Arrays.equals(other.contents, contents);
+    }
 }

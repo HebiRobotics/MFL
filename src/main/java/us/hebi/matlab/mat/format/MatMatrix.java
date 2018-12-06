@@ -154,4 +154,21 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
     private final boolean complex;
     private final MatlabType type;
 
+    @Override
+    protected int subHashCode() {
+        return Compat.hash(logical, complex, type,
+                UniversalNumberStore.hashCodeForType(real, logical, type),
+                UniversalNumberStore.hashCodeForType(imaginary, logical, type));
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        MatMatrix other = (MatMatrix) otherGuaranteedSameClass;
+        // all the primitive fields have to match before we bother looking at the data
+        return other.logical == logical && 
+                other.complex == complex &&
+                other.type == type &&
+                UniversalNumberStore.equalForType(other.real, real, logical, type) &&
+                UniversalNumberStore.equalForType(other.imaginary, imaginary, logical, type);
+    }
 }

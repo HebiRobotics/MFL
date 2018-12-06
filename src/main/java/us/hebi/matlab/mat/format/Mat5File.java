@@ -302,4 +302,18 @@ public class Mat5File extends AbstractMatFile {
 
     private static final String MAT5_IDENTIFIER = "MATLAB 5.0 MAT-file";
 
+    @Override
+    protected int subHashCode() {
+        return Compat.hash(description, subsysOffset, byteOrder, version, reduced);
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        Mat5File other = (Mat5File) otherGuaranteedSameClass;
+        return Compat.equals(other.description, description) &&
+                Compat.equals(other.subsysOffset, subsysOffset) &&
+                Compat.equals(other.byteOrder, byteOrder) &&
+                Compat.equals(other.version, version) &&
+                Compat.equals(other.reduced, reduced);
+    }
 }
