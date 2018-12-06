@@ -23,7 +23,6 @@ package us.hebi.matlab.mat.format;
 import us.hebi.matlab.mat.types.*;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
@@ -79,7 +78,7 @@ class MatOpaque extends AbstractArray implements Opaque, Mat5Serializable {
 
     @Override
     protected int subHashCode() {
-        return Objects.hash(objectType, className, content);
+        return Compat.hash(objectType, className, content);
     }
 
     @Override

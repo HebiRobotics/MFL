@@ -27,7 +27,6 @@ import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sparse;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
@@ -215,7 +214,7 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
 
     @Override
     protected int subHashCode() {
-        return Objects.hash(nzMax, logical, complex,
+        return Compat.hash(nzMax, logical, complex,
                 NumberStore.hashCodeForType(imaginary, logical, MatlabType.Double),
                 NumberStore.hashCodeForType(real, logical, MatlabType.Double),
                 NumberStore.hashCodeForType(rowIndices, logical, MatlabType.Int64),

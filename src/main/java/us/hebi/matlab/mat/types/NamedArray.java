@@ -22,8 +22,6 @@ package us.hebi.matlab.mat.types;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 
-import java.util.Objects;
-
 /**
  * Represents a root element, i.e., an array with a variable name.
  * <p>
@@ -60,7 +58,7 @@ public final class NamedArray {
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, value);
+        return 31 * name.hashCode() + value.hashCode();
     }
 
     @Override

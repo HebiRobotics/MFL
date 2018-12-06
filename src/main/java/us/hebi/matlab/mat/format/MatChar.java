@@ -26,7 +26,6 @@ import us.hebi.matlab.mat.types.Sink;
 import java.io.IOException;
 import java.nio.CharBuffer;
 import java.util.Arrays;
-import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
@@ -91,7 +90,7 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
 
     @Override
     protected int subHashCode() {
-        return Objects.hash(buffer, encoding);
+        return Compat.hash(buffer, encoding);
     }
 
     @Override

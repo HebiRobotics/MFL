@@ -25,7 +25,6 @@ import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
-import java.util.Objects;
 
 import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
@@ -157,7 +156,7 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
 
     @Override
     protected int subHashCode() {
-        return Objects.hash(logical, complex, type,
+        return Compat.hash(logical, complex, type,
                 NumberStore.hashCodeForType(real, logical, type),
                 NumberStore.hashCodeForType(imaginary, logical, type));
     }
