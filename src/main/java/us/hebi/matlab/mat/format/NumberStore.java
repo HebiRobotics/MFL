@@ -27,8 +27,6 @@ import us.hebi.matlab.mat.util.Casts;
 import java.io.Closeable;
 import java.io.IOException;
 
-import javax.annotation.Nullable;
-
 /**
  * Provides a way to store numerical data with different types and
  * can be thought of as an array.
@@ -52,7 +50,7 @@ interface NumberStore extends Closeable {
 
     void writeMat5(Sink sink) throws IOException;
 
-    static int hashCodeForType(@Nullable NumberStore store, boolean logical, MatlabType type) {
+    static int hashCodeForType(NumberStore store, boolean logical, MatlabType type) {
         if (store == null) {
             return 0;
         }
@@ -75,7 +73,7 @@ interface NumberStore extends Closeable {
         return hash;
     }
 
-    static boolean equalForType(@Nullable NumberStore a, @Nullable NumberStore b, boolean logical, MatlabType type) {
+    static boolean equalForType(NumberStore a, NumberStore b, boolean logical, MatlabType type) {
         if ((a == null) != (b == null)) {
             //  null mismatch is easy
             return false;
