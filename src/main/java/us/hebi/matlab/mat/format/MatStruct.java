@@ -69,8 +69,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
     protected int getLongestFieldName() {
         int length = 0;
         for (String name : getFieldNames()) {
-            int truncated = Math.min(NAME_LENGTH_MAX, name.length());
-            length = Math.max(length, truncated);
+            length = Math.max(length, getLimitedNameLength(name));
         }
         return length + NULL_TERMINATOR_LENGTH;
     }
@@ -133,7 +132,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         byte[] ascii = new byte[numChars];
         Arrays.fill(ascii, NULL_TERMINATOR);
         for (int i = 0; i < numFields; i++) {
-            String fieldName = truncatedFieldName(getFieldNames().get(i));
+            String fieldName = getLimitedName(getFieldNames().get(i));
             byte[] bytes = fieldName.getBytes(Charsets.US_ASCII);
             System.arraycopy(bytes, 0, ascii, i * longestName, bytes.length);
         }
@@ -149,30 +148,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
 
     }
 
-    /**
-     * MATLAB has a limit for variable names and struct fields of 63 characters (R2018b)
-     * (64 w/ null terminator). If the input name exceeds this limit, the field
-     * name will be truncated and a warning be printed out.
-     *
-     * The limit can be determined via the 'namelengthmax' function.
-     *
-     * @param fieldName desired variable name
-     * @return original input or truncated if necessary
-     */
-    private static String truncatedFieldName(String fieldName) {
-        // Name is within bounds
-        if (fieldName.length() <= NAME_LENGTH_MAX)
-            return fieldName;
-
-        // Truncate to max characters and print MATLAB-like warning
-        String truncated = fieldName.substring(0, NAME_LENGTH_MAX);
-        String warning = "Warning:\nField name '%s' exceeds the MATLAB maximum name length and will be truncated to '%s'.";
-        System.err.println(String.format(warning, fieldName, truncated));
-        return truncated;
-    }
-
     private static final byte NULL_TERMINATOR = (byte) '\0';
     private static final int NULL_TERMINATOR_LENGTH = 1;
-    private static final int NAME_LENGTH_MAX = 63; // Spec says 31, but R2018b supports 63
 
 }
