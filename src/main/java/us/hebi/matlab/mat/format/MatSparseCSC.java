@@ -215,10 +215,10 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
     @Override
     protected int subHashCode() {
         return Compat.hash(nzMax, logical, complex,
-                NumberStore.hashCodeForType(imaginary, logical, MatlabType.Double),
-                NumberStore.hashCodeForType(real, logical, MatlabType.Double),
-                NumberStore.hashCodeForType(rowIndices, logical, MatlabType.Int64),
-                NumberStore.hashCodeForType(columnIndices, logical, MatlabType.Int64));
+                UniversalNumberStore.hashCodeForType(imaginary, logical, MatlabType.Double),
+                UniversalNumberStore.hashCodeForType(real, logical, MatlabType.Double),
+                UniversalNumberStore.hashCodeForType(rowIndices, logical, MatlabType.Int64),
+                UniversalNumberStore.hashCodeForType(columnIndices, logical, MatlabType.Int64));
     }
 
     @Override
@@ -228,9 +228,9 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
         return other.nzMax == nzMax && 
                 other.logical == logical &&
                 other.complex == complex &&
-                NumberStore.equalForType(other.imaginary, imaginary, logical, MatlabType.Double) &&
-                NumberStore.equalForType(other.real, real, logical, MatlabType.Double) &&
-                NumberStore.equalForType(other.rowIndices, rowIndices, logical, MatlabType.Int64) &&
-                NumberStore.equalForType(other.columnIndices, columnIndices, logical, MatlabType.Int64);
+                UniversalNumberStore.equalForType(other.imaginary, imaginary, logical, MatlabType.Double) &&
+                UniversalNumberStore.equalForType(other.real, real, logical, MatlabType.Double) &&
+                UniversalNumberStore.equalForType(other.rowIndices, rowIndices, logical, MatlabType.Int64) &&
+                UniversalNumberStore.equalForType(other.columnIndices, columnIndices, logical, MatlabType.Int64);
     }
 }

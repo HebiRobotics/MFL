@@ -157,8 +157,8 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
     @Override
     protected int subHashCode() {
         return Compat.hash(logical, complex, type,
-                NumberStore.hashCodeForType(real, logical, type),
-                NumberStore.hashCodeForType(imaginary, logical, type));
+                UniversalNumberStore.hashCodeForType(real, logical, type),
+                UniversalNumberStore.hashCodeForType(imaginary, logical, type));
     }
 
     @Override
@@ -168,7 +168,7 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
         return other.logical == logical && 
                 other.complex == complex &&
                 other.type == type &&
-                NumberStore.equalForType(other.real, real, logical, type) &&
-                NumberStore.equalForType(other.imaginary, imaginary, logical, type);
+                UniversalNumberStore.equalForType(other.real, real, logical, type) &&
+                UniversalNumberStore.equalForType(other.imaginary, imaginary, logical, type);
     }
 }
