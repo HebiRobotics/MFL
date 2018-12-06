@@ -53,6 +53,10 @@ public class MatTestUtil {
     }
 
     public static Mat5File readMat(String name, boolean testRoundTrip, boolean reduced) throws IOException {
+        return readMat(name, testRoundTrip, reduced, true);
+    }
+
+    public static Mat5File readMat(String name, boolean testRoundTrip, boolean reduced, boolean equalityCheck) throws IOException {
         // Read from original file using single-threaded reader
         Mat5File resultMat = readMat(MatTestUtil.class, name, reduced);
         if (debugPrint) {
@@ -60,6 +64,13 @@ public class MatTestUtil {
             for (NamedArray result : resultMat.getEntries()) {
                 System.out.println(result);
             }
+        }
+
+        // Assert that equality is working
+        if (equalityCheck) {
+            Mat5File secondLoad = readMat(MatTestUtil.class, name, reduced);
+            assertEquals("Loading the file a second time should be equal to the first load", resultMat, secondLoad);
+            assertEquals("Loading the file a second time should have the same hash as the first load", resultMat.hashCode(), secondLoad.hashCode());
         }
 
         if (!testRoundTrip)

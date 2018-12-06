@@ -41,7 +41,11 @@ public class SimulinkTest {
      */
     @Test
     public void testParsingQuadraticRootsTET() throws Exception {
-        Mat5File mat = MatTestUtil.readMat("simulink/simulink_tet_out.mat", true, true);
+        // the object graph is not hierarchical or even a DAG.
+        // it is a cyclic graph which causes StackOverflow on equality check
+        // rare enough that it's not clear how much investigation is warranted...
+        boolean equalityCheck = false;
+        Mat5File mat = MatTestUtil.readMat("simulink/simulink_tet_out.mat", true, true, equalityCheck);
 
         // First check that the root element is correct.
         final ObjectStruct data = mat.getObject(0); // has no name

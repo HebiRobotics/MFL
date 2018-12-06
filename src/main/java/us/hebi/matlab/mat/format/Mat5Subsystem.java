@@ -112,4 +112,14 @@ public final class Mat5Subsystem extends AbstractArray implements Mat5Serializab
     private BufferAllocator bufferAllocator;
     private Mat5File subFile;
 
+    @Override
+    protected int subHashCode() {
+        return buffer.hashCode();
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        Mat5Subsystem other = (Mat5Subsystem) otherGuaranteedSameClass;
+        return other.buffer.equals(buffer);
+    }
 }

@@ -111,4 +111,32 @@ public abstract class AbstractStruct extends AbstractStructBase {
     private final List<String> fields = new ArrayList<String>();
     private final List<Array[]> values = new ArrayList<Array[]>();
 
+    @Override
+    protected int subHashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + indexMap.hashCode();
+        result = prime * result + fields.hashCode();
+        for (Array[] valueArray : values) {
+            result = prime * result + Arrays.hashCode(valueArray);
+        }
+        return result;
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        AbstractStruct other = (AbstractStruct) otherGuaranteedSameClass;
+        if (other.indexMap.equals(indexMap) &&
+                other.fields.equals(fields) &&
+                other.values.size() == values.size()) {
+            for (int i = 0; i < values.size(); ++i) {
+                if (!Arrays.equals(other.values.get(i), values.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

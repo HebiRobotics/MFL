@@ -202,4 +202,19 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
     final int classId;
     final McosObject[] objects;
 
+    @Override
+    protected int subHashCode() {
+        return Compat.hash(objectType, className, content, Arrays.hashCode(objectIds), classId, Arrays.hashCode(objects));
+    }
+
+    @Override
+    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
+        McosReference other = (McosReference) otherGuaranteedSameClass;
+        return other.objectType.equals(objectType) &&
+                other.className.equals(className) &&
+                other.classId == classId &&
+                other.content.equals(content) &&
+                Arrays.equals(other.objectIds, objectIds) &&
+                Arrays.equals(other.objects, objects);
+    }
 }
