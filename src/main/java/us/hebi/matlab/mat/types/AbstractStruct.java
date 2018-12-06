@@ -74,7 +74,7 @@ public abstract class AbstractStruct extends AbstractStructBase {
 
     protected Array[] getOrInitValues(String field) {
         // Field exists
-        Integer fieldIndex = indexMap.get(field);
+        Integer fieldIndex = indexMap.get(checkNonEmpty(field));
         if (fieldIndex != null)
             return values.get(fieldIndex);
 

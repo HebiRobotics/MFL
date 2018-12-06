@@ -29,12 +29,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
+ * Struct serialization as described in MAT File Format 2018 p1-31.
+ *
  * @author Florian Enner
  * @since 29 Aug 2018
  */
@@ -67,9 +69,9 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
     protected int getLongestFieldName() {
         int length = 0;
         for (String name : getFieldNames()) {
-            length = Math.max(length, name.length());
+            length = Math.max(length, getLimitedNameLength(name));
         }
-        return length;
+        return length + NULL_TERMINATOR_LENGTH;
     }
 
     @Override
@@ -128,9 +130,9 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
 
         // Subfield 5/6: Field Names
         byte[] ascii = new byte[numChars];
-        Arrays.fill(ascii, (byte) '\0');
+        Arrays.fill(ascii, NULL_TERMINATOR);
         for (int i = 0; i < numFields; i++) {
-            String fieldName = getFieldNames().get(i);
+            String fieldName = getLimitedName(getFieldNames().get(i));
             byte[] bytes = fieldName.getBytes(Charsets.US_ASCII);
             System.arraycopy(bytes, 0, ascii, i * longestName, bytes.length);
         }
@@ -145,4 +147,8 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         }
 
     }
+
+    private static final byte NULL_TERMINATOR = (byte) '\0';
+    private static final int NULL_TERMINATOR_LENGTH = 1;
+
 }
