@@ -18,7 +18,7 @@ Mat-File IO is in the Maven central repository and can easily be added to Maven,
 <dependency>
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-file-io</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
 </dependency>
 ```
 
