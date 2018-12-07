@@ -58,7 +58,12 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
 
     @Override
     public MatFile addArray(String name, Array value) {
-        return addArray(new Variable(name, false, value));
+        return addArray(name, false, value);
+    }
+
+    @Override
+    public MatFile addArray(String name, boolean isGlobal, Array value) {
+        return addArray(new Variable(name, isGlobal, value));
     }
 
     @Override

@@ -61,6 +61,8 @@ public interface MatFile extends Closeable {
 
     MatFile addArray(String name, Array value);
 
+    MatFile addArray(String name, boolean isGlobal, Array value);
+
     MatFile addArray(Variable entry);
 
     /**
