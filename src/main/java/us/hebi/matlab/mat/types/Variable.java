@@ -28,8 +28,9 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  * Note that the MAT5 format technically allows names for nested arrays,
  * but in reality this is only useful for the root level. All nested arrays
  * should always have an empty name as structs store the name of each field,
- * and cell arrays don't use names at all. The same is true for the global
- * flag.
+ * and cell arrays don't use names at all. Similarly, the global flag also
+ * only makes sense at the root level even though the MAT5 format serializes
+ * the flag in every array header.
  *
  * @author Florian Enner
  * @since 8 May 2018
