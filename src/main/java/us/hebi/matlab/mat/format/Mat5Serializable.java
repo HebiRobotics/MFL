@@ -41,7 +41,7 @@ public interface Mat5Serializable {
      */
     int getMat5Size(String name);
 
-    void writeMat5(String name, Sink sink) throws IOException;
+    void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException;
 
     /**
      * Interface for serializing custom array classes that need to
@@ -51,8 +51,6 @@ public interface Mat5Serializable {
     interface Mat5Attributes {
 
         boolean isLogical();
-
-        boolean isGlobal();
 
         boolean isComplex();
 

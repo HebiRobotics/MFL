@@ -32,8 +32,8 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 class MatFunction extends AbstractArray implements FunctionHandle, Mat5Serializable {
 
-    MatFunction(boolean isGlobal, Struct content) {
-        super(new int[]{1, 1}, isGlobal);
+    MatFunction(Struct content) {
+        super(new int[]{1, 1});
         this.content = content;
     }
 
@@ -55,10 +55,10 @@ class MatFunction extends AbstractArray implements FunctionHandle, Mat5Serializa
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
-        writeArrayWithTag(content, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
+        writeNestedArrayWithTag(content, sink);
     }
 
     @Override

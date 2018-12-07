@@ -36,8 +36,8 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  */
 public abstract class AbstractCell extends AbstractCellBase {
 
-    protected AbstractCell(int[] dims, boolean isGlobal, Array[] values) {
-        super(dims, isGlobal);
+    protected AbstractCell(int[] dims, Array[] values) {
+        super(dims);
         checkArgument(values.length == getNumElements(), "invalid length");
         this.contents = values;
     }

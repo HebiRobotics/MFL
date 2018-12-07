@@ -22,6 +22,7 @@ package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.types.AbstractCharBase;
 import us.hebi.matlab.mat.types.Sink;
+import us.hebi.matlab.mat.util.Compat;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
@@ -39,12 +40,12 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 class MatChar extends AbstractCharBase implements Mat5Serializable {
 
     MatChar(int[] dims, CharEncoding encoding) {
-        this(dims, false, encoding, CharBuffer.allocate(getNumElements(dims)));
+        this(dims, encoding, CharBuffer.allocate(getNumElements(dims)));
         Arrays.fill(buffer.array(), ' ');
     }
 
-    MatChar(int[] dims, boolean global, CharEncoding encoding, CharBuffer buffer) {
-        super(dims, global);
+    MatChar(int[] dims, CharEncoding encoding, CharBuffer buffer) {
+        super(dims);
         checkArgument(buffer.remaining() == getNumElements(), "Unexpected number of elements");
         this.buffer = checkNotNull(buffer);
         this.encoding = checkNotNull(encoding);
@@ -78,10 +79,10 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         buffer.rewind();
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
         writeCharBufferWithTag(encoding, buffer, sink);
     }
 

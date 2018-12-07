@@ -44,13 +44,13 @@ import static us.hebi.matlab.mat.util.Casts.*;
  */
 public class Mat5WriteUtil {
 
-    public static void writeArrayWithTag(Array array, Sink sink) throws IOException {
-        writeArrayWithTag("", array, sink);
+    public static void writeNestedArrayWithTag(Array array, Sink sink) throws IOException {
+        writeArrayWithTag("", false, array, sink);
     }
 
-    public static void writeArrayWithTag(String name, Array array, Sink sink) throws IOException {
+    public static void writeArrayWithTag(String name, boolean global, Array array, Sink sink) throws IOException {
         if (array instanceof Mat5Serializable) {
-            ((Mat5Serializable) array).writeMat5(name, sink);
+            ((Mat5Serializable) array).writeMat5(name, global, sink);
             return;
         }
         throw new IllegalArgumentException("Array does not support the MAT5 format");
@@ -77,12 +77,12 @@ public class Mat5WriteUtil {
         Matrix.writeTag(array.getMat5Size(name) - Mat5.MATRIX_TAG_SIZE, sink);
     }
 
-    public static void writeArrayHeader(String name, Array array, Sink sink) throws IOException {
+    public static void writeArrayHeader(String name, boolean isGlobal, Array array, Sink sink) throws IOException {
         if (array.getType() == Opaque)
             throw new IllegalArgumentException("Opaque types do not share the same format as other types");
 
         // Subfield 1: Meta data
-        UInt32.writeIntsWithTag(Mat5ArrayFlags.forArray(array), sink);
+        UInt32.writeIntsWithTag(Mat5ArrayFlags.forArray(isGlobal, array), sink);
 
         // Subfield 2: Dimensions
         Int32.writeIntsWithTag(array.getDimensions(), sink);
@@ -100,13 +100,13 @@ public class Mat5WriteUtil {
                 + computeArraySize(array.getContent());
     }
 
-    public static void writeOpaque(String name, Opaque opaque, Sink sink) throws IOException {
+    public static void writeOpaque(String name, boolean global, Opaque opaque, Sink sink) throws IOException {
         // Tag
         final int numBytes = computeOpaqueSize(name, opaque) - Mat5.MATRIX_TAG_SIZE;
         Matrix.writeTag(numBytes, sink);
 
         // Subfield 1: Meta data
-        UInt32.writeIntsWithTag(Mat5ArrayFlags.forOpaque(opaque), sink);
+        UInt32.writeIntsWithTag(Mat5ArrayFlags.forOpaque(global, opaque), sink);
 
         // Subfield 2: Ascii variable name
         Int8.writeBytesWithTag(name.getBytes(Charsets.US_ASCII), sink);
@@ -118,7 +118,7 @@ public class Mat5WriteUtil {
         Int8.writeBytesWithTag(opaque.getClassName().getBytes(Charsets.US_ASCII), sink);
 
         // Subfield 5: Content
-        writeArrayWithTag(opaque.getContent(), sink);
+        writeNestedArrayWithTag(opaque.getContent(), sink);
     }
 
     static int computeCharBufferSize(CharEncoding encoding, CharBuffer buffer) {
@@ -135,7 +135,7 @@ public class Mat5WriteUtil {
         tagType.writePadding(numElements, sink);
     }
 
-    static void writeArrayWithTagDeflated(String name, Array array, Sink sink, Deflater deflater) throws IOException {
+    static void writeArrayWithTagDeflated(String name, boolean global, Array array, Sink sink, Deflater deflater) throws IOException {
 
         // Write placeholder tag with a dummy size so we can fill in info later
         long tagPosition = sink.position();
@@ -144,7 +144,7 @@ public class Mat5WriteUtil {
 
         // Compress matrix data
         Sink compressed = sink.writeDeflated(deflater);
-        writeArrayWithTag(name, array, compressed);
+        writeArrayWithTag(name, global, array, compressed);
         compressed.close(); // triggers flush/finish
 
         // Calculate actual size

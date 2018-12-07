@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@
 package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.util.Compat;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -47,7 +48,7 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
     static McosReference parseMcosReference(Array content) {
         if (!isMcosReference(content))
             throw new IllegalArgumentException("Not a valid reference");
-        return parseOpaque(false, "MCOS", "N/A", content);
+        return parseOpaque("MCOS", "N/A", content);
     }
 
     /**
@@ -71,7 +72,7 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
      * Handle references that live inside the main MAT file show up as Opaque arrays with
      * a UInt32 content
      */
-    static McosReference parseOpaque(boolean isGlobal, String objectType, String className, Array content) {
+    static McosReference parseOpaque(String objectType, String className, Array content) {
 
         if ("FileWrapper__".equals(className))
             throw new IllegalArgumentException("Only for references. Not for FileWrapper__ class");
@@ -99,12 +100,12 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
         // Last value: class id
         int classId = data.getInt(data.getNumRows() - 1);
-        return new McosReference(dims, isGlobal, objectType, className, content, objectIds, classId);
+        return new McosReference(dims, objectType, className, content, objectIds, classId);
 
     }
 
-    private McosReference(int[] dims, boolean isGlobal, String objectType, String className, Array content, int[] objectIds, int classId) {
-        super(dims, isGlobal);
+    private McosReference(int[] dims, String objectType, String className, Array content, int[] objectIds, int classId) {
+        super(dims);
 
         // Opaque fields (used for serialization)
         this.content = content;
@@ -175,8 +176,8 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
-        writeOpaque(name, this, sink);
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
+        writeOpaque(name, isGlobal, this, sink);
     }
 
     @Override

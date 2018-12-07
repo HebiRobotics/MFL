@@ -34,19 +34,19 @@ import java.util.List;
  */
 class StringHelper {
 
-    static String toString(Collection<NamedArray> arrays) {
+    static String toString(Collection<Variable> arrays) {
         StringBuilder builder = new StringBuilder();
         IndentingAppendable out = wrap(builder);
 
         // Find longest name
         int longest = 0;
-        for (NamedArray namedArray : arrays) {
-            longest = Math.max(longest, namedArray.getName().length());
+        for (Variable variable : arrays) {
+            longest = Math.max(longest, variable.getName().length());
         }
 
         // Add all Arrays
         boolean first = true;
-        for (NamedArray array : arrays) {
+        for (Variable array : arrays) {
             if (!first) out.append("\n");
             first = false;
 

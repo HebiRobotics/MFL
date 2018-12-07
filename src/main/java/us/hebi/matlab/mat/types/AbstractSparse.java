@@ -26,8 +26,8 @@ package us.hebi.matlab.mat.types;
  */
 public abstract class AbstractSparse extends AbstractMatrixBase implements Sparse {
 
-    protected AbstractSparse(int[] dims, boolean isGlobal) {
-        super(dims, isGlobal);
+    protected AbstractSparse(int[] dims) {
+        super(dims);
     }
 
     @Override

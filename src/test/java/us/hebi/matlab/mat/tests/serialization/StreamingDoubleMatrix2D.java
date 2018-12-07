@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,10 +33,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteOrder;
 
-import static us.hebi.matlab.mat.util.Bytes.*;
-import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * 2D Matrix that has a fixed number of columns, and an expanding number
@@ -46,12 +46,12 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  * The MAT file format is not well suited for this because the size
  * needs to be known beforehand, and because the data is in column-major
  * format.
- *
+ * <p>
  * This class is an example of how such a use case could be implemented
  * using custom serialization. There is one expanding file for each column
  * that contains all rows. Once the data gets written, all temporary storage
  * files get combined and written into the target sink.
- *
+ * <p>
  * This example that is not considered part of the stable API.
  *
  * @author Florian Enner
@@ -64,7 +64,7 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
     }
 
     protected StreamingDoubleMatrix2D(File folder, String name, int numCols) throws IOException {
-        super(dims(0, numCols), false);
+        super(dims(0, numCols));
         this.name = name;
         checkNotNull(folder);
         checkState(folder.isDirectory(), "Invalid target directory: " + folder);
@@ -116,10 +116,10 @@ public final class StreamingDoubleMatrix2D extends AbstractArray implements Mat5
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         int numElements = getNumElements();
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
         Mat5Type.Double.writeTag(numElements, sink);
         writeData(sink);
         Mat5Type.Double.writePadding(numElements, sink);

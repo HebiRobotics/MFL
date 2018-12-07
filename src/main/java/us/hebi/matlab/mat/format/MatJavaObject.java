@@ -32,8 +32,8 @@ import java.nio.ByteBuffer;
  */
 class MatJavaObject extends MatOpaque implements JavaObject {
 
-    MatJavaObject(boolean isGlobal, String className, Array content) {
-        super(isGlobal, "java", className, content);
+    MatJavaObject(String className, Array content) {
+        super("java", className, content);
     }
 
     /**

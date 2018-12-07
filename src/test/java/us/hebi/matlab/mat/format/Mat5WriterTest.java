@@ -124,7 +124,7 @@ public class Mat5WriterTest {
         buffer.rewind();
         long calculatedSize = computeArraySize(arrayName, array);
         long offset = sink.position();
-        writeArrayWithTag(arrayName, array, sink);
+        writeArrayWithTag(arrayName, false, array, sink);
         long actualSize = sink.position() - offset;
         Assert.assertEquals(message, calculatedSize, actualSize);
     }

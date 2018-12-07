@@ -48,8 +48,4 @@ public interface Array extends Closeable {
 
     int getNumElements();
 
-    boolean isGlobal();
-
-    void setGlobal(boolean global);
-
 }

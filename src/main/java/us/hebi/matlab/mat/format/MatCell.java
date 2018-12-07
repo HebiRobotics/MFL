@@ -35,13 +35,13 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 class MatCell extends AbstractCell implements Mat5Serializable {
 
-    MatCell(int[] dims, boolean global) {
-        super(dims, global, new Array[getNumElements(dims)]);
+    MatCell(int[] dims) {
+        super(dims, new Array[getNumElements(dims)]);
         Arrays.fill(contents, getEmptyValue());
     }
 
-    MatCell(int[] dims, boolean global, Array[] contents) {
-        super(dims, global, contents);
+    MatCell(int[] dims, Array[] contents) {
+        super(dims, contents);
     }
 
     @Override
@@ -60,11 +60,11 @@ class MatCell extends AbstractCell implements Mat5Serializable {
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
         for (int i = 0; i < getNumElements(); i++) {
-            writeArrayWithTag(get(i), sink);
+            writeNestedArrayWithTag(get(i), sink);
         }
     }
 

@@ -30,8 +30,8 @@ import us.hebi.matlab.mat.util.Casts;
  */
 public abstract class AbstractMatrixBase extends AbstractArray implements Matrix {
 
-    protected AbstractMatrixBase(int[] dims, boolean isGlobal) {
-        super(dims, isGlobal);
+    protected AbstractMatrixBase(int[] dims) {
+        super(dims);
     }
 
     // ---- Internal convenience methods

@@ -28,8 +28,8 @@ package us.hebi.matlab.mat.types;
  */
 public abstract class AbstractCellBase extends AbstractArray implements Cell {
 
-    protected AbstractCellBase(int[] dims, boolean isGlobal) {
-        super(dims, isGlobal);
+    protected AbstractCellBase(int[] dims) {
+        super(dims);
     }
 
     // ---- Actual Accessors

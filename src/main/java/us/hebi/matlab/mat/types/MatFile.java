@@ -61,7 +61,7 @@ public interface MatFile extends Closeable {
 
     MatFile addArray(String name, Array value);
 
-    MatFile addArray(NamedArray entry);
+    MatFile addArray(Variable entry);
 
     /**
      * @return number of arrays at the root level
@@ -71,7 +71,7 @@ public interface MatFile extends Closeable {
     /**
      * @return iterable of named arrays at the root level
      */
-    Iterable<NamedArray> getEntries();
+    Iterable<Variable> getEntries();
 
     /**
      * Clears the contained entries (without closing them)

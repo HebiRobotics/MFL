@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,23 +32,23 @@ import us.hebi.matlab.mat.types.*;
  */
 class Mat5ArrayFlags {
 
-    static int[] forArray(Array array) {
+    static int[] forArray(boolean global, Array array) {
         if (array instanceof Mat5Attributes) {
             Mat5Attributes attr = ((Mat5Attributes) array);
-            return create(array.getType(), attr.isGlobal(), attr.isLogical(), attr.isComplex(), attr.getNzMax());
+            return create(array.getType(), global, attr.isLogical(), attr.isComplex(), attr.getNzMax());
         }
         boolean logical = array instanceof Matrix && ((Matrix) array).isLogical();
         boolean complex = array instanceof Matrix && ((Matrix) array).isComplex();
         int nzMax = array instanceof Sparse ? ((Sparse) array).getNzMax() : 0;
-        return Mat5ArrayFlags.create(array.getType(), array.isGlobal(), logical, complex, nzMax);
+        return Mat5ArrayFlags.create(array.getType(), global, logical, complex, nzMax);
     }
 
     /**
      * Opaques may show up as a different public type, e.g., Object. This method ignores
      * the public type and forces the array type to be Opaque.
      */
-    static int[] forOpaque(Opaque opaque) {
-        return create(MatlabType.Opaque, opaque.isGlobal(), false, false, 0);
+    static int[] forOpaque(boolean global, Opaque opaque) {
+        return create(MatlabType.Opaque, false, false, false, 0);
     }
 
     private static int[] create(MatlabType type, boolean global, boolean logical, boolean complex, int nzMax) {

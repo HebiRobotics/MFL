@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,6 +21,7 @@
 package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.util.Compat;
 
 import java.io.IOException;
 
@@ -32,8 +33,8 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 class MatOpaque extends AbstractArray implements Opaque, Mat5Serializable {
 
-    MatOpaque(boolean isGlobal, String objectType, String className, Array content) {
-        super(SINGLE_DIM, isGlobal);
+    MatOpaque(String objectType, String className, Array content) {
+        super(SINGLE_DIM);
         this.content = content;
         this.className = className;
         this.objectType = objectType;
@@ -62,8 +63,8 @@ class MatOpaque extends AbstractArray implements Opaque, Mat5Serializable {
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
-        writeOpaque(name, this, sink);
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
+        writeOpaque(name, isGlobal, this, sink);
     }
 
     @Override
