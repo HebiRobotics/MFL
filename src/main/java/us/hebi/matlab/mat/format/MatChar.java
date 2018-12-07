@@ -22,7 +22,6 @@ package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.types.AbstractCharBase;
 import us.hebi.matlab.mat.types.Sink;
-import us.hebi.matlab.mat.util.Compat;
 
 import java.io.IOException;
 import java.nio.CharBuffer;

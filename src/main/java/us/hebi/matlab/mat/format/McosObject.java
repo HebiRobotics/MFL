@@ -21,7 +21,6 @@
 package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.types.Array;
-import us.hebi.matlab.mat.util.Compat;
 
 import java.util.ArrayList;
 import java.util.HashMap;

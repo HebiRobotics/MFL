@@ -25,7 +25,6 @@ import us.hebi.matlab.mat.types.AbstractSparse;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sparse;
-import us.hebi.matlab.mat.util.Compat;
 
 import java.io.IOException;
 

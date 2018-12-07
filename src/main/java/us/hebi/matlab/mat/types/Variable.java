@@ -20,8 +20,6 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.mat.util.Compat;
-
 import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
@@ -67,7 +65,7 @@ public final class Variable {
 
     @Override
     public int hashCode() {
-        return 31 * name.hashCode() + value.hashCode() + Compat.hashCode(global);
+        return 31 * name.hashCode() + value.hashCode() + (global ? 1231 : 1237);
     }
 
     @Override

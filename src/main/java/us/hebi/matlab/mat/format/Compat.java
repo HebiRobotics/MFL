@@ -18,7 +18,7 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.util;
+package us.hebi.matlab.mat.format;
 
 import java.util.Arrays;
 
@@ -28,7 +28,7 @@ import java.util.Arrays;
  *
  * @since 06 Dec 2018
  */
-public class Compat {
+class Compat {
 
     public static int hash(Object... values) {
         return Arrays.hashCode(values);
@@ -36,17 +36,6 @@ public class Compat {
 
     public static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
-    }
-
-    /**
-     * Returns a hash code for a {@code boolean} value; compatible with
-     * {@code Boolean.hashCode()}.
-     *
-     * @param value the value to hash
-     * @return a hash code value for a {@code boolean} value.
-     */
-    public static int hashCode(boolean value){
-        return value ? 1231 : 1237;
     }
 
 }
