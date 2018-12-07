@@ -113,7 +113,7 @@ public final class Mat5Writer {
         return writeArray(name, false, value);
     }
 
-    public Mat5Writer writeArray(final String name, boolean global, final Array array) throws IOException {
+    public Mat5Writer writeArray(final String name, final boolean global, final Array array) throws IOException {
         if ((name == null || name.isEmpty())
                 && !(array instanceof McosReference)
                 && !(array instanceof Mat5Subsystem))
