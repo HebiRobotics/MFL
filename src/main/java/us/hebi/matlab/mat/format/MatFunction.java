@@ -58,7 +58,7 @@ class MatFunction extends AbstractArray implements FunctionHandle, Mat5Serializa
     public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
         writeArrayHeader(name, isGlobal, this, sink);
-        writeNestedArrayWithTag(content, sink);
+        writeNestedArray(content, sink);
     }
 
     @Override

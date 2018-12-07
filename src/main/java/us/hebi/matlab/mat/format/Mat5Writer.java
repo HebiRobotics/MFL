@@ -127,7 +127,7 @@ public final class Mat5Writer {
 
                 // No queue, so we can write immediately
                 if (isSubsystem) nextEntryIsSubsystem();
-                Mat5WriteUtil.writeArrayWithTag(name, global, array, sink);
+                Mat5WriteUtil.writeArray(name, global, array, sink);
 
             } else {
 
@@ -135,7 +135,7 @@ public final class Mat5Writer {
                 FlushAction action = new FlushAction() {
                     public void run() throws IOException {
                         if (isSubsystem) nextEntryIsSubsystem();
-                        Mat5WriteUtil.writeArrayWithTag(name, global, array, sink);
+                        Mat5WriteUtil.writeArray(name, global, array, sink);
                     }
                 };
                 flushActions.add(Tasks.wrapAsFuture(action));
@@ -157,7 +157,7 @@ public final class Mat5Writer {
                 deflater.reset();
             }
 
-            Mat5WriteUtil.writeArrayWithTagDeflated(name, global, array, sink, deflater);
+            Mat5WriteUtil.writeArrayDeflated(name, global, array, sink, deflater);
             return this;
 
         } else {
@@ -175,7 +175,7 @@ public final class Mat5Writer {
                     Sink tmpSink = Sinks.wrap(buffer).order(sink.order());
 
                     // Compress async into temporary buffer
-                    Mat5WriteUtil.writeArrayWithTagDeflated(name, global, array, tmpSink, deflater);
+                    Mat5WriteUtil.writeArrayDeflated(name, global, array, tmpSink, deflater);
                     tmpSink.close();
                     buffer.flip();
 

@@ -142,7 +142,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         checkArgument(getNumDimensions() == 2, "Structures are limited to two dimensions");
         for (int i = 0; i < numElements; i++) {
             for (int field = 0; field < numFields; field++) {
-                writeNestedArrayWithTag(get(fieldNames.get(field), i), sink);
+                writeNestedArray(get(fieldNames.get(field), i), sink);
             }
         }
 

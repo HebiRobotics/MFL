@@ -44,13 +44,13 @@ import static us.hebi.matlab.mat.util.Casts.*;
  */
 public class Mat5WriteUtil {
 
-    public static void writeNestedArrayWithTag(Array array, Sink sink) throws IOException {
-        writeArrayWithTag("", false, array, sink);
+    public static void writeNestedArray(Array array, Sink sink) throws IOException {
+        writeArray("", false, array, sink);
     }
 
-    public static void writeArrayWithTag(String name, boolean global, Array array, Sink sink) throws IOException {
+    public static void writeArray(String name, boolean isGlobal, Array array, Sink sink) throws IOException {
         if (array instanceof Mat5Serializable) {
-            ((Mat5Serializable) array).writeMat5(name, global, sink);
+            ((Mat5Serializable) array).writeMat5(name, isGlobal, sink);
             return;
         }
         throw new IllegalArgumentException("Array does not support the MAT5 format");
@@ -118,7 +118,7 @@ public class Mat5WriteUtil {
         Int8.writeBytesWithTag(opaque.getClassName().getBytes(Charsets.US_ASCII), sink);
 
         // Subfield 5: Content
-        writeNestedArrayWithTag(opaque.getContent(), sink);
+        writeNestedArray(opaque.getContent(), sink);
     }
 
     static int computeCharBufferSize(CharEncoding encoding, CharBuffer buffer) {
@@ -135,7 +135,7 @@ public class Mat5WriteUtil {
         tagType.writePadding(numElements, sink);
     }
 
-    static void writeArrayWithTagDeflated(String name, boolean global, Array array, Sink sink, Deflater deflater) throws IOException {
+    static void writeArrayDeflated(String name, boolean global, Array array, Sink sink, Deflater deflater) throws IOException {
 
         // Write placeholder tag with a dummy size so we can fill in info later
         long tagPosition = sink.position();
@@ -144,7 +144,7 @@ public class Mat5WriteUtil {
 
         // Compress matrix data
         Sink compressed = sink.writeDeflated(deflater);
-        writeArrayWithTag(name, global, array, compressed);
+        writeArray(name, global, array, compressed);
         compressed.close(); // triggers flush/finish
 
         // Calculate actual size

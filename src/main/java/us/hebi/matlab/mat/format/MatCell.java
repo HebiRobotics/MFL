@@ -64,7 +64,7 @@ class MatCell extends AbstractCell implements Mat5Serializable {
         writeMatrixTag(name, this, sink);
         writeArrayHeader(name, isGlobal, this, sink);
         for (int i = 0; i < getNumElements(); i++) {
-            writeNestedArrayWithTag(get(i), sink);
+            writeNestedArray(get(i), sink);
         }
     }
 
