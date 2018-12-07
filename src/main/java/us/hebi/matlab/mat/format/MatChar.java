@@ -96,6 +96,6 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
     @Override
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
         MatChar other = (MatChar) otherGuaranteedSameClass;
-        return other.encoding.equals(encoding) && other.buffer.equals(buffer);
+        return other.buffer.equals(buffer);
     }
 }
