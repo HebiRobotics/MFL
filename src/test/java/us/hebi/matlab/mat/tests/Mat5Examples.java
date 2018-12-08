@@ -221,7 +221,7 @@ public class Mat5Examples {
         // Note that the filter only gets applied to the root entries, so entries
         // inside structs/cell arrays etc. don't get filtered.
         MatFile result = Mat5.newReader(Sources.wrap(buffer))
-                .setArrayFilter(header -> header.getNumElements() == 1)
+                .setEntryFilter(header -> header.getNumElements() == 1)
                 .readMat();
 
         assertEquals(2, result.getNumEntries());
@@ -246,7 +246,7 @@ public class Mat5Examples {
 
         // Create lookup table of all global variables
         HashMap<String, Array> globalVariables = new HashMap<>();
-        for (Variable entry : result.getEntries()) {
+        for (MatFile.Entry entry : result.getEntries()) {
             if (entry.isGlobal())
                 globalVariables.put(entry.getName(), entry.getValue());
         }
@@ -294,7 +294,7 @@ public class Mat5Examples {
 
             Mat5File matFile = Mat5.newReader(source)
                     .enableConcurrentDecompression(executorService) // decompress with multiple threads
-                    .setArrayFilter(array -> !"var3".equals(array.getName()))
+                    .setEntryFilter(header -> !"var3".equals(header.getName()))
                     .readMat();
 
             assertEquals("Test", matFile.getChar("var1").getString());

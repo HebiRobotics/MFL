@@ -116,7 +116,7 @@ try(Source source = Sources.openFile("data.mat"){
 }
 ```
 
-Concurrent writing unfortunately requires a temporary buffer for each root variable due to the size not being known ahead of time. The buffer allocation can be customized in case users want to use buffer-pools or memory-mapped buffers.
+Concurrent writing unfortunately requires a temporary buffer for each root entry due to the size not being known ahead of time. The buffer allocation can be customized in case users want to use buffer-pools or memory-mapped buffers.
 
 ```Java
 // Concurrent Compression

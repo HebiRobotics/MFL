@@ -55,7 +55,7 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  */
 public final class Mat5Reader {
 
-    public static class ArrayHeader {
+    public static class EntryHeader {
 
         public int getNumElements() {
             // [int32] as a single Mat5 element can't be larger
@@ -90,7 +90,7 @@ public final class Mat5Reader {
             return Mat5ArrayFlags.getNzMax(arrayFlags);
         }
 
-        private ArrayHeader(int[] arrayFlags, MatlabType type, int[] dimensions, String name) {
+        private EntryHeader(int[] arrayFlags, MatlabType type, int[] dimensions, String name) {
             this.arrayFlags = arrayFlags;
             this.type = type;
             this.dimensions = dimensions;
@@ -107,17 +107,17 @@ public final class Mat5Reader {
 
     }
 
-    public interface ArrayFilter {
-        boolean isAccepted(ArrayHeader header);
+    public interface EntryFilter {
+        boolean isAccepted(EntryHeader header);
     }
 
     /**
-     * Enables filtering of root-level entries based on the variable header
+     * Enables filtering of root-level entries based on the entry header
      *
      * @param filter root-level filter
      * @return this
      */
-    public Mat5Reader setArrayFilter(ArrayFilter filter) {
+    public Mat5Reader setEntryFilter(EntryFilter filter) {
         this.filter = checkNotNull(filter);
         return this;
     }
@@ -191,10 +191,10 @@ public final class Mat5Reader {
             this.subsysPosition = start + matFile.getSubsysOffset();
 
             // Generate content structure
-            for (Future<Variable> task : readMatContent()) {
-                Variable variable = task.get();
-                if (variable != null) {
-                    matFile.addArray(variable);
+            for (Future<MatFile.Entry> task : readMatContent()) {
+                MatFile.Entry entry = task.get();
+                if (entry != null) {
+                    matFile.addEntry(entry);
                 }
             }
 
@@ -221,11 +221,11 @@ public final class Mat5Reader {
         return matFile;
     }
 
-    private List<Future<Variable>> readMatContent() throws IOException {
-        List<Future<Variable>> content = new ArrayList<Future<Variable>>();
+    private List<Future<MatFile.Entry>> readMatContent() throws IOException {
+        List<Future<MatFile.Entry>> content = new ArrayList<Future<MatFile.Entry>>();
         Mat5Tag tag = Mat5Tag.readTagOrNull(source);
         while (tag != null) {
-            content.add(readVariable(tag));
+            content.add(readEntry(tag));
             tag = Mat5Tag.readTagOrNull(source);
         }
         return content;
@@ -235,7 +235,7 @@ public final class Mat5Reader {
         return Mat5Tag.readTag(source);
     }
 
-    private Future<Variable> readVariable(Mat5Tag tag) throws IOException {
+    private Future<MatFile.Entry> readEntry(Mat5Tag tag) throws IOException {
         checkArgument(tag.getNumBytes() != 0, "Root element contains no data");
         long expectedEnd = source.getPosition() + tag.getNumBytes() + tag.getPadding();
 
@@ -256,7 +256,7 @@ public final class Mat5Reader {
             // Since we don't have an independent view on the data, we can't defer parsing
             // and do it immediately in the main thread.
             if (tag.getType() == Matrix) {
-                return Tasks.wrapAsFuture(atRoot(atSubsys).readVariableWithoutTag(tag));
+                return Tasks.wrapAsFuture(atRoot(atSubsys).readEntryWithoutTag(tag));
             }
 
             // Root element is stored compressed using the 'deflate' algorithm. Depending on
@@ -270,13 +270,13 @@ public final class Mat5Reader {
                 final Source inflated = source.readInflated(tag.getNumBytes(), bufferSize);
 
                 // Read array in a task
-                IoTask<Variable> task = new IoTask<Variable>() {
+                IoTask<MatFile.Entry> task = new IoTask<MatFile.Entry>() {
                     @Override
-                    public Variable call() throws IOException {
+                    public MatFile.Entry call() throws IOException {
                         try {
                             return createChildReader(inflated)
                                     .atRoot(atSubsys)
-                                    .readVariable();
+                                    .readEntry();
                         } finally {
                             inflated.close();
                         }
@@ -314,7 +314,7 @@ public final class Mat5Reader {
         return this;
     }
 
-    private boolean isAccepted(ArrayHeader header) {
+    private boolean isAccepted(EntryHeader header) {
         try {
             if (filter == null || !mayFilterNext || nextIsSubsys)
                 return true;
@@ -325,21 +325,21 @@ public final class Mat5Reader {
     }
 
     private Array readNestedArray() throws IOException {
-        return readVariable().getValue();
+        return readEntry().getValue();
     }
 
-    private Variable readVariable() throws IOException {
+    private MatFile.Entry readEntry() throws IOException {
         Mat5Tag tag = readTagWithExpectedType(Matrix);
         // Sometimes there are completely empty Matrix tags. In that
         // case, return empty matrix rather than null.
         if (tag.getNumBytes() == 0)
-            return new Variable("", false, Mat5.EMPTY_MATRIX);
-        return readVariableWithoutTag(tag);
+            return new MatFile.Entry("", false, Mat5.EMPTY_MATRIX);
+        return readEntryWithoutTag(tag);
     }
 
-    private Variable readVariableWithoutTag(Mat5Tag tag) throws IOException {
+    private MatFile.Entry readEntryWithoutTag(Mat5Tag tag) throws IOException {
         long start = source.getPosition();
-        Variable value = readVariableWithoutTag();
+        MatFile.Entry value = readEntryWithoutTag();
         long numBytes = source.getPosition() - start;
 
         // Sanity check that data was read fully or skipped.
@@ -352,7 +352,7 @@ public final class Mat5Reader {
         throw readError("Specified matrix tag does not match content size. Tag: %d, Content: %d", tag.getNumBytes(), numBytes);
     }
 
-    private Variable readVariableWithoutTag() throws IOException {
+    private MatFile.Entry readEntryWithoutTag() throws IOException {
         // Subfield 1: meta data
         int[] arrayFlags = readTagWithExpectedType(UInt32).readAsInts();
         if (arrayFlags.length != 2)
@@ -373,7 +373,7 @@ public final class Mat5Reader {
 
         // Subfield 3: Name
         String name = readAsAscii(readTagWithExpectedType(Int8));
-        ArrayHeader header = new ArrayHeader(arrayFlags, type, dimensions, name);
+        EntryHeader header = new EntryHeader(arrayFlags, type, dimensions, name);
 
         // Check if we should continue to read the content
         if (!isAccepted(header))
@@ -382,7 +382,7 @@ public final class Mat5Reader {
         // Subsystem, e.g. class object information
         if (nextIsSubsys) {
             try {
-                return new Variable(name, header.isGlobal(), readSubsystem(header));
+                return new MatFile.Entry(name, header.isGlobal(), readSubsystem(header));
             } finally {
                 nextIsSubsys = false;
             }
@@ -435,10 +435,10 @@ public final class Mat5Reader {
                 throw readError("Found unsupported type: %s", type);
         }
 
-        return new Variable(name, header.isGlobal(), array);
+        return new MatFile.Entry(name, header.isGlobal(), array);
     }
 
-    private Array readSubsystem(ArrayHeader header) throws IOException {
+    private Array readSubsystem(EntryHeader header) throws IOException {
         if (header.isComplex())
             throw readError("Subsystem can't be complex");
         if (header.getType() != MatlabType.UInt8)
@@ -449,7 +449,7 @@ public final class Mat5Reader {
         return new Mat5Subsystem(header.getDimensions(), buffer, bufferAllocator);
     }
 
-    private Array readNumerical(ArrayHeader header) throws IOException {
+    private Array readNumerical(EntryHeader header) throws IOException {
         // Subfield 4: Real part (pr)
         NumberStore real = readAsNumberStore(readTag());
 
@@ -463,7 +463,7 @@ public final class Mat5Reader {
 
     }
 
-    private Array readSparse(ArrayHeader header) throws IOException {
+    private Array readSparse(EntryHeader header) throws IOException {
 
         // Subfield 4: Row Index (ir)
         NumberStore rowIndices = readAsNumberStore(readTagWithExpectedType(Int32));
@@ -484,7 +484,7 @@ public final class Mat5Reader {
                 header.getNzMax(), real, imaginary, rowIndices, colIndices);
     }
 
-    private Array readChar(ArrayHeader header) throws IOException {
+    private Array readChar(EntryHeader header) throws IOException {
 
         // Subfield 4: Data
         Mat5Tag tag = readTag();
@@ -495,7 +495,7 @@ public final class Mat5Reader {
 
     }
 
-    private Array readCell(ArrayHeader header) throws IOException {
+    private Array readCell(EntryHeader header) throws IOException {
 
         // Subfield 4: Array of Cells Subelements. Stored in column major order
         final Array[] contents = new Array[header.getNumElements()];
@@ -506,18 +506,18 @@ public final class Mat5Reader {
         return createCell(header.getDimensions(), contents);
     }
 
-    private Array readStruct(ArrayHeader header) throws IOException {
+    private Array readStruct(EntryHeader header) throws IOException {
         // Struct has the same structure as an object without a name
         return readStructOrObject(header, null);
     }
 
-    private Array readObject(ArrayHeader header) throws IOException {
+    private Array readObject(EntryHeader header) throws IOException {
         // Subfield 4: Class name
         String className = readAsAscii(readTagWithExpectedType(Int8));
         return readStructOrObject(header, className);
     }
 
-    private Array readStructOrObject(ArrayHeader header, String objectClassName) throws IOException {
+    private Array readStructOrObject(EntryHeader header, String objectClassName) throws IOException {
         // Subfield 4/5: Field Name Length
         int[] result = readTagWithExpectedType(Int32).readAsInts();
         checkArgument(result.length == 1, "Incorrect number of values for max field name length");
@@ -547,7 +547,7 @@ public final class Mat5Reader {
         return createObject(header.getDimensions(), objectClassName, names, values);
     }
 
-    private Array readFunctionHandle(ArrayHeader header) throws IOException {
+    private Array readFunctionHandle(EntryHeader header) throws IOException {
         Struct content = (Struct) readNestedArray();
         return new MatFunction(content);
     }
@@ -560,7 +560,7 @@ public final class Mat5Reader {
      * Note that this is not in the official documentation. The implementation is based
      * on MatFileRW's MatFileReader and personal tests.
      */
-    private Variable readOpaque(int[] arrayFlags) throws IOException {
+    private MatFile.Entry readOpaque(int[] arrayFlags) throws IOException {
         boolean isGlobal = Mat5ArrayFlags.isGlobal(arrayFlags);
 
         // Subfield 2: Ascii variable name
@@ -575,7 +575,7 @@ public final class Mat5Reader {
         // Subfield 5: Content
         Array content = readNestedArray();
 
-        return new Variable(name, isGlobal, createOpaque(objectType, className, content));
+        return new MatFile.Entry(name, isGlobal, createOpaque(objectType, className, content));
 
     }
 
@@ -672,7 +672,7 @@ public final class Mat5Reader {
     private boolean nextIsSubsys = false;
     private boolean mayFilterNext = false;
     private boolean reducedHeader = false;
-    private ArrayFilter filter = null;
+    private EntryFilter filter = null;
     private ExecutorService executorService = null;
     private boolean processSubsystem = true;
     private int maxInflateBufferSize = 2048;
