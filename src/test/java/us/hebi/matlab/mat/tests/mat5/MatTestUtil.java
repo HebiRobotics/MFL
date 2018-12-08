@@ -61,8 +61,8 @@ public class MatTestUtil {
         Mat5File resultMat = readMat(MatTestUtil.class, name, reduced);
         if (debugPrint) {
             System.out.println("source = " + resultMat);
-            for (NamedArray result : resultMat.getEntries()) {
-                System.out.println(result);
+            for (MatFile.Entry entry : resultMat.getEntries()) {
+                System.out.println(entry);
             }
         }
 
@@ -123,8 +123,8 @@ public class MatTestUtil {
 
             if (debugPrint) {
                 System.out.println("roundtrip = " + matFile);
-                for (NamedArray array : matFile.getEntries()) {
-                    System.out.println(array);
+                for (MatFile.Entry entry : matFile.getEntries()) {
+                    System.out.println(entry);
                 }
             }
             return matFile;

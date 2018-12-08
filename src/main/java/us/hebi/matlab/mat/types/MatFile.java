@@ -23,6 +23,8 @@ package us.hebi.matlab.mat.types;
 import java.io.Closeable;
 import java.io.IOException;
 
+import static us.hebi.matlab.mat.util.Preconditions.checkNotNull;
+
 /**
  * @author Florian Enner
  * @since 14 Sep 2018
@@ -61,7 +63,9 @@ public interface MatFile extends Closeable {
 
     MatFile addArray(String name, Array value);
 
-    MatFile addArray(NamedArray entry);
+    MatFile addArray(String name, boolean isGlobal, Array value);
+
+    MatFile addEntry(Entry entry);
 
     /**
      * @return number of arrays at the root level
@@ -71,7 +75,7 @@ public interface MatFile extends Closeable {
     /**
      * @return iterable of named arrays at the root level
      */
-    Iterable<NamedArray> getEntries();
+    Iterable<Entry> getEntries();
 
     /**
      * Clears the contained entries (without closing them)
@@ -107,5 +111,56 @@ public interface MatFile extends Closeable {
      * @return this
      */
     MatFile writeTo(Sink sink) throws IOException;
+
+    /**
+     * Represents a root element entry, i.e., a local or global variable that
+     * has a name and an Array value.
+     */
+    final class Entry {
+
+        public Entry(String name, boolean isGlobal, Array value) {
+            this.name = checkNotNull(name, "Name can't be null");
+            this.value = checkNotNull(value, "Value can't be null");
+            this.isGlobal = isGlobal;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public Array getValue() {
+            return value;
+        }
+
+        public boolean isGlobal() {
+            return isGlobal;
+        }
+
+        @Override
+        public String toString() {
+            return name + (isGlobal() ? " (global)" : "") + " = " + value;
+        }
+
+        private final String name;
+        private final Array value;
+        private final boolean isGlobal;
+
+        @Override
+        public int hashCode() {
+            return 31 * name.hashCode() + value.hashCode() + (isGlobal ? 1231 : 1237);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            } else if (obj instanceof Entry) {
+                Entry other = (Entry) obj;
+                return other.name.equals(name) && other.value.equals(value) && other.isGlobal == isGlobal;
+            } else {
+                return false;
+            }
+        }
+    }
 
 }

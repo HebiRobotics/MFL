@@ -252,7 +252,7 @@ public class Mat5File extends AbstractMatFile {
     @Override
     public long getUncompressedSerializedSize() {
         long size = reduced ? REDUCED_FILE_HEADER_SIZE : FILE_HEADER_SIZE;
-        for (NamedArray entry : entries) {
+        for (Entry entry : entries) {
             size += computeArraySize(entry.getName(), entry.getValue());
         }
         return size;
@@ -269,7 +269,7 @@ public class Mat5File extends AbstractMatFile {
         return last instanceof Mat5Subsystem ? (Mat5Subsystem) last : null;
     }
 
-    public Mat5File addArray(NamedArray entry) {
+    public Mat5File addEntry(Entry entry) {
         if (reduced && getNumEntries() >= 2)
             throw new IllegalStateException("Reduced MAT 5 files may not contain more than 2 entries");
 

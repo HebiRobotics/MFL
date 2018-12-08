@@ -42,7 +42,7 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
             return (T) array;
 
         // Slow fallback (not case sensitive)
-        for (NamedArray entry : entries) {
+        for (Entry entry : entries) {
             if (name.equalsIgnoreCase(entry.getName()))
                 return (T) entry.getValue();
         }
@@ -58,11 +58,16 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
 
     @Override
     public MatFile addArray(String name, Array value) {
-        return addArray(new NamedArray(name, value));
+        return addArray(name, false, value);
     }
 
     @Override
-    public MatFile addArray(NamedArray entry) {
+    public MatFile addArray(String name, boolean isGlobal, Array value) {
+        return addEntry(new Entry(name, isGlobal, value));
+    }
+
+    @Override
+    public MatFile addEntry(Entry entry) {
         entries.add(entry);
         lookup.put(entry.getName(), entry.getValue());
         return this;
@@ -80,7 +85,7 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
     @Override
     public void close() throws IOException {
         IOException lastError = null;
-        for (NamedArray entry : entries) {
+        for (Entry entry : entries) {
             try {
                 entry.getValue().close();
             } catch (IOException ioe) {
@@ -93,7 +98,7 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
     }
 
     @Override
-    public Iterable<NamedArray> getEntries() {
+    public Iterable<Entry> getEntries() {
         return entries;
     }
 
@@ -109,7 +114,7 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
     }
 
     protected final HashMap<String, Array> lookup = new HashMap<String, Array>();
-    protected final List<NamedArray> entries = new ArrayList<NamedArray>();
+    protected final List<Entry> entries = new ArrayList<Entry>();
 
     @Override
     public final int hashCode() {

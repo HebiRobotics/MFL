@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.zip.Deflater;
@@ -220,13 +221,38 @@ public class Mat5Examples {
         // Note that the filter only gets applied to the root entries, so entries
         // inside structs/cell arrays etc. don't get filtered.
         MatFile result = Mat5.newReader(Sources.wrap(buffer))
-                .setArrayFilter(header -> header.getNumElements() == 1)
+                .setEntryFilter(header -> header.getNumElements() == 1)
                 .readMat();
 
         assertEquals(2, result.getNumEntries());
         result.getMatrix("scalar");
         result.getMatrix("complexScalar");
 
+    }
+
+    @Test
+    public void testGlobalVariables() throws IOException {
+
+        // Add a global variable to a mat file
+        MatFile matFile = Mat5.newMatFile()
+                .addArray("globalVar", true, Mat5.newScalar(1.0))
+                .addArray("localVar", false, Mat5.newScalar(1.0));
+
+        ByteBuffer buffer = ByteBuffer.allocate(sint32(matFile.getUncompressedSerializedSize()));
+        matFile.writeTo(Sinks.wrap(buffer).nativeOrder());
+        buffer.flip();
+
+        MatFile result = Mat5.newReader(Sources.wrap(buffer)).readMat();
+
+        // Create lookup table of all global variables
+        HashMap<String, Array> globalVariables = new HashMap<>();
+        for (MatFile.Entry entry : result.getEntries()) {
+            if (entry.isGlobal())
+                globalVariables.put(entry.getName(), entry.getValue());
+        }
+
+        assertNotNull(globalVariables.get("globalVar"));
+        assertNull(globalVariables.get("localVar"));
     }
 
     @Test
@@ -268,7 +294,7 @@ public class Mat5Examples {
 
             Mat5File matFile = Mat5.newReader(source)
                     .enableConcurrentDecompression(executorService) // decompress with multiple threads
-                    .setArrayFilter(array -> !"var3".equals(array.getName()))
+                    .setEntryFilter(header -> !"var3".equals(header.getName()))
                     .readMat();
 
             assertEquals("Test", matFile.getChar("var1").getString());

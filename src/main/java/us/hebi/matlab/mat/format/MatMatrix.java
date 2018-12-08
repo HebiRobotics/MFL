@@ -35,8 +35,8 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
 
-    MatMatrix(int[] dims, boolean isGlobal, MatlabType type, boolean logical, NumberStore real, NumberStore imaginary) {
-        super(dims, isGlobal);
+    MatMatrix(int[] dims, MatlabType type, boolean logical, NumberStore real, NumberStore imaginary) {
+        super(dims);
         this.type = checkNotNull(type);
         this.logical = logical;
 
@@ -121,9 +121,9 @@ class MatMatrix extends AbstractMatrixBase implements Mat5Serializable {
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
         real.writeMat5(sink);
         if (complex) imaginary.writeMat5(sink);
     }

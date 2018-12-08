@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,9 +20,9 @@
 
 package us.hebi.matlab.mat.types;
 
-import static us.hebi.matlab.mat.util.Preconditions.*;
-
 import java.util.Arrays;
+
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * @author Florian Enner
@@ -53,16 +53,6 @@ public abstract class AbstractArray implements Array {
     @Override
     public int getNumElements() {
         return getNumElements(getDimensions());
-    }
-
-    @Override
-    public boolean isGlobal() {
-        return isGlobal;
-    }
-
-    @Override
-    public void setGlobal(boolean global) {
-        isGlobal = global;
     }
 
     /**
@@ -113,11 +103,10 @@ public abstract class AbstractArray implements Array {
         throw new IllegalArgumentException(msg);
     }
 
-    protected AbstractArray(int[] dims, boolean isGlobal) {
+    protected AbstractArray(int[] dims) {
         this.dims = checkNotNull(dims);
         checkArgument(dims.length >= 2, "Every array must have at least two dimensions");
         this.dimStrides = calculateColMajorStrides(dims);
-        this.isGlobal = isGlobal;
     }
 
     @Override
@@ -127,7 +116,6 @@ public abstract class AbstractArray implements Array {
 
     // Common Variables
     protected final int[] dims;
-    private boolean isGlobal;
 
     // Internal state
     private final int[] dimStrides;
@@ -137,7 +125,6 @@ public abstract class AbstractArray implements Array {
         final int prime = 31;
         int result = 1;
         result = prime * result + Arrays.hashCode(dims);
-        result = prime * result + (isGlobal ? 1231 : 1237);
         result = prime * result + subHashCode();
         return result;
     }
@@ -150,8 +137,7 @@ public abstract class AbstractArray implements Array {
             return false;
         } else if (other.getClass().equals(this.getClass())) {
             AbstractArray otherArray = (AbstractArray) other;
-            return otherArray.isGlobal == isGlobal &&
-                    Arrays.equals(otherArray.dims, dims) &&
+            return Arrays.equals(otherArray.dims, dims) &&
                     subEqualsGuaranteedSameClass(other);
         } else {
             return false;

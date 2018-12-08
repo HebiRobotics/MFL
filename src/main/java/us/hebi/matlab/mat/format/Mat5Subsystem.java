@@ -42,8 +42,8 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 public final class Mat5Subsystem extends AbstractArray implements Mat5Serializable {
 
-    Mat5Subsystem(int[] dims, boolean isGlobal, ByteBuffer buffer, BufferAllocator bufferAllocator) {
-        super(dims, isGlobal);
+    Mat5Subsystem(int[] dims, ByteBuffer buffer, BufferAllocator bufferAllocator) {
+        super(dims);
         this.buffer = buffer;
         this.bufferAllocator = bufferAllocator;
     }
@@ -65,9 +65,9 @@ public final class Mat5Subsystem extends AbstractArray implements Mat5Serializab
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
         UInt8.writeByteBufferWithTag(buffer.slice(), sink);
     }
 

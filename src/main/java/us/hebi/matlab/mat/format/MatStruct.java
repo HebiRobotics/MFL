@@ -42,12 +42,12 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  */
 class MatStruct extends AbstractStruct implements Mat5Serializable {
 
-    MatStruct(int[] dims, boolean global) {
-        super(dims, global);
+    MatStruct(int[] dims) {
+        super(dims);
     }
 
-    MatStruct(int[] dims, boolean isGlobal, String[] names, Array[][] values) {
-        super(dims, isGlobal);
+    MatStruct(int[] dims, String[] names, Array[][] values) {
+        super(dims);
         checkArgument(getNumDimensions() == 2, "Structures are limited to two dimensions");
         int numElements = getNumElements();
         for (int field = 0; field < names.length; field++) {
@@ -108,14 +108,14 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         final List<String> fieldNames = getFieldNames();
         final int numElements = getNumElements();
         final int numFields = fieldNames.size();
 
         // Common fields
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
 
         // Subfield -/4: Object only. Not struct
         if (getType() == MatlabType.Object) {
@@ -142,7 +142,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         checkArgument(getNumDimensions() == 2, "Structures are limited to two dimensions");
         for (int i = 0; i < numElements; i++) {
             for (int field = 0; field < numFields; field++) {
-                writeArrayWithTag(get(fieldNames.get(field), i), sink);
+                writeNestedArray(get(fieldNames.get(field), i), sink);
             }
         }
 

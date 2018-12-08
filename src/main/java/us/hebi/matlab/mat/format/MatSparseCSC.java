@@ -46,12 +46,12 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
 
-    MatSparseCSC(int[] dims, boolean global, boolean logical, int nzMax,
+    MatSparseCSC(int[] dims, boolean logical, int nzMax,
                  NumberStore real,
                  NumberStore imaginary,
                  NumberStore rowIndices,
                  NumberStore columnIndices) {
-        super(dims, global);
+        super(dims);
 
         if (columnIndices.getNumElements() != getNumCols() + 1)
             throw new IllegalArgumentException("Expected (numCols + 1) column indices");
@@ -203,9 +203,9 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
         rowIndices.writeMat5(sink);
         columnIndices.writeMat5(sink);
         real.writeMat5(sink);

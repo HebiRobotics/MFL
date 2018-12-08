@@ -54,9 +54,9 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
 
         // Row indices (MATLAB requires at least 1 entry)
         Int32.writeTag(getNumRowIndices(), sink);
@@ -108,7 +108,7 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
     }
 
     public EjmlSparseWrapper(DMatrixSparseCSC sparse) {
-        super(Mat5.dims(sparse.getNumRows(), sparse.getNumCols()), false);
+        super(Mat5.dims(sparse.getNumRows(), sparse.getNumCols()));
         if (!sparse.indicesSorted)
             throw new IllegalArgumentException("Indices must be sorted!");
         this.sparse = sparse;

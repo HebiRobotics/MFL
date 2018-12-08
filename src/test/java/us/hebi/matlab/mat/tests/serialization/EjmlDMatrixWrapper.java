@@ -47,9 +47,9 @@ public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializabl
     }
 
     @Override
-    public void writeMat5(String name, Sink sink) throws IOException {
+    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
         writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, this, sink);
+        writeArrayHeader(name, isGlobal, this, sink);
 
         // Data in column major format
         Double.writeTag(matrix.getNumElements(), sink);
@@ -68,7 +68,7 @@ public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializabl
     }
 
    public EjmlDMatrixWrapper(DMatrix matrix) {
-        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()), false);
+        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
         this.matrix = matrix;
     }
 

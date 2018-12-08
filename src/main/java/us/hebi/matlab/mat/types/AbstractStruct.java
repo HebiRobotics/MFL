@@ -37,8 +37,8 @@ import java.util.List;
  */
 public abstract class AbstractStruct extends AbstractStructBase {
 
-    protected AbstractStruct(int[] dims, boolean isGlobal) {
-        super(dims, isGlobal);
+    protected AbstractStruct(int[] dims) {
+        super(dims);
     }
 
     @Override

@@ -30,8 +30,8 @@ import us.hebi.matlab.mat.types.ObjectStruct;
  */
 class MatObjectStruct extends MatStruct implements ObjectStruct {
 
-    MatObjectStruct(int[] dims, boolean isGlobal, String className, String[] names, Array[][] values) {
-        super(dims, isGlobal, names, values);
+    MatObjectStruct(int[] dims, String className, String[] names, Array[][] values) {
+        super(dims, names, values);
         this.className = className;
     }
 

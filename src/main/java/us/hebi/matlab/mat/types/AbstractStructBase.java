@@ -28,8 +28,8 @@ package us.hebi.matlab.mat.types;
  */
 public abstract class AbstractStructBase extends AbstractArray implements Struct {
 
-    protected AbstractStructBase(int[] dims, boolean isGlobal) {
-        super(dims, isGlobal);
+    protected AbstractStructBase(int[] dims) {
+        super(dims);
     }
 
     // ---- Actual Accessors

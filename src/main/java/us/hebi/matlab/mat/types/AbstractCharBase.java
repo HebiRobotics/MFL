@@ -26,8 +26,8 @@ package us.hebi.matlab.mat.types;
  */
 public abstract class AbstractCharBase extends AbstractArray implements Char {
 
-    protected AbstractCharBase(int[] dims, boolean isGlobal) {
-        super(dims, isGlobal);
+    protected AbstractCharBase(int[] dims) {
+        super(dims);
     }
 
     // ---- To be implemented

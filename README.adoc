@@ -85,13 +85,13 @@ try(Source source = Sources.openFile("data.mat"){
 
 === Advanced Filtering
 
-In cases where users are only interested in reading a subset of `Array` variables, unwanted entries can be ignored by specifying an `ArrayFilter`.
+In cases where users are only interested in reading a subset of entries, unwanted entries can be ignored by specifying an `EntryFilter`.
 
 ```Java
 // Filter arrays that follow some criteria based on the name, type, dimension, or global/logical flags
 try(Source source = Sources.openFile("data.mat"){
     MatFile mat = Mat5.newReader(source)
-        .setArrayFilter(header -> header.isGlobal())
+        .setEntryFilter(header -> header.isGlobal())
         .readFile();
 }
 ```
@@ -116,7 +116,7 @@ try(Source source = Sources.openFile("data.mat"){
 }
 ```
 
-Concurrent writing unfortunately requires a temporary buffer for each root variable due to the size not being known ahead of time. The buffer allocation can be customized in case users want to use buffer-pools or memory-mapped buffers.
+Concurrent writing unfortunately requires a temporary buffer for each root entry due to the size not being known ahead of time. The buffer allocation can be customized in case users want to use buffer-pools or memory-mapped buffers.
 
 ```Java
 // Concurrent Compression

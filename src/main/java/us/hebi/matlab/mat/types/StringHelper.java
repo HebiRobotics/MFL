@@ -34,25 +34,25 @@ import java.util.List;
  */
 class StringHelper {
 
-    static String toString(Collection<NamedArray> arrays) {
+    static String toString(Collection<MatFile.Entry> entries) {
         StringBuilder builder = new StringBuilder();
         IndentingAppendable out = wrap(builder);
 
         // Find longest name
         int longest = 0;
-        for (NamedArray namedArray : arrays) {
-            longest = Math.max(longest, namedArray.getName().length());
+        for (MatFile.Entry entry : entries) {
+            longest = Math.max(longest, entry.getName().length());
         }
 
         // Add all Arrays
         boolean first = true;
-        for (NamedArray array : arrays) {
+        for (MatFile.Entry entry : entries) {
             if (!first) out.append("\n");
             first = false;
 
-            appendName(array.getName(), longest, out);
+            appendName(entry.getName(), longest, out);
             out.append(" = ");
-            append(array.getValue(), out);
+            append(entry.getValue(), out);
         }
 
         return builder.toString();

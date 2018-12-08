@@ -48,8 +48,8 @@ import static us.hebi.matlab.mat.format.McosReference.*;
  */
 class McosFileWrapper extends MatOpaque {
 
-    McosFileWrapper(boolean isGlobal, String objectType, String className, Array content, ByteOrder order) {
-        super(isGlobal, objectType, className, content);
+    McosFileWrapper(String objectType, String className, Array content, ByteOrder order) {
+        super(objectType, className, content);
         if (!"MCOS".equals(objectType))
             throw new IllegalArgumentException("Expected MCOS object type. Found " + objectType);
         if (!"FileWrapper__".equals(className))

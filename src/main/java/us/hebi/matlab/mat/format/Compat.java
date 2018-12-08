@@ -23,11 +23,13 @@ package us.hebi.matlab.mat.format;
 import java.util.Arrays;
 
 /**
- * Backport of java.util.Objects.
+ * Backport of Java SE 7+ methods related to
+ * equals and hashCode (e.g. java.util.Objects)
  *
  * @since 06 Dec 2018
  */
 class Compat {
+
     public static int hash(Object... values) {
         return Arrays.hashCode(values);
     }
@@ -35,4 +37,5 @@ class Compat {
     public static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
     }
+
 }

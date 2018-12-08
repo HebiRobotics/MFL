@@ -98,18 +98,22 @@ public final class Mat5Writer {
         if (!matFile.hasReducedHeader())
             headerStart = sink.position();
         matFile.writeFileHeader(sink);
-        for (NamedArray namedArray : matFile.getEntries()) {
-            writeArray(namedArray);
+        for (MatFile.Entry entry : matFile.getEntries()) {
+            writeEntry(entry);
         }
         flush();
         return this;
     }
 
-    public Mat5Writer writeArray(NamedArray namedArray) throws IOException {
-        return writeArray(namedArray.getName(), namedArray.getValue());
+    public Mat5Writer writeEntry(MatFile.Entry entry) throws IOException {
+        return writeArray(entry.getName(), entry.isGlobal(), entry.getValue());
     }
 
-    public Mat5Writer writeArray(final String name, final Array array) throws IOException {
+    public Mat5Writer writeArray(final String name, final Array value) throws IOException {
+        return writeArray(name, false, value);
+    }
+
+    public Mat5Writer writeArray(final String name, final boolean isGlobal, final Array array) throws IOException {
         if ((name == null || name.isEmpty())
                 && !(array instanceof McosReference)
                 && !(array instanceof Mat5Subsystem))
@@ -123,7 +127,7 @@ public final class Mat5Writer {
 
                 // No queue, so we can write immediately
                 if (isSubsystem) nextEntryIsSubsystem();
-                Mat5WriteUtil.writeArrayWithTag(name, array, sink);
+                Mat5WriteUtil.writeArray(name, isGlobal, array, sink);
 
             } else {
 
@@ -131,7 +135,7 @@ public final class Mat5Writer {
                 FlushAction action = new FlushAction() {
                     public void run() throws IOException {
                         if (isSubsystem) nextEntryIsSubsystem();
-                        Mat5WriteUtil.writeArrayWithTag(name, array, sink);
+                        Mat5WriteUtil.writeArray(name, isGlobal, array, sink);
                     }
                 };
                 flushActions.add(Tasks.wrapAsFuture(action));
@@ -153,7 +157,7 @@ public final class Mat5Writer {
                 deflater.reset();
             }
 
-            Mat5WriteUtil.writeArrayWithTagDeflated(name, array, sink, deflater);
+            Mat5WriteUtil.writeArrayDeflated(name, isGlobal, array, sink, deflater);
             return this;
 
         } else {
@@ -171,7 +175,7 @@ public final class Mat5Writer {
                     Sink tmpSink = Sinks.wrap(buffer).order(sink.order());
 
                     // Compress async into temporary buffer
-                    Mat5WriteUtil.writeArrayWithTagDeflated(name, array, tmpSink, deflater);
+                    Mat5WriteUtil.writeArrayDeflated(name, isGlobal, array, tmpSink, deflater);
                     tmpSink.close();
                     buffer.flip();
 

@@ -77,7 +77,7 @@ public class Mat5 {
     }
 
     public static Cell newCell(int[] dims) {
-        return new MatCell(dims, false);
+        return new MatCell(dims);
     }
 
     public static Struct newStruct() {
@@ -89,7 +89,7 @@ public class Mat5 {
     }
 
     public static Struct newStruct(int[] dims) {
-        return new MatStruct(dims, false);
+        return new MatStruct(dims);
     }
 
     public static Char newChar(int rows, int cols) {
@@ -120,7 +120,7 @@ public class Mat5 {
     }
 
     public static Char newString(String value, CharEncoding encoding) {
-        return new MatChar(new int[]{1, value.length()}, false, encoding, CharBuffer.wrap(value));
+        return new MatChar(new int[]{1, value.length()}, encoding, CharBuffer.wrap(value));
     }
 
 
@@ -195,7 +195,7 @@ public class Mat5 {
     }
 
     public static Matrix newNumerical(int[] dims, MatlabType type, boolean logical, boolean complex, BufferAllocator allocator) {
-        return new MatMatrix(dims, false, type, logical,
+        return new MatMatrix(dims, type, logical,
                 createStore(type, dims, allocator), complex ? createStore(type, dims, allocator) : null);
     }
 
