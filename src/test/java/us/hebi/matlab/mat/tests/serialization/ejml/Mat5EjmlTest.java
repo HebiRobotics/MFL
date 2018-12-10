@@ -49,6 +49,26 @@ import static us.hebi.matlab.mat.util.Casts.*;
 public class Mat5EjmlTest {
 
     @Test
+    public void testMixedMatrices() throws Exception {
+
+        // Save EJML Matrices
+        MatFile mat = Mat5.newMatFile()
+                .addArray("F", asArray(new FMatrixRMaj(rows, cols)))
+                .addArray("D", asArray(new DMatrixRMaj(rows, cols)))
+                .addArray("C", asArray(new CMatrixRMaj(rows, cols)))
+                .addArray("Z", asArray(new ZMatrixRMaj(rows, cols)));
+
+        MatFile result = writeReadMat(mat);
+
+        // Load EJML Matrices
+        FMatrixRMaj fmatrix = convert(result.getArray("F"), new FMatrixRMaj(0, 0));
+        DMatrixRMaj dmatrix = convert(result.getArray("D"), new DMatrixRMaj(0, 0));
+        CMatrixRMaj cmatrix = convert(result.getArray("C"), new CMatrixRMaj(0, 0));
+        ZMatrixRMaj zmatrix = convert(result.getArray("Z"), new ZMatrixRMaj(0, 0));
+
+    }
+
+    @Test
     public void testFMatrix() throws Exception {
         FMatrixRMaj expected = new FMatrixRMaj(rows, cols);
         fillData(expected.data);
