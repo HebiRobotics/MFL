@@ -33,11 +33,10 @@ import us.hebi.matlab.mat.types.Sources;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.Random;
 
 import static org.ejml.UtilEjml.*;
-import static us.hebi.matlab.mat.tests.serialization.ejml.EjmlMat.*;
+import static us.hebi.matlab.mat.tests.serialization.ejml.Mat5Ejml.*;
 import static us.hebi.matlab.mat.util.Casts.*;
 
 /**
@@ -47,7 +46,7 @@ import static us.hebi.matlab.mat.util.Casts.*;
  * @author Florian Enner
  * @since 16 Sep 2018
  */
-public class EjmlMatTest {
+public class Mat5EjmlTest {
 
     @Test
     public void testFMatrix() throws Exception {
@@ -57,9 +56,21 @@ public class EjmlMatTest {
     }
 
     @Test
+    public void testFMatrix3x3() throws Exception {
+        FMatrix3x3 expected = new FMatrix3x3(0, 1, 2, 3, 4, 5, 6, 7, 8);
+        EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, expected.createLike()), TEST_F32);
+    }
+
+    @Test
     public void testDMatrix() throws Exception {
         DMatrixRMaj expected = new DMatrixRMaj(rows, cols);
         fillData(expected.data);
+        EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, expected.createLike()), TEST_F64);
+    }
+
+    @Test
+    public void testDMatrix3x3() throws Exception {
+        DMatrix3x3 expected = new DMatrix3x3(0, 1, 2, 3, 4, 5, 6, 7, 8);
         EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, expected.createLike()), TEST_F64);
     }
 
@@ -94,6 +105,9 @@ public class EjmlMatTest {
         DMatrixSparseCSC actual = ConvertDMatrixStruct.convert(triplet, expected.createLike());
         EjmlUnitTests.assertEquals(expected, actual, TEST_F64);
 
+        // Read Dense
+        EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, new DMatrixRMaj(0)), TEST_F64);
+
     }
 
     @Test
@@ -113,11 +127,14 @@ public class EjmlMatTest {
         FMatrixSparseCSC actual = ConvertFMatrixStruct.convert(triplet, expected.createLike());
         EjmlUnitTests.assertEquals(expected, actual, TEST_F32);
 
+        // Read Dense
+        EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, new FMatrixRMaj(0)), TEST_F32);
+
     }
 
     private <T extends org.ejml.data.Matrix> T saveAndLoad(org.ejml.data.Matrix matrix, T result) throws IOException {
         MatFile original = Mat5.newMatFile().addArray("matrix", asArray(matrix));
-        return fromArray(writeReadMat(original).getMatrix("matrix"), result);
+        return convert(writeReadMat(original).getMatrix("matrix"), result);
     }
 
     private MatFile writeReadMat(MatFile mat) throws IOException {
