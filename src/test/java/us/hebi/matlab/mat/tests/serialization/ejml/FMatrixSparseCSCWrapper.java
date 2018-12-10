@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +18,9 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization;
+package us.hebi.matlab.mat.tests.serialization.ejml;
 
-import org.ejml.data.DMatrixSparseCSC;
+import org.ejml.data.FMatrixSparseCSC;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.types.AbstractArray;
@@ -29,7 +29,6 @@ import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5Type.Double;
 import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
@@ -42,7 +41,7 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  *
  * @author Florian Enner
  */
-public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
+class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
 
     @Override
     public int getMat5Size(String name) {
@@ -50,7 +49,7 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
                 + computeArrayHeaderSize(name, this)
                 + Int32.computeSerializedSize(getNumRowIndices())
                 + Int32.computeSerializedSize(getNumColIndices())
-                + Double.computeSerializedSize(getNzMax());
+                + Single.computeSerializedSize(getNzMax());
     }
 
     @Override
@@ -73,9 +72,9 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
         Int32.writePadding(getNumColIndices(), sink);
 
         // Non-zero values
-        Double.writeTag(getNzMax(), sink);
-        sink.writeDoubles(sparse.nz_values, 0, getNzMax());
-        Double.writePadding(getNzMax(), sink);
+        Single.writeTag(getNzMax(), sink);
+        sink.writeFloats(sparse.nz_values, 0, getNzMax());
+        Single.writePadding(getNzMax(), sink);
 
     }
 
@@ -107,7 +106,14 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
         return false;
     }
 
-    public EjmlSparseWrapper(DMatrixSparseCSC sparse) {
+    @Override
+    public int[] getDimensions() {
+        dims[0] = sparse.getNumRows();
+        dims[1] = sparse.getNumCols();
+        return dims;
+    }
+
+    public FMatrixSparseCSCWrapper(FMatrixSparseCSC sparse) {
         super(Mat5.dims(sparse.getNumRows(), sparse.getNumCols()));
         if (!sparse.indicesSorted)
             throw new IllegalArgumentException("Indices must be sorted!");
@@ -118,7 +124,7 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
     public void close() throws IOException {
     }
 
-    final DMatrixSparseCSC sparse;
+    final FMatrixSparseCSC sparse;
 
     @Override
     protected int subHashCode() {
@@ -127,7 +133,7 @@ public class EjmlSparseWrapper extends AbstractArray implements Mat5Serializable
 
     @Override
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        EjmlSparseWrapper other = (EjmlSparseWrapper) otherGuaranteedSameClass;
+        FMatrixSparseCSCWrapper other = (FMatrixSparseCSCWrapper) otherGuaranteedSameClass;
         return other.sparse.equals(sparse);
     }
 }

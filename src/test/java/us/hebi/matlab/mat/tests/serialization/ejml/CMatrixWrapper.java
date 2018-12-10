@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,9 +18,9 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization;
+package us.hebi.matlab.mat.tests.serialization.ejml;
 
-import org.ejml.data.DMatrix;
+import org.ejml.data.CMatrix;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.types.AbstractArray;
@@ -29,21 +29,21 @@ import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5Type.Double;
+import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**
- * Serializes an EJML double matrix into a MAT 5 file that can be read by MATLAB
+ * Serializes a complex EJML float matrix into a MAT 5 file that can be read by MATLAB
  *
  * @author Florian Enner
  */
-public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializable {
+class CMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
 
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
                 + computeArrayHeaderSize(name, this)
-                + Double.computeSerializedSize(matrix.getNumElements());
+                + 2 * Single.computeSerializedSize(getNumElements());
     }
 
     @Override
@@ -51,23 +51,39 @@ public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializabl
         writeMatrixTag(name, this, sink);
         writeArrayHeader(name, isGlobal, this, sink);
 
-        // Data in column major format
-        Double.writeTag(matrix.getNumElements(), sink);
+        // Real data in column major format
+        Single.writeTag(getNumElements(), sink);
         for (int col = 0; col < matrix.getNumCols(); col++) {
             for (int row = 0; row < matrix.getNumRows(); row++) {
-                sink.writeDouble(matrix.unsafe_get(row, col));
+                sink.writeFloat(matrix.getReal(row, col));
             }
         }
-        Double.writePadding(matrix.getNumElements(), sink);
+        Single.writePadding(getNumElements(), sink);
+
+        // Imaginary data in column major format
+        Single.writeTag(getNumElements(), sink);
+        for (int col = 0; col < matrix.getNumCols(); col++) {
+            for (int row = 0; row < matrix.getNumRows(); row++) {
+                sink.writeFloat(matrix.getImag(row, col));
+            }
+        }
+        Single.writePadding(getNumElements(), sink);
 
     }
 
     @Override
     public MatlabType getType() {
-        return MatlabType.Double;
+        return MatlabType.Single;
     }
 
-   public EjmlDMatrixWrapper(DMatrix matrix) {
+    @Override
+    public int[] getDimensions() {
+        dims[0] = matrix.getNumRows();
+        dims[1] = matrix.getNumCols();
+        return dims;
+    }
+
+    CMatrixWrapper(CMatrix matrix) {
         super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
         this.matrix = matrix;
     }
@@ -76,7 +92,7 @@ public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializabl
     public void close() throws IOException {
     }
 
-    final DMatrix matrix;
+    final CMatrix matrix;
 
     @Override
     protected int subHashCode() {
@@ -85,7 +101,23 @@ public class EjmlDMatrixWrapper extends AbstractArray implements Mat5Serializabl
 
     @Override
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        EjmlDMatrixWrapper other = (EjmlDMatrixWrapper) otherGuaranteedSameClass;
+        CMatrixWrapper other = (CMatrixWrapper) otherGuaranteedSameClass;
         return other.matrix.equals(matrix);
     }
+
+    @Override
+    public boolean isLogical() {
+        return false;
+    }
+
+    @Override
+    public boolean isComplex() {
+        return true;
+    }
+
+    @Override
+    public int getNzMax() {
+        return 0;
+    }
+
 }
