@@ -148,9 +148,9 @@ We often encountered cases where we needed to serialize data from an existing ma
 
 In order for a class to be serializable, it needs to implement the `Array` interface (easiest way is  to extend `AbstractArray`) as well as the `Mat5Serializable` interface. Below are examples:
 
-* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/EjmlDMatrixWrapper.java[EjmlDMatrixWrapper] serializes link:http://ejml.org[EJML]'s `DMatrix` type
+* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/ejml/DMatrixWrapper.java[DMatrixWrapper] serializes link:http://ejml.org[EJML]'s `DMatrix` type
 
-* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/EjmlSparseWrapper.java[EjmlSparseWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
+* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/ejml/DMatrixSparseCSCWrapper.java[DMatrixSparseCSCWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
 
 * link:./src/test/java/us/hebi/matlab/mat/tests/serialization/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
 
