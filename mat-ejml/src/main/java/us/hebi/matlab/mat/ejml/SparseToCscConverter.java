@@ -18,15 +18,13 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization.ejml;
+package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.DMatrixSparseCSC;
 import org.ejml.data.FMatrixSparseCSC;
 import us.hebi.matlab.mat.types.Sparse;
 
 import java.util.function.Supplier;
-
-import static us.hebi.matlab.mat.tests.serialization.ejml.Mat5Ejml.*;
 
 /**
  * @author Florian Enner

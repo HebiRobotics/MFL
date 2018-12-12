@@ -18,12 +18,13 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization.ejml;
+package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.*;
 import us.hebi.matlab.mat.types.Array;
 import us.hebi.matlab.mat.types.Matrix;
 import us.hebi.matlab.mat.types.Sparse;
+import us.hebi.matlab.mat.util.Preconditions;
 
 import java.util.Arrays;
 
@@ -191,7 +192,7 @@ public class Mat5Ejml {
         });
     }
 
-    private static void convertToZMatrix(Sparse input, ZMatrixD1 output) {
+    private static void convertToZMatrix(Sparse input, final ZMatrixD1 output) {
         reshapeOutputSize(input, output);
         Arrays.fill(output.data, 0, output.getDataLength(), 0d);
         input.forEach(new Sparse.SparseConsumer() {
@@ -203,7 +204,7 @@ public class Mat5Ejml {
         });
     }
 
-    private static void convertToFMatrixSparseTriplet(Sparse input, FMatrixSparseTriplet output) {
+    private static void convertToFMatrixSparseTriplet(Sparse input, final FMatrixSparseTriplet output) {
         reshapeOutputSize(input, output);
         output.zero();
         input.forEach(new Sparse.SparseConsumer() {

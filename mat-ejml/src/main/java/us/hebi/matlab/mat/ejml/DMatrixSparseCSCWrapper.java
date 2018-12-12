@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -18,18 +18,19 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization.ejml;
+package us.hebi.matlab.mat.ejml;
 
-import org.ejml.data.FMatrixSparseCSC;
+import org.ejml.data.DMatrixSparseCSC;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5Serializable;
+import us.hebi.matlab.mat.format.Mat5Type;
+import us.hebi.matlab.mat.format.Mat5WriteUtil;
 import us.hebi.matlab.mat.types.AbstractArray;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**
@@ -41,15 +42,15 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  *
  * @author Florian Enner
  */
-class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
+class DMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
 
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
                 + computeArrayHeaderSize(name, this)
-                + Int32.computeSerializedSize(getNumRowIndices())
-                + Int32.computeSerializedSize(getNumColIndices())
-                + Single.computeSerializedSize(getNzMax());
+                + Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
+                + Mat5Type.Int32.computeSerializedSize(getNumColIndices())
+                + Mat5Type.Double.computeSerializedSize(getNzMax());
     }
 
     @Override
@@ -58,23 +59,23 @@ class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable,
         writeArrayHeader(name, isGlobal, this, sink);
 
         // Row indices (MATLAB requires at least 1 entry)
-        Int32.writeTag(getNumRowIndices(), sink);
-        if (sparse.getNonZeroLength() == 0) {
+        Mat5Type.Int32.writeTag(getNumRowIndices(), sink);
+        if (matrix.getNonZeroLength() == 0) {
             sink.writeInt(0);
         } else {
-            sink.writeInts(sparse.nz_rows, 0, getNumRowIndices());
+            sink.writeInts(matrix.nz_rows, 0, getNumRowIndices());
         }
-        Int32.writePadding(getNumRowIndices(), sink);
+        Mat5Type.Int32.writePadding(getNumRowIndices(), sink);
 
         // Column indices
-        Int32.writeTag(getNumColIndices(), sink);
-        sink.writeInts(sparse.col_idx, 0, getNumColIndices());
-        Int32.writePadding(getNumColIndices(), sink);
+        Mat5Type.Int32.writeTag(getNumColIndices(), sink);
+        sink.writeInts(matrix.col_idx, 0, getNumColIndices());
+        Mat5Type.Int32.writePadding(getNumColIndices(), sink);
 
         // Non-zero values
-        Single.writeTag(getNzMax(), sink);
-        sink.writeFloats(sparse.nz_values, 0, getNzMax());
-        Single.writePadding(getNzMax(), sink);
+        Mat5Type.Double.writeTag(getNzMax(), sink);
+        sink.writeDoubles(matrix.nz_values, 0, getNzMax());
+        Mat5Type.Double.writePadding(getNzMax(), sink);
 
     }
 
@@ -84,16 +85,16 @@ class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable,
     }
 
     private int getNumRowIndices() {
-        return Math.max(1, sparse.getNonZeroLength());
+        return Math.max(1, matrix.getNonZeroLength());
     }
 
     private int getNumColIndices() {
-        return sparse.getNumCols() + 1;
+        return matrix.getNumCols() + 1;
     }
 
     @Override
     public int getNzMax() {
-        return sparse.getNonZeroLength();
+        return matrix.getNonZeroLength();
     }
 
     @Override
@@ -108,32 +109,33 @@ class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable,
 
     @Override
     public int[] getDimensions() {
-        dims[0] = sparse.getNumRows();
-        dims[1] = sparse.getNumCols();
+        dims[0] = matrix.getNumRows();
+        dims[1] = matrix.getNumCols();
         return dims;
     }
 
-    public FMatrixSparseCSCWrapper(FMatrixSparseCSC sparse) {
-        super(Mat5.dims(sparse.getNumRows(), sparse.getNumCols()));
-        if (!sparse.indicesSorted)
+    DMatrixSparseCSCWrapper(DMatrixSparseCSC matrix) {
+        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
+        if (!matrix.indicesSorted)
             throw new IllegalArgumentException("Indices must be sorted!");
-        this.sparse = sparse;
+        this.matrix = matrix;
     }
 
     @Override
     public void close() throws IOException {
     }
 
-    final FMatrixSparseCSC sparse;
+    final DMatrixSparseCSC matrix;
 
     @Override
     protected int subHashCode() {
-        return sparse.hashCode();
+        return matrix.hashCode();
     }
 
     @Override
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        FMatrixSparseCSCWrapper other = (FMatrixSparseCSCWrapper) otherGuaranteedSameClass;
-        return other.sparse.equals(sparse);
+        DMatrixSparseCSCWrapper other = (DMatrixSparseCSCWrapper) otherGuaranteedSameClass;
+        return other.matrix.equals(matrix);
     }
+
 }

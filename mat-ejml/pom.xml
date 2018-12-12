@@ -1,0 +1,59 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>us.hebi.mat</groupId>
+        <artifactId>mat-parent</artifactId>
+        <version>0.4-SNAPSHOT</version>
+    </parent>
+
+    <name>Mat-File IO / EJML</name>
+    <artifactId>mat-ejml</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <javaTarget>1.7</javaTarget> <!-- Required by EJML -->
+        <javaModuleName>us.hebi.matlab.mat-ejml</javaModuleName>
+    </properties>
+
+    <!-- Dependency management (keep in alphabetical order) -->
+    <dependencies>
+
+        <dependency>
+            <groupId>us.hebi.mat</groupId>
+            <artifactId>mat-file-io</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.ejml</groupId>
+            <artifactId>ejml-all</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <!-- Build Process -->
+    <build>
+
+        <!-- Include the README, NOTICE and LICENSE files: -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <includes>
+                    <include>README*</include>
+                    <include>NOTICE*</include>
+                    <include>LICENSE*</include>
+                    <include>CHANGELOG*</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+
+</project>
