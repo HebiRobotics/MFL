@@ -99,12 +99,6 @@
     <dependencyManagement>
         <dependencies>
 
-            <dependency> <!-- For extensions that depend on the core module -->
-                <groupId>us.hebi.mat</groupId>
-                <artifactId>mat-file-io</artifactId>
-                <version>0.4-SNAPSHOT</version>
-            </dependency>
-
             <dependency> <!-- EJML linear algebra library -->
                 <groupId>org.ejml</groupId>
                 <artifactId>ejml-all</artifactId>
