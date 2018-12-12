@@ -1,5 +1,15 @@
 = Mat-File IO - Changelog
 
+== Next Snapshot
+This change breaks backwards compatibility with `0.3` for some corner case use cases.
+
+* Removed `Array::isGlobal()`
+* Moved `NamedArray` to `MatFile.Entry`
+* Added `MatFile.Entry::isGlobal()`
+* Added `MatFile::addEntry(entry)`
+* Added `Mat5Writer::writeEntry(entry)`
+* Renamed `Mat5Reader::setArrayFilter(ArrayFilter)` to `Mat5Reader::setEntryFilter(EntryFilter)`
+
 == 0.3
 * Added `hashCode()` and `equals()` to all Arrays. Thanks `@nedtwigg`
 * Fixed a bug that caused the `global` flag to be ignored during construction. Thanks `@nedtwigg`
