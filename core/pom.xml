@@ -111,7 +111,7 @@
         <!-- Include the README, NOTICE and LICENSE files: -->
         <resources>
             <resource>
-                <directory>${project.basedir}</directory>
+                <directory>${project.basedir}/..</directory>
                 <includes>
                     <include>README*</include>
                     <include>NOTICE*</include>
