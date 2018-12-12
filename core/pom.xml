@@ -26,4 +26,21 @@
 
     </dependencies>
 
+    <build>
+
+        <!-- Include the README, NOTICE and LICENSE files: -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <includes>
+                    <include>README*</include>
+                    <include>NOTICE*</include>
+                    <include>LICENSE*</include>
+                    <include>CHANGELOG*</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+
 </project>
