@@ -23,7 +23,6 @@
         <dependency>
             <groupId>us.hebi.mat</groupId>
             <artifactId>mat-file-io</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
