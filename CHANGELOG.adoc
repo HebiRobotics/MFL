@@ -1,6 +1,9 @@
 = Mat-File IO - Changelog
 
-== 0.4-SNAPSHOT
+== 0.5-SNAPSHOT
+* TBD
+
+== 0.4
 This change breaks backwards compatibility with `0.3` for some corner case use cases.
 
 * Removed `Array::isGlobal()`
