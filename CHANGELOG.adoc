@@ -1,6 +1,6 @@
 = Mat-File IO - Changelog
 
-== Next Snapshot
+== 0.4-SNAPSHOT
 This change breaks backwards compatibility with `0.3` for some corner case use cases.
 
 * Removed `Array::isGlobal()`
@@ -9,6 +9,8 @@ This change breaks backwards compatibility with `0.3` for some corner case use c
 * Added `MatFile::addEntry(entry)`
 * Added `Mat5Writer::writeEntry(entry)`
 * Renamed `Mat5Reader::setArrayFilter(ArrayFilter)` to `Mat5Reader::setEntryFilter(EntryFilter)`
+* Added extension module for converting `EJML` matrices
+* Added `Sinks::newStreamingFile(file, append)` to add entries to existing MAT files
 
 == 0.3
 * Added `hashCode()` and `equals()` to all Arrays. Thanks `@nedtwigg`
