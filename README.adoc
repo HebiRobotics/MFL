@@ -164,20 +164,26 @@ In order for a class to be serializable, it needs to implement the `Array` inter
 
 link:http://ejml.org/[EJML] is a popular linear algebra library for Java. The `mat-ejml` module has preliminary support for converting between MAT files and EJML data types.
 
-The serialization wrappers are very light and serialize the contained data into the `MAT File Format` directly.
+The serialization wrappers are very light and serialize the contained data into the `MAT File Format` directly without requiring additional memory for storing any intermediate data.
 
 ```Java
-// Add EJML Matrix
+// Add single EJML matrix to root level
 MatFile mat = Mat5.newMatFile();
-mat.addArray("ejmlMatrix", Mat5Ejml.asArray(new DMatrixRMaj(10, 10)))
+mat.addArray("DMatrix", Mat5Ejml.asArray(new DMatrixRMaj(rows, cols)))
+
+// Add multiple EJML matrices to sub-structure
+MatFile mat = Mat5.newMatFile().addArray("struct", Mat5.newStruct()
+        .set("FMatrix", Mat5Ejml.asArray(new FMatrixRMaj(rows, cols)))
+        .set("CMatrix", Mat5Ejml.asArray(new CMatrixRMaj(rows, cols)))
+        .set("ZMatrix", Mat5Ejml.asArray(new ZMatrixRMaj(rows, cols))));
 ```
 
-Existing Matrices in `MAT Files` can be converted to EJML types via `output = Mat5Ejml.convert(matrix, output)`.
+After reading a `MAT File` the contained Matrix types can be converted to a user supplied EJML matrix via `output = Mat5Ejml.convert(matrix, output)`. The output matrix will be reshaped as needed.
 
 ```Java
 // Convert Matrix to EJML Type
 MatFile mat = Mat5.newMatFile();
-DMatrixRMaj ejmlMatrix = Mat5Ejml.convert(mat.getArray("ejmlMatrix"), new DMatrixRMaj(0, 0));
+DMatrixRMaj dMatrix = Mat5Ejml.convert(mat.getArray("DMatrix"), new DMatrixRMaj(0, 0));
 ```
 
 == General Notes
