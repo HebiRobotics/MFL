@@ -39,11 +39,11 @@ The initial release was done as version 0.x because we are still doing final int
 
 == Basic Usage
 
-The **link:./src/main/java/us/hebi/matlab/mat/format/Mat5.java[Mat5]** class contains static factory methods that serve as the starting points for the public API. The basic types (e.g. `Struct`, `Cell`, `Sparse`, `Char`) follow their corresponding MATLAB semantics (e.g. a struct can't be logical) and provide a fluent API for the most common use cases. All of the numerical types (e.g. `double`, `uint8`, `int16`, `logical`, ...) are represented by the `Matrix` type which offers a unified interface for handling numeric conversions.
+The **link:./mat-file-io/src/main/java/us/hebi/matlab/mat/format/Mat5.java[Mat5]** class contains static factory methods that serve as the starting points for the public API. The basic types (e.g. `Struct`, `Cell`, `Sparse`, `Char`) follow their corresponding MATLAB semantics (e.g. a struct can't be logical) and provide a fluent API for the most common use cases. All of the numerical types (e.g. `double`, `uint8`, `int16`, `logical`, ...) are represented by the `Matrix` type which offers a unified interface for handling numeric conversions.
 
 Similarly to MATLAB, all types are internally represented as a multi-dimensional `Array`. For example, a scalar struct is really a `1x1` array of structs. Most types offer convenience overloads for scalar, linear, 2-dimensional, and N-dimensional access.
 
-Below are some example snippets on how to use the API. For more examples, please refer to **link:./src/test/java/us/hebi/matlab/mat/tests/Mat5Examples.java[Mat5Examples]** and the various unit tests.
+Below are some example snippets on how to use the API. For more examples, please refer to **link:./mat-file-io/src/test/java/us/hebi/matlab/mat/tests/Mat5Examples.java[Mat5Examples]** and the various unit tests.
 
 === Creating and Writing MAT Files
 
@@ -158,7 +158,7 @@ We often encountered cases where we needed to serialize data from an existing ma
 
 In order for a class to be serializable, it needs to implement the `Array` interface (easiest way is  to extend `AbstractArray`) as well as the `Mat5Serializable` interface. See the example(s) below:
 
-* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
+* link:./mat-file-io/src/test/java/us/hebi/matlab/mat/tests/serialization/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
 
 == General Notes
 

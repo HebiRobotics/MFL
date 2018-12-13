@@ -35,27 +35,37 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  */
 public class Mat5Ejml {
 
+    /**
+     * Creates a thin wrapper around {@link org.ejml.data.Matrix} that serializes
+     * the contained data in a MAT-File format that is appropriate for the input
+     * type. Wrapper Arrays do not allocate additional storage for storing data.
+     * Wrapper arrays are also agnostic to the size, so the original matrices may
+     * be reshaped as needed.
+     *
+     * @param matrix Input Matrix. Not modified.
+     * @return Wrapper that handles serialization of the data.
+     */
     public static Array asArray(org.ejml.data.Matrix matrix) {
         checkNotNull(matrix, "Input matrix can't be null");
 
         // Sparse CSC 64/32
         if (matrix instanceof DMatrixSparseCSC)
             return new DMatrixSparseCSCWrapper((DMatrixSparseCSC) matrix);
-        else if (matrix instanceof FMatrixSparseCSC)
+        if (matrix instanceof FMatrixSparseCSC)
             return new FMatrixSparseCSCWrapper((FMatrixSparseCSC) matrix);
-        else if (matrix instanceof MatrixSparse)
+        if (matrix instanceof MatrixSparse)
             throw new IllegalArgumentException("Unsupported Sparse Matrix Type: " + matrix.getClass().getSimpleName());
 
         // Dense Real 64/32
         if (matrix instanceof DMatrix)
             return new DMatrixWrapper((DMatrix) matrix);
-        else if (matrix instanceof FMatrix)
+        if (matrix instanceof FMatrix)
             return new FMatrixWrapper((FMatrix) matrix);
 
         // Dense Complex 64/32
         if (matrix instanceof ZMatrix)
             return new ZMatrixWrapper((ZMatrix) matrix);
-        else if (matrix instanceof CMatrix)
+        if (matrix instanceof CMatrix)
             return new CMatrixWrapper((CMatrix) matrix);
 
         // Logical / Boolean
@@ -66,55 +76,68 @@ public class Mat5Ejml {
 
     }
 
-    public static <T extends org.ejml.data.Matrix> T convert(Array array, T output) {
-        checkNotNull(array, "Input array can't be null");
+    /**
+     * Converts {@link Array} into {@link org.ejml.data.Matrix}. The output
+     * matrix will be reshaped as needed.
+     * <p>
+     * Note that the there are no checks whether the output type is appropriate
+     * for the data, e.g., a sparse complex double array may convert to a dense
+     * float matrix without throwing an error.
+     *
+     * @param input  Input Array of Matrix type. Not modified.
+     * @param output Output Matrix. Modified.
+     * @param <T>    Desired output object.
+     * @return Converted matrix
+     */
+    public static <T extends org.ejml.data.Matrix> T convert(Array input, T output) {
+        checkNotNull(input, "Input array can't be null");
         checkNotNull(output, "Output matrix can't be null");
-        checkArgument(array instanceof Matrix, "Input Array is not a Matrix type");
-        final Matrix input = (Matrix) array;
+        checkArgument(input instanceof Matrix, "Input Array is not a Matrix type");
+        final Matrix array = (Matrix) input;
 
         // Make sure dimensions match
-        reshapeOutputSize(input, output);
+        reshapeOutputSize(array, output);
 
         // Sparse MAT to Sparse 64/32
-        if (input instanceof Sparse && output instanceof MatrixSparse) {
+        if (array instanceof Sparse && output instanceof MatrixSparse) {
 
             // Convert to Sparse CSC 64/32
             if (output instanceof DMatrixSparseCSC)
-                convertToDMatrixSparseCSC((Sparse) input, (DMatrixSparseCSC) output);
+                convertToDMatrixSparseCSC((Sparse) array, (DMatrixSparseCSC) output);
             else if (output instanceof FMatrixSparseCSC)
-                convertToFMatrixSparseCSC((Sparse) input, (FMatrixSparseCSC) output);
+                convertToFMatrixSparseCSC((Sparse) array, (FMatrixSparseCSC) output);
 
                 // Convert to Sparse Triplet 64/32
             else if (output instanceof DMatrixSparseTriplet)
-                convertToDMatrixSparseTriplet((Sparse) input, (DMatrixSparseTriplet) output);
+                convertToDMatrixSparseTriplet((Sparse) array, (DMatrixSparseTriplet) output);
             else if (output instanceof FMatrixSparseTriplet)
-                convertToFMatrixSparseTriplet((Sparse) input, (FMatrixSparseTriplet) output);
+                convertToFMatrixSparseTriplet((Sparse) array, (FMatrixSparseTriplet) output);
             else
                 throw new IllegalArgumentException("Unsupported sparse output type: " + output.getClass());
 
         } else {
 
             // Sparse MAT to dense 64
-            if (input instanceof Sparse && output instanceof DMatrixD1)
-                convertToDMatrix((Sparse) input, (DMatrixD1) output);
-            else if (input instanceof Sparse && output instanceof ZMatrixD1)
-                convertToZMatrix((Sparse) input, (ZMatrixD1) output);
+            if (array instanceof Sparse && output instanceof DMatrixD1)
+                convertToDMatrix((Sparse) array, (DMatrixD1) output);
+            else if (array instanceof Sparse && output instanceof ZMatrixD1)
+                convertToZMatrix((Sparse) array, (ZMatrixD1) output);
 
                 // Dense MAT to dense 64
             else if (output instanceof DMatrix)
-                convertToDMatrix(input, (DMatrix) output);
+                convertToDMatrix(array, (DMatrix) output);
             else if (output instanceof ZMatrix)
-                convertToZMatrix(input, (ZMatrix) output);
+                convertToZMatrix(array, (ZMatrix) output);
 
                 // Sparse/Dense MAT to dense 32
             else if (output instanceof FMatrix)
-                convertToFMatrix(input, (FMatrix) output);
+                convertToFMatrix(array, (FMatrix) output);
             else if (output instanceof CMatrix)
-                convertToCMatrix(input, (CMatrix) output);
+                convertToCMatrix(array, (CMatrix) output);
 
-            // Logical/Boolean
-            else if(output instanceof BMatrixRMaj)
-                convertToBMatrixRMaj(input, (BMatrixRMaj) output);
+                // Logical/Boolean
+            else if (output instanceof BMatrixRMaj)
+                convertToBMatrixRMaj(array, (BMatrixRMaj) output);
 
             else
                 throw new IllegalArgumentException("Unsupported dense output type: " + output.getClass());
