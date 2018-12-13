@@ -1,16 +1,17 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
-    <artifactId>mat-file-io</artifactId>
+    <artifactId>mat-parent</artifactId>
+    <packaging>pom</packaging>
     <version>0.4-SNAPSHOT</version>
-    <packaging>jar</packaging>
 
     <name>Mat-File IO</name>
+    <url>https://github.com/HebiRobotics/MatFileIO</url>
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
-    <url>https://github.com/HebiRobotics/MatFileIO</url>
 
     <organization>
         <name>HEBI Robotics</name>
@@ -62,6 +63,11 @@
         </developer>
     </developers>
 
+    <modules>
+        <module>mat-file-io</module>
+        <module>mat-ejml</module>
+    </modules>
+
     <properties>
 
         <!-- Set Syntax level to Java 8 so that IDEs (IntelliJ) don't complain about using
@@ -69,12 +75,15 @@
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
 
-        <!-- Set the actual target to minimum Java version compatible with Matlab >2009a -->
-        <matlab.target>1.6</matlab.target>
+        <!-- Sets the actual target source target for a 2nd compilation pass  -->
+        <javaTarget></javaTarget>
+
+        <!-- Jigsaw module name -->
+        <javaModuleName></javaModuleName>
 
         <!-- Other Settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gpg.keyname /> <!-- set via settings.xml to sign release artifacts-->
+        <gpg.keyname/> <!-- set via settings.xml to sign release artifacts-->
 
         <!-- License Headers (http://www.mojohaus.org/license-maven-plugin/update-file-header-mojo.html) -->
         <license.licenseName>apache_v2</license.licenseName>
@@ -87,156 +96,182 @@
     </properties>
 
     <!-- Dependency management (keep in alphabetical order) -->
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
 
-        <dependency> <!-- for custom serialization tests -->
-            <groupId>org.ejml</groupId>
-            <artifactId>ejml-all</artifactId>
-            <version>0.35</version>
-            <scope>test</scope>
-        </dependency>
+            <dependency> <!-- EJML linear algebra library -->
+                <groupId>org.ejml</groupId>
+                <artifactId>ejml-all</artifactId>
+                <version>0.35</version>
+            </dependency>
 
-        <dependency> <!-- Unit Tests -->
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
+            <dependency> <!-- Unit Tests -->
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
 
-    </dependencies>
+        </dependencies>
+    </dependencyManagement>
 
-    <!-- Build Process -->
     <build>
 
-        <!-- Include the README, NOTICE and LICENSE files: -->
-        <resources>
-            <resource>
-                <directory>${project.basedir}</directory>
-                <includes>
-                    <include>README*</include>
-                    <include>NOTICE*</include>
-                    <include>LICENSE*</include>
-                    <include>CHANGELOG*</include>
-                </includes>
-            </resource>
-        </resources>
-
+        <!-- Plugins required for publishing to Maven Central -->
         <plugins>
-
-            <!-- Java 9 and later: compile in 2 stages so we can get a module-info w/ target sources -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <executions>
-                    <!-- 1) default-compile: compiles sources w/ Java 8 -->
-                    <!-- 2) default-testCompile: compiles tests w/ Java 8 -->
-                    <!-- 3) Re-compiles sources for target VM -->
-                    <execution>
-                        <id>target-compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                        <configuration>
-                            <source>${matlab.target}</source>
-                            <target>${matlab.target}</target>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
-
-            <!-- Add licenses to files -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.16</version>
-                <executions>
-                    <execution>
-                        <id>first</id>
-                        <goals>
-                            <goal>update-file-header</goal>
-                        </goals>
-                        <phase>process-sources</phase>
-                    </execution>
-                </executions>
             </plugin>
-
-            <!-- Optional: ensure the manifest contains artifact version information: -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                        <manifestEntries>
-                            <Automatic-Module-Name>us.hebi.matlab.mat</Automatic-Module-Name>
-                        </manifestEntries>
-                    </archive>
-                </configuration>
             </plugin>
-
-            <!-- Required: Source Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-
-            <!-- Required: Javadoc Jar -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadoc</id>
-                        <phase>verify</phase>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
-
-            <!-- Release -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <localCheckout>true</localCheckout>
-                    <pushChanges>false</pushChanges>
-                    <mavenExecutorId>forked-path</mavenExecutorId>
-                </configuration>
             </plugin>
-
-            <!-- Deployment -->
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
                 <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
             </plugin>
-
         </plugins>
+
+        <!-- Configuration for plugins required for publishing to Maven Central -->
+        <pluginManagement>
+            <plugins>
+
+                <!-- Compile in 2 stages so we use a higher target in source -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.8.0</version>
+                    <executions>
+                        <!-- 1) default-compile: compiles sources w/ Java 8 -->
+                        <!-- 2) default-testCompile: compiles tests w/ Java 8 -->
+                        <!-- 3) Re-compiles sources for target VM -->
+                        <execution>
+                            <id>target-compile</id>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                            <configuration>
+                                <source>${javaTarget}</source>
+                                <target>${javaTarget}</target>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Add licenses to files -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>1.16</version>
+                    <executions>
+                        <execution>
+                            <id>first</id>
+                            <goals>
+                                <goal>update-file-header</goal>
+                            </goals>
+                            <phase>process-sources</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Optional: ensure the manifest contains artifact version information: -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            </manifest>
+                            <manifestEntries>
+                                <Automatic-Module-Name>${javaModuleName}</Automatic-Module-Name>
+                            </manifestEntries>
+                        </archive>
+                    </configuration>
+                </plugin>
+
+                <!-- Required: Source Jar -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Required: Javadoc Jar -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-javadoc</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Release -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <configuration>
+                        <localCheckout>true</localCheckout>
+                        <pushChanges>false</pushChanges>
+                        <mavenExecutorId>forked-path</mavenExecutorId>
+                    </configuration>
+                </plugin>
+
+                <!-- Deployment -->
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.6.7</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <serverId>ossrh</serverId>
+                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    </configuration>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
     </build>
 
     <profiles>
@@ -275,5 +310,6 @@
         </profile>
 
     </profiles>
+
 
 </project>

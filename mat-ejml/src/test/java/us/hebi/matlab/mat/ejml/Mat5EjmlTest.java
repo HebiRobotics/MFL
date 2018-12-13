@@ -18,7 +18,7 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization.ejml;
+package us.hebi.matlab.mat.ejml;
 
 import org.ejml.EjmlUnitTests;
 import org.ejml.data.*;
@@ -27,17 +27,15 @@ import org.ejml.ops.ConvertFMatrixStruct;
 import org.junit.Test;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.MatFile;
-import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sinks;
 import us.hebi.matlab.mat.types.Sources;
+import us.hebi.matlab.mat.util.Casts;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
 import static org.ejml.UtilEjml.*;
-import static us.hebi.matlab.mat.tests.serialization.ejml.Mat5Ejml.*;
-import static us.hebi.matlab.mat.util.Casts.*;
 
 /**
  * Demonstrates serialization of custom data sets by writing
@@ -53,18 +51,18 @@ public class Mat5EjmlTest {
 
         // Save EJML Matrices
         MatFile mat = Mat5.newMatFile()
-                .addArray("F", asArray(new FMatrixRMaj(rows, cols)))
-                .addArray("D", asArray(new DMatrixRMaj(rows, cols)))
-                .addArray("C", asArray(new CMatrixRMaj(rows, cols)))
-                .addArray("Z", asArray(new ZMatrixRMaj(rows, cols)));
+                .addArray("F", Mat5Ejml.asArray(new FMatrixRMaj(rows, cols)))
+                .addArray("D", Mat5Ejml.asArray(new DMatrixRMaj(rows, cols)))
+                .addArray("C", Mat5Ejml.asArray(new CMatrixRMaj(rows, cols)))
+                .addArray("Z", Mat5Ejml.asArray(new ZMatrixRMaj(rows, cols)));
 
         MatFile result = writeReadMat(mat);
 
         // Load EJML Matrices
-        FMatrixRMaj fmatrix = convert(result.getArray("F"), new FMatrixRMaj(0, 0));
-        DMatrixRMaj dmatrix = convert(result.getArray("D"), new DMatrixRMaj(0, 0));
-        CMatrixRMaj cmatrix = convert(result.getArray("C"), new CMatrixRMaj(0, 0));
-        ZMatrixRMaj zmatrix = convert(result.getArray("Z"), new ZMatrixRMaj(0, 0));
+        FMatrixRMaj fmatrix = Mat5Ejml.convert(result.getArray("F"), new FMatrixRMaj(0, 0));
+        DMatrixRMaj dmatrix = Mat5Ejml.convert(result.getArray("D"), new DMatrixRMaj(0, 0));
+        CMatrixRMaj cmatrix = Mat5Ejml.convert(result.getArray("C"), new CMatrixRMaj(0, 0));
+        ZMatrixRMaj zmatrix = Mat5Ejml.convert(result.getArray("Z"), new ZMatrixRMaj(0, 0));
 
     }
 
@@ -153,19 +151,19 @@ public class Mat5EjmlTest {
     }
 
     private <T extends org.ejml.data.Matrix> T saveAndLoad(org.ejml.data.Matrix matrix, T result) throws IOException {
-        MatFile original = Mat5.newMatFile().addArray("matrix", asArray(matrix));
-        return convert(writeReadMat(original).getMatrix("matrix"), result);
+        MatFile original = Mat5.newMatFile().addArray("matrix", Mat5Ejml.asArray(matrix));
+        return Mat5Ejml.convert(writeReadMat(original).getMatrix("matrix"), result);
     }
 
     private MatFile writeReadMat(MatFile mat) throws IOException {
         // Debug to disk
-        String name = "test/" + Thread.currentThread().getStackTrace()[3].getMethodName() + ".mat";
+        /*String name = "test/" + Thread.currentThread().getStackTrace()[3].getMethodName() + ".mat";
         try (Sink sink = Sinks.newStreamingFile(name)) {
             mat.writeTo(sink);
-        }
+        }*/
 
         // Write to buffer and read result
-        ByteBuffer buffer = ByteBuffer.allocate(sint32(mat.getUncompressedSerializedSize()));
+        ByteBuffer buffer = ByteBuffer.allocate(Casts.sint32(mat.getUncompressedSerializedSize()));
         mat.writeTo(Sinks.wrap(buffer));
         buffer.flip();
         return Mat5.newReader(Sources.wrap(buffer)).readMat();

@@ -146,11 +146,7 @@ The data set was very multi-threading friendly (33x [95946x18] double matrices o
 
 We often encountered cases where we needed to serialize data from an existing math library. Rather than having to convert the data into an API class, we added the ability to create light-weight wrapper classes that serialize the desired data directly.
 
-In order for a class to be serializable, it needs to implement the `Array` interface (easiest way is  to extend `AbstractArray`) as well as the `Mat5Serializable` interface. Below are examples:
-
-* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/ejml/DMatrixWrapper.java[DMatrixWrapper] serializes link:http://ejml.org[EJML]'s `DMatrix` type
-
-* link:./src/test/java/us/hebi/matlab/mat/tests/serialization/ejml/DMatrixSparseCSCWrapper.java[DMatrixSparseCSCWrapper] serializes link:http://ejml.org[EJML]'s `DMatrixSparseCSC` sparse matrix
+In order for a class to be serializable, it needs to implement the `Array` interface (easiest way is  to extend `AbstractArray`) as well as the `Mat5Serializable` interface. See the example(s) below:
 
 * link:./src/test/java/us/hebi/matlab/mat/tests/serialization/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
 

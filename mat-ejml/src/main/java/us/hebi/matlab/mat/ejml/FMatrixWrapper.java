@@ -18,9 +18,9 @@
  * #L%
  */
 
-package us.hebi.matlab.mat.tests.serialization.ejml;
+package us.hebi.matlab.mat.ejml;
 
-import org.ejml.data.ZMatrix;
+import org.ejml.data.FMatrix;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.types.AbstractArray;
@@ -29,21 +29,21 @@ import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5Type.Double;
+import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
 
 /**
- * Serializes a complex EJML double matrix into a MAT 5 file that can be read by MATLAB
+ * Serializes an EJML float matrix into a MAT 5 file that can be read by MATLAB
  *
  * @author Florian Enner
  */
-class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
+class FMatrixWrapper extends AbstractArray implements Mat5Serializable {
 
     @Override
     public int getMat5Size(String name) {
         return Mat5.MATRIX_TAG_SIZE
                 + computeArrayHeaderSize(name, this)
-                + 2 * Double.computeSerializedSize(getNumElements());
+                + Single.computeSerializedSize(matrix.getNumElements());
     }
 
     @Override
@@ -51,29 +51,20 @@ class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Seri
         writeMatrixTag(name, this, sink);
         writeArrayHeader(name, isGlobal, this, sink);
 
-        // Real data in column major format
-        Double.writeTag(getNumElements(), sink);
+        // Data in column major format
+        Single.writeTag(matrix.getNumElements(), sink);
         for (int col = 0; col < matrix.getNumCols(); col++) {
             for (int row = 0; row < matrix.getNumRows(); row++) {
-                sink.writeDouble(matrix.getReal(row, col));
+                sink.writeFloat(matrix.unsafe_get(row, col));
             }
         }
-        Double.writePadding(getNumElements(), sink);
-
-        // Imaginary data in column major format
-        Double.writeTag(getNumElements(), sink);
-        for (int col = 0; col < matrix.getNumCols(); col++) {
-            for (int row = 0; row < matrix.getNumRows(); row++) {
-                sink.writeDouble(matrix.getImag(row, col));
-            }
-        }
-        Double.writePadding(getNumElements(), sink);
+        Single.writePadding(matrix.getNumElements(), sink);
 
     }
 
     @Override
     public MatlabType getType() {
-        return MatlabType.Double;
+        return MatlabType.Single;
     }
 
     @Override
@@ -83,7 +74,7 @@ class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Seri
         return dims;
     }
 
-    ZMatrixWrapper(ZMatrix matrix) {
+    FMatrixWrapper(FMatrix matrix) {
         super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
         this.matrix = matrix;
     }
@@ -92,7 +83,7 @@ class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Seri
     public void close() throws IOException {
     }
 
-    final ZMatrix matrix;
+    final FMatrix matrix;
 
     @Override
     protected int subHashCode() {
@@ -101,23 +92,8 @@ class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Seri
 
     @Override
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        ZMatrixWrapper other = (ZMatrixWrapper) otherGuaranteedSameClass;
+        FMatrixWrapper other = (FMatrixWrapper) otherGuaranteedSameClass;
         return other.matrix.equals(matrix);
-    }
-
-    @Override
-    public boolean isLogical() {
-        return false;
-    }
-
-    @Override
-    public boolean isComplex() {
-        return true;
-    }
-
-    @Override
-    public int getNzMax() {
-        return 0;
     }
 
 }

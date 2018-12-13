@@ -1,0 +1,46 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>us.hebi.matlab</groupId>
+        <artifactId>mat-parent</artifactId>
+        <version>0.4-SNAPSHOT</version>
+    </parent>
+
+    <name>Mat-File IO / Core</name>
+    <artifactId>mat-file-io</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <javaTarget>1.6</javaTarget>  <!-- compatible with MATLAB >2009a -->
+        <javaModuleName>us.hebi.matlab.mat</javaModuleName>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+
+        <!-- Include the README, NOTICE and LICENSE files: -->
+        <resources>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <includes>
+                    <include>README*</include>
+                    <include>NOTICE*</include>
+                    <include>LICENSE*</include>
+                    <include>CHANGELOG*</include>
+                </includes>
+            </resource>
+        </resources>
+
+    </build>
+
+</project>
