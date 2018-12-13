@@ -160,23 +160,7 @@ In order for a class to be serializable, it needs to implement the `Array` inter
 
 * link:./mat-file-io/src/test/java/us/hebi/matlab/mat/tests/serialization/StreamingDoubleMatrix2D.java[StreamingDoubleMatrix2D] streams incoming row-major data into temporary files and combines them on serialization
 
-== General Notes
-
-=== Memory Efficient Serialization
-
-The MAT 5 format stores all data fields with a header tag that contains the number of bytes and how they should be interpreted. Rather than writing into temporary buffers to determine the serialized size, we added ways to pre-compute all deterministic sizes beforehand.
-
-The only non-deterministic case is compressing data at the root level, which we can work around by writing a dummy size and overwriting it once the final size is known. Thus, enabling compression requires the root level sink to support position seeking (i.e. in-memory buffers, memory mapped files, or random access files).
-
-=== Support for Undocumented Features
-
-Unfortunately, MAT 5 files have several features that aren't covered in the official documentation. This includes most of the recently added types (`table`, `timeseries`, `string`, ...), `handle` classes, `function handles`, `.fig` files, `Simulink` outputs, etc.
-
-Our current implementation supports reading all of the `.mat` and `.fig` files we were able to generate. It also supports editing and saving of the loaded MAT files, e.g., adding entries, changing matrices, or using a different compression level. However, changes to the undocumented parts, such as setting a property on a `handle` class, will not be saved.
-
-== Extensions
-
-=== Efficient Java Matrix Library (EJML)
+==== Efficient Java Matrix Library (EJML)
 
 link:http://ejml.org/[EJML] is a popular linear algebra library for Java. The `mat-ejml` module has preliminary support for converting between MAT files and EJML data types.
 
@@ -195,6 +179,20 @@ Existing Matrices in `MAT Files` can be converted to EJML types via `output = Ma
 MatFile mat = Mat5.newMatFile();
 DMatrixRMaj ejmlMatrix = Mat5Ejml.convert(mat.getArray("ejmlMatrix"), new DMatrixRMaj(0, 0));
 ```
+
+== General Notes
+
+=== Memory Efficient Serialization
+
+The MAT 5 format stores all data fields with a header tag that contains the number of bytes and how they should be interpreted. Rather than writing into temporary buffers to determine the serialized size, we added ways to pre-compute all deterministic sizes beforehand.
+
+The only non-deterministic case is compressing data at the root level, which we can work around by writing a dummy size and overwriting it once the final size is known. Thus, enabling compression requires the root level sink to support position seeking (i.e. in-memory buffers, memory mapped files, or random access files).
+
+=== Support for Undocumented Features
+
+Unfortunately, MAT 5 files have several features that aren't covered in the official documentation. This includes most of the recently added types (`table`, `timeseries`, `string`, ...), `handle` classes, `function handles`, `.fig` files, `Simulink` outputs, etc.
+
+Our current implementation supports reading all of the `.mat` and `.fig` files we were able to generate. It also supports editing and saving of the loaded MAT files, e.g., adding entries, changing matrices, or using a different compression level. However, changes to the undocumented parts, such as setting a property on a `handle` class, will not be saved.
 
 == Building Sources
 
