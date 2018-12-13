@@ -64,7 +64,7 @@
     </developers>
 
     <modules>
-        <module>core</module>
+        <module>mat-file-io</module>
         <module>mat-ejml</module>
     </modules>
 
