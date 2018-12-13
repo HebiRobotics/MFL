@@ -4,7 +4,7 @@
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.4</version>
+    <version>0.5-SNAPSHOT</version>
 
     <name>Mat-File IO</name>
     <url>https://github.com/HebiRobotics/MatFileIO</url>
@@ -34,7 +34,7 @@
         <url>https://github.com/HebiRobotics/MatFileIO</url>
         <connection>scm:git:git://github.com/HebiRobotics/MatFileIO.git</connection>
         <developerConnection>scm:git:git@github.com:HebiRobotics/MatFileIO.git</developerConnection>
-        <tag>mat-file-io-0.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Maven Central Distribution -->
