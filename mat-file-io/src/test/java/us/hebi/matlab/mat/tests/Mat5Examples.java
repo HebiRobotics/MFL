@@ -312,6 +312,41 @@ public class Mat5Examples {
 
     }
 
+    @Test
+    public void testAppendEntryToExistingFile() throws IOException {
+        File file = new File("appending-test.mat");
+
+        // Create new MAT File
+        try (Sink sink = Sinks.newStreamingFile(file)) {
+            Mat5.newMatFile()
+                    .addArray("one", Mat5.newScalar(1))
+                    .writeTo(sink);
+        }
+
+        // Read MAT
+        try (Source source = Sources.openFile(file)) {
+            MatFile matFile = Mat5.newReader(source).readMat();
+            assertEquals(1, matFile.getNumEntries());
+        }
+
+        // Append new entry. The file already has a header,
+        // so we only append the array itself.
+        try (Sink sink = Sinks.newStreamingFile(file, true)) {
+            Mat5.newWriter(sink)
+                    .writeArray("two", Mat5.newScalar(2))
+                    .setDeflateLevel(Deflater.NO_COMPRESSION)
+                    .writeArray("three", Mat5.newScalar(3));
+        }
+
+        // Read MAT
+        try (Source source = Sources.openFile(file)) {
+            MatFile matFile = Mat5.newReader(source).readMat();
+            assertEquals(3, matFile.getNumEntries());
+        }
+
+        assertTrue(file.delete());
+
+    }
 
     private static double DELTA = 0;
     private static ExecutorService executorService = Executors.newCachedThreadPool();

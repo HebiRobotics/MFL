@@ -20,8 +20,8 @@
 
 package us.hebi.matlab.mat.types;
 
-import us.hebi.matlab.mat.util.Unsafe9R;
 import us.hebi.matlab.mat.util.Casts;
+import us.hebi.matlab.mat.util.Unsafe9R;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,9 +50,30 @@ public class Sinks {
      * @throws IOException if file can't be opened
      */
     public static Sink newStreamingFile(final File file) throws IOException {
-        checkFile(file);
+        return newStreamingFile(file, false);
+    }
+
+    /**
+     * Creates a new file that continuously expands until it is closed. Supports
+     * files that can become larger than 2 GB.
+     *
+     * @param file   target file
+     * @param append true appends to the end of the specified file, if it exists
+     * @return sink writing to file
+     * @throws IOException if file can't be opened
+     */
+    public static Sink newStreamingFile(final File file, boolean append) throws IOException {
+        // Make sure file exists
+        if (!append)
+            deleteFileIfExists(file);
+        createParentDirs(file);
+
+        // Open channel
         final FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         final ByteBuffer directBuffer = ByteBuffer.allocateDirect(8 * defaultCopyBufferSize);
+        if (append) {
+            channel.position(file.length());
+        }
 
         return new AbstractSink(defaultCopyBufferSize) {
             @Override
@@ -111,6 +132,10 @@ public class Sinks {
         return newStreamingFile(new File(file));
     }
 
+    public static Sink newStreamingFile(String file, boolean append) throws IOException {
+        return newStreamingFile(new File(file), append);
+    }
+
     /**
      * Creates a memory mapped byte buffer with the maximum expected size that
      * truncates the backing file to the actual size once closed. Supports a
@@ -122,7 +147,8 @@ public class Sinks {
      * @throws IOException if file can't be opened
      */
     public static Sink newMappedFile(File file, int maxExpectedSize) throws IOException {
-        checkFile(file);
+        deleteFileIfExists(file);
+        createParentDirs(file);
 
         // Memory map largest possible size
         final FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
@@ -165,10 +191,9 @@ public class Sinks {
 
     private static final int defaultCopyBufferSize = 4096;
 
-    private static void checkFile(File file) throws IOException {
+    private static void deleteFileIfExists(File file) throws IOException {
         if (checkNotNull(file).exists() && !file.delete())
             throw new IOException("Failed to overwrite " + file.getAbsolutePath());
-        createParentDirs(file);
     }
 
     private static void createParentDirs(File file) throws IOException {
