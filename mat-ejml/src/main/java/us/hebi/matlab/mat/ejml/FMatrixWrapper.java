@@ -21,45 +21,34 @@
 package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.FMatrix;
-import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.format.Mat5Serializable;
-import us.hebi.matlab.mat.types.AbstractArray;
+import us.hebi.matlab.mat.format.Mat5Type;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5Type.*;
-import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
-
 /**
- * Serializes an EJML float matrix into a MAT 5 file that can be read by MATLAB
+ * Serializes an EJML float matrix
  *
  * @author Florian Enner
  */
-class FMatrixWrapper extends AbstractArray implements Mat5Serializable {
+class FMatrixWrapper extends AbstractMatrixWrapper<FMatrix> {
 
     @Override
-    public int getMat5Size(String name) {
-        return Mat5.MATRIX_TAG_SIZE
-                + computeArrayHeaderSize(name, this)
-                + Single.computeSerializedSize(matrix.getNumElements());
+    protected int getMat5DataSize() {
+        return Mat5Type.Single.computeSerializedSize(matrix.getNumElements());
     }
 
     @Override
-    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
-        writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, isGlobal, this, sink);
-
-        // Data in column major format
-        Single.writeTag(matrix.getNumElements(), sink);
+    protected void writeMat5Data(Sink sink) throws IOException {
+        // Real data in column major format
+        Mat5Type.Single.writeTag(matrix.getNumElements(), sink);
         for (int col = 0; col < matrix.getNumCols(); col++) {
             for (int row = 0; row < matrix.getNumRows(); row++) {
                 sink.writeFloat(matrix.unsafe_get(row, col));
             }
         }
-        Single.writePadding(matrix.getNumElements(), sink);
-
+        Mat5Type.Single.writePadding(matrix.getNumElements(), sink);
     }
 
     @Override
@@ -67,33 +56,8 @@ class FMatrixWrapper extends AbstractArray implements Mat5Serializable {
         return MatlabType.Single;
     }
 
-    @Override
-    public int[] getDimensions() {
-        dims[0] = matrix.getNumRows();
-        dims[1] = matrix.getNumCols();
-        return dims;
-    }
-
     FMatrixWrapper(FMatrix matrix) {
-        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
-        this.matrix = matrix;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    final FMatrix matrix;
-
-    @Override
-    protected int subHashCode() {
-        return matrix.hashCode();
-    }
-
-    @Override
-    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        FMatrixWrapper other = (FMatrixWrapper) otherGuaranteedSameClass;
-        return other.matrix.equals(matrix);
+        super(matrix);
     }
 
 }

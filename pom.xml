@@ -101,8 +101,8 @@
 
             <dependency> <!-- EJML linear algebra library -->
                 <groupId>org.ejml</groupId>
-                <artifactId>ejml-all</artifactId>
-                <version>0.35</version>
+                <artifactId>ejml-core</artifactId>
+                <version>0.37</version>
             </dependency>
 
             <dependency> <!-- Unit Tests -->

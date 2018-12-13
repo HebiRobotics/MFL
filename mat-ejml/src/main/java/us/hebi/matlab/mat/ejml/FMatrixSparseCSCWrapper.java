@@ -21,62 +21,46 @@
 package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.FMatrixSparseCSC;
-import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.format.Mat5Type;
-import us.hebi.matlab.mat.format.Mat5WriteUtil;
-import us.hebi.matlab.mat.types.AbstractArray;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
-
 /**
- * Serializes an EJML Sparse CSC matrix into a MAT 5 file that can be read by MATLAB.
- * <p>
- * The data is stored almost identically, so there isn't much conversion required.
- * Implementing 'Mat5Attributes' lets us get around the overhead of implementing
- * the entire Sparse interface, or alternatively manually writing the header.
+ * Serializes an EJML Sparse CSC float matrix
  *
  * @author Florian Enner
  */
-class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
+class FMatrixSparseCSCWrapper extends AbstractMatrixWrapper<FMatrixSparseCSC> {
 
     @Override
-    public int getMat5Size(String name) {
-        return Mat5.MATRIX_TAG_SIZE
-                + computeArrayHeaderSize(name, this)
-                + Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
+    protected int getMat5DataSize() {
+        return Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
                 + Mat5Type.Int32.computeSerializedSize(getNumColIndices())
                 + Mat5Type.Single.computeSerializedSize(getNzMax());
     }
 
     @Override
-    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
-        writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, isGlobal, this, sink);
-
+    protected void writeMat5Data(Sink sink) throws IOException {
         // Row indices (MATLAB requires at least 1 entry)
         Mat5Type.Int32.writeTag(getNumRowIndices(), sink);
-        if (sparse.getNonZeroLength() == 0) {
+        if (matrix.getNonZeroLength() == 0) {
             sink.writeInt(0);
         } else {
-            sink.writeInts(sparse.nz_rows, 0, getNumRowIndices());
+            sink.writeInts(matrix.nz_rows, 0, getNumRowIndices());
         }
         Mat5Type.Int32.writePadding(getNumRowIndices(), sink);
 
         // Column indices
         Mat5Type.Int32.writeTag(getNumColIndices(), sink);
-        sink.writeInts(sparse.col_idx, 0, getNumColIndices());
+        sink.writeInts(matrix.col_idx, 0, getNumColIndices());
         Mat5Type.Int32.writePadding(getNumColIndices(), sink);
 
         // Non-zero values
         Mat5Type.Single.writeTag(getNzMax(), sink);
-        sink.writeFloats(sparse.nz_values, 0, getNzMax());
+        sink.writeFloats(matrix.nz_values, 0, getNzMax());
         Mat5Type.Single.writePadding(getNzMax(), sink);
-
     }
 
     @Override
@@ -84,57 +68,23 @@ class FMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable,
         return MatlabType.Sparse;
     }
 
+    @Override
+    public int getNzMax() {
+        return matrix.getNonZeroLength();
+    }
+
+    FMatrixSparseCSCWrapper(FMatrixSparseCSC matrix) {
+        super(matrix);
+        if (!matrix.indicesSorted)
+            throw new IllegalArgumentException("Indices must be sorted!");
+    }
+
     private int getNumRowIndices() {
-        return Math.max(1, sparse.getNonZeroLength());
+        return Math.max(1, matrix.getNonZeroLength());
     }
 
     private int getNumColIndices() {
-        return sparse.getNumCols() + 1;
+        return matrix.getNumCols() + 1;
     }
 
-    @Override
-    public int getNzMax() {
-        return sparse.getNonZeroLength();
-    }
-
-    @Override
-    public boolean isLogical() {
-        return false;
-    }
-
-    @Override
-    public boolean isComplex() {
-        return false;
-    }
-
-    @Override
-    public int[] getDimensions() {
-        dims[0] = sparse.getNumRows();
-        dims[1] = sparse.getNumCols();
-        return dims;
-    }
-
-    public FMatrixSparseCSCWrapper(FMatrixSparseCSC sparse) {
-        super(Mat5.dims(sparse.getNumRows(), sparse.getNumCols()));
-        if (!sparse.indicesSorted)
-            throw new IllegalArgumentException("Indices must be sorted!");
-        this.sparse = sparse;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    final FMatrixSparseCSC sparse;
-
-    @Override
-    protected int subHashCode() {
-        return sparse.hashCode();
-    }
-
-    @Override
-    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        FMatrixSparseCSCWrapper other = (FMatrixSparseCSCWrapper) otherGuaranteedSameClass;
-        return other.sparse.equals(sparse);
-    }
 }

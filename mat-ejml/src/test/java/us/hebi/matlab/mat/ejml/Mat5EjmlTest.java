@@ -24,6 +24,7 @@ import org.ejml.EjmlUnitTests;
 import org.ejml.data.*;
 import org.ejml.ops.ConvertDMatrixStruct;
 import org.ejml.ops.ConvertFMatrixStruct;
+import org.junit.Assert;
 import org.junit.Test;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.types.MatFile;
@@ -54,15 +55,17 @@ public class Mat5EjmlTest {
                 .addArray("F", Mat5Ejml.asArray(new FMatrixRMaj(rows, cols)))
                 .addArray("D", Mat5Ejml.asArray(new DMatrixRMaj(rows, cols)))
                 .addArray("C", Mat5Ejml.asArray(new CMatrixRMaj(rows, cols)))
-                .addArray("Z", Mat5Ejml.asArray(new ZMatrixRMaj(rows, cols)));
+                .addArray("Z", Mat5Ejml.asArray(new ZMatrixRMaj(rows, cols)))
+                .addArray("B", Mat5Ejml.asArray(new BMatrixRMaj(rows, cols)));
 
         MatFile result = writeReadMat(mat);
 
         // Load EJML Matrices
-        FMatrixRMaj fmatrix = Mat5Ejml.convert(result.getArray("F"), new FMatrixRMaj(0, 0));
-        DMatrixRMaj dmatrix = Mat5Ejml.convert(result.getArray("D"), new DMatrixRMaj(0, 0));
-        CMatrixRMaj cmatrix = Mat5Ejml.convert(result.getArray("C"), new CMatrixRMaj(0, 0));
-        ZMatrixRMaj zmatrix = Mat5Ejml.convert(result.getArray("Z"), new ZMatrixRMaj(0, 0));
+        FMatrixRMaj fMatrix = Mat5Ejml.convert(result.getArray("F"), new FMatrixRMaj(0, 0));
+        DMatrixRMaj dMatrix = Mat5Ejml.convert(result.getArray("D"), new DMatrixRMaj(0, 0));
+        CMatrixRMaj cMatrix = Mat5Ejml.convert(result.getArray("C"), new CMatrixRMaj(0, 0));
+        ZMatrixRMaj zMatrix = Mat5Ejml.convert(result.getArray("Z"), new ZMatrixRMaj(0, 0));
+        BMatrixRMaj bMatrix = Mat5Ejml.convert(result.getArray("B"), new BMatrixRMaj(0, 0));
 
     }
 
@@ -104,6 +107,14 @@ public class Mat5EjmlTest {
         ZMatrixRMaj expected = new ZMatrixRMaj(rows, cols);
         fillData(expected.data);
         EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, expected.createLike()), TEST_F64);
+    }
+
+    @Test
+    public void testBMatrixRMaj() throws Exception {
+        BMatrixRMaj expected = new BMatrixRMaj(rows, cols);
+        fillData(expected.data);
+        BMatrixRMaj actual = saveAndLoad(expected, expected.createLike());
+        Assert.assertArrayEquals(expected.data, actual.data);
     }
 
     @Test
@@ -173,6 +184,12 @@ public class Mat5EjmlTest {
 
     static final int rows = 17;
     static final int cols = 7;
+
+    private static void fillData(boolean[] data) {
+        for (int i = 0; i < data.length; i++) {
+            data[i] = i % 3 == 0;
+        }
+    }
 
     private static void fillData(double[] data) {
         for (int i = 0; i < data.length; i++) {

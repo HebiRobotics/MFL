@@ -21,37 +21,26 @@
 package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.ZMatrix;
-import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.format.Mat5Type;
-import us.hebi.matlab.mat.format.Mat5WriteUtil;
-import us.hebi.matlab.mat.types.AbstractArray;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
-
 /**
- * Serializes a complex EJML double matrix into a MAT 5 file that can be read by MATLAB
+ * Serializes a complex EJML double matrix
  *
  * @author Florian Enner
  */
-class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
+class ZMatrixWrapper extends AbstractMatrixWrapper<ZMatrix> {
 
     @Override
-    public int getMat5Size(String name) {
-        return Mat5.MATRIX_TAG_SIZE
-                + computeArrayHeaderSize(name, this)
-                + 2 * Mat5Type.Double.computeSerializedSize(getNumElements());
+    protected int getMat5DataSize() {
+        return 2 * Mat5Type.Double.computeSerializedSize(getNumElements());
     }
 
     @Override
-    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
-        writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, isGlobal, this, sink);
-
+    protected void writeMat5Data(Sink sink) throws IOException {
         // Real data in column major format
         Mat5Type.Double.writeTag(getNumElements(), sink);
         for (int col = 0; col < matrix.getNumCols(); col++) {
@@ -69,7 +58,6 @@ class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Seri
             }
         }
         Mat5Type.Double.writePadding(getNumElements(), sink);
-
     }
 
     @Override
@@ -77,48 +65,13 @@ class ZMatrixWrapper extends AbstractArray implements Mat5Serializable, Mat5Seri
         return MatlabType.Double;
     }
 
-    @Override
-    public int[] getDimensions() {
-        dims[0] = matrix.getNumRows();
-        dims[1] = matrix.getNumCols();
-        return dims;
-    }
-
     ZMatrixWrapper(ZMatrix matrix) {
-        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
-        this.matrix = matrix;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    final ZMatrix matrix;
-
-    @Override
-    protected int subHashCode() {
-        return matrix.hashCode();
-    }
-
-    @Override
-    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        ZMatrixWrapper other = (ZMatrixWrapper) otherGuaranteedSameClass;
-        return other.matrix.equals(matrix);
-    }
-
-    @Override
-    public boolean isLogical() {
-        return false;
+        super(matrix);
     }
 
     @Override
     public boolean isComplex() {
         return true;
-    }
-
-    @Override
-    public int getNzMax() {
-        return 0;
     }
 
 }

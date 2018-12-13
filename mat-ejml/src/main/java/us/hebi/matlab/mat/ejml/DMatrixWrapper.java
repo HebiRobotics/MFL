@@ -21,38 +21,27 @@
 package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.DMatrix;
-import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.format.Mat5Type;
-import us.hebi.matlab.mat.format.Mat5WriteUtil;
-import us.hebi.matlab.mat.types.AbstractArray;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
-
 /**
- * Serializes an EJML double matrix into a MAT 5 file that can be read by MATLAB
+ * Serializes an EJML double matrix
  *
  * @author Florian Enner
  */
-class DMatrixWrapper extends AbstractArray implements Mat5Serializable {
+class DMatrixWrapper extends AbstractMatrixWrapper<DMatrix> {
 
     @Override
-    public int getMat5Size(String name) {
-        return Mat5.MATRIX_TAG_SIZE
-                + computeArrayHeaderSize(name, this)
-                + Mat5Type.Double.computeSerializedSize(matrix.getNumElements());
+    protected int getMat5DataSize() {
+        return Mat5Type.Double.computeSerializedSize(matrix.getNumElements());
     }
 
     @Override
-    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
-        writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, isGlobal, this, sink);
-
-        // Data in column major format
+    protected void writeMat5Data(Sink sink) throws IOException {
+        // Real data in column major format
         Mat5Type.Double.writeTag(matrix.getNumElements(), sink);
         for (int col = 0; col < matrix.getNumCols(); col++) {
             for (int row = 0; row < matrix.getNumRows(); row++) {
@@ -60,7 +49,6 @@ class DMatrixWrapper extends AbstractArray implements Mat5Serializable {
             }
         }
         Mat5Type.Double.writePadding(matrix.getNumElements(), sink);
-
     }
 
     @Override
@@ -68,33 +56,8 @@ class DMatrixWrapper extends AbstractArray implements Mat5Serializable {
         return MatlabType.Double;
     }
 
-    @Override
-    public int[] getDimensions() {
-        dims[0] = matrix.getNumRows();
-        dims[1] = matrix.getNumCols();
-        return dims;
-    }
-
     DMatrixWrapper(DMatrix matrix) {
-        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
-        this.matrix = matrix;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    final DMatrix matrix;
-
-    @Override
-    protected int subHashCode() {
-        return matrix.hashCode();
-    }
-
-    @Override
-    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        DMatrixWrapper other = (DMatrixWrapper) otherGuaranteedSameClass;
-        return other.matrix.equals(matrix);
+        super(matrix);
     }
 
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,43 +21,28 @@
 package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.DMatrixSparseCSC;
-import us.hebi.matlab.mat.format.Mat5;
-import us.hebi.matlab.mat.format.Mat5Serializable;
 import us.hebi.matlab.mat.format.Mat5Type;
-import us.hebi.matlab.mat.format.Mat5WriteUtil;
-import us.hebi.matlab.mat.types.AbstractArray;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
-
 /**
- * Serializes an EJML Sparse CSC matrix into a MAT 5 file that can be read by MATLAB.
- * <p>
- * The data is stored almost identically, so there isn't much conversion required.
- * Implementing 'Mat5Attributes' lets us get around the overhead of implementing
- * the entire Sparse interface, or alternatively manually writing the header.
+ * Serializes an EJML Sparse CSC double matrix
  *
  * @author Florian Enner
  */
-class DMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable, Mat5Serializable.Mat5Attributes {
+class DMatrixSparseCSCWrapper extends AbstractMatrixWrapper<DMatrixSparseCSC> {
 
     @Override
-    public int getMat5Size(String name) {
-        return Mat5.MATRIX_TAG_SIZE
-                + computeArrayHeaderSize(name, this)
-                + Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
+    protected int getMat5DataSize() {
+        return Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
                 + Mat5Type.Int32.computeSerializedSize(getNumColIndices())
                 + Mat5Type.Double.computeSerializedSize(getNzMax());
     }
 
     @Override
-    public void writeMat5(String name, boolean isGlobal, Sink sink) throws IOException {
-        writeMatrixTag(name, this, sink);
-        writeArrayHeader(name, isGlobal, this, sink);
-
+    protected void writeMat5Data(Sink sink) throws IOException {
         // Row indices (MATLAB requires at least 1 entry)
         Mat5Type.Int32.writeTag(getNumRowIndices(), sink);
         if (matrix.getNonZeroLength() == 0) {
@@ -76,12 +61,22 @@ class DMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable,
         Mat5Type.Double.writeTag(getNzMax(), sink);
         sink.writeDoubles(matrix.nz_values, 0, getNzMax());
         Mat5Type.Double.writePadding(getNzMax(), sink);
-
     }
 
     @Override
     public MatlabType getType() {
         return MatlabType.Sparse;
+    }
+
+    @Override
+    public int getNzMax() {
+        return matrix.getNonZeroLength();
+    }
+
+    DMatrixSparseCSCWrapper(DMatrixSparseCSC matrix) {
+        super(matrix);
+        if (!matrix.indicesSorted)
+            throw new IllegalArgumentException("Indices must be sorted!");
     }
 
     private int getNumRowIndices() {
@@ -90,52 +85,6 @@ class DMatrixSparseCSCWrapper extends AbstractArray implements Mat5Serializable,
 
     private int getNumColIndices() {
         return matrix.getNumCols() + 1;
-    }
-
-    @Override
-    public int getNzMax() {
-        return matrix.getNonZeroLength();
-    }
-
-    @Override
-    public boolean isLogical() {
-        return false;
-    }
-
-    @Override
-    public boolean isComplex() {
-        return false;
-    }
-
-    @Override
-    public int[] getDimensions() {
-        dims[0] = matrix.getNumRows();
-        dims[1] = matrix.getNumCols();
-        return dims;
-    }
-
-    DMatrixSparseCSCWrapper(DMatrixSparseCSC matrix) {
-        super(Mat5.dims(matrix.getNumRows(), matrix.getNumCols()));
-        if (!matrix.indicesSorted)
-            throw new IllegalArgumentException("Indices must be sorted!");
-        this.matrix = matrix;
-    }
-
-    @Override
-    public void close() throws IOException {
-    }
-
-    final DMatrixSparseCSC matrix;
-
-    @Override
-    protected int subHashCode() {
-        return matrix.hashCode();
-    }
-
-    @Override
-    protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
-        DMatrixSparseCSCWrapper other = (DMatrixSparseCSCWrapper) otherGuaranteedSameClass;
-        return other.matrix.equals(matrix);
     }
 
 }

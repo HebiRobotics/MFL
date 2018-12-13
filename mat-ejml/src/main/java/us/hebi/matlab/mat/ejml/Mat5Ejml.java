@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,7 +24,6 @@ import org.ejml.data.*;
 import us.hebi.matlab.mat.types.Array;
 import us.hebi.matlab.mat.types.Matrix;
 import us.hebi.matlab.mat.types.Sparse;
-import us.hebi.matlab.mat.util.Preconditions;
 
 import java.util.Arrays;
 
@@ -58,6 +57,10 @@ public class Mat5Ejml {
             return new ZMatrixWrapper((ZMatrix) matrix);
         else if (matrix instanceof CMatrix)
             return new CMatrixWrapper((CMatrix) matrix);
+
+        // Logical / Boolean
+        if (matrix instanceof BMatrixRMaj)
+            return new BMatrixRMajWrapper((BMatrixRMaj) matrix);
 
         throw new IllegalArgumentException("Unsupported Dense Matrix Type: " + matrix.getClass().getSimpleName());
 
@@ -109,6 +112,10 @@ public class Mat5Ejml {
             else if (output instanceof CMatrix)
                 convertToCMatrix(input, (CMatrix) output);
 
+            // Logical/Boolean
+            else if(output instanceof BMatrixRMaj)
+                convertToBMatrixRMaj(input, (BMatrixRMaj) output);
+
             else
                 throw new IllegalArgumentException("Unsupported dense output type: " + output.getClass());
 
@@ -132,6 +139,17 @@ public class Mat5Ejml {
                 throw new IllegalArgumentException("Output matrix has incorrect size and can't be reshaped");
             }
 
+        }
+    }
+
+    private static void convertToBMatrixRMaj(Matrix input, BMatrixRMaj output) {
+        reshapeOutputSize(input, output);
+        final int rows = input.getNumRows();
+        final int cols = input.getNumCols();
+        for (int col = 0; col < cols; col++) {
+            for (int row = 0; row < rows; row++) {
+                output.unsafe_set(row, col, input.getBoolean(row, col));
+            }
         }
     }
 
