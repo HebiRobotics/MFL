@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>us.hebi.mat</groupId>
+        <groupId>us.hebi.matlab</groupId>
         <artifactId>mat-parent</artifactId>
         <version>0.4-SNAPSHOT</version>
     </parent>
@@ -17,7 +17,6 @@
         <javaModuleName>us.hebi.matlab.mat-ejml</javaModuleName>
     </properties>
 
-    <!-- Dependency management (keep in alphabetical order) -->
     <dependencies>
 
         <dependency>
