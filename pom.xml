@@ -1,11 +1,10 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.4-SNAPSHOT</version>
+    <version>0.5-SNAPSHOT</version>
 
     <name>Mat-File IO</name>
     <url>https://github.com/HebiRobotics/MatFileIO</url>
@@ -76,14 +75,14 @@
         <maven.compiler.target>8</maven.compiler.target>
 
         <!-- Sets the actual target source target for a 2nd compilation pass  -->
-        <javaTarget></javaTarget>
+        <javaTarget />
 
         <!-- Jigsaw module name -->
-        <javaModuleName></javaModuleName>
+        <javaModuleName />
 
         <!-- Other Settings -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gpg.keyname/> <!-- set via settings.xml to sign release artifacts-->
+        <gpg.keyname /> <!-- set via settings.xml to sign release artifacts-->
 
         <!-- License Headers (http://www.mojohaus.org/license-maven-plugin/update-file-header-mojo.html) -->
         <license.licenseName>apache_v2</license.licenseName>
