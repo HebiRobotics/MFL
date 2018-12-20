@@ -24,12 +24,14 @@ import org.junit.Test;
 import us.hebi.matlab.mat.format.Mat5;
 import us.hebi.matlab.mat.format.Mat5File;
 import us.hebi.matlab.mat.types.MatFile;
+import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Matrix;
 import us.hebi.matlab.mat.types.ObjectStruct;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -54,6 +56,30 @@ public class McosTest {
         List<String> expectedNames = Collections.emptyList();
         assertEquals(expectedNames, mat.getObject("obj").getFieldNames());
         assertEquals("SimpleEmpty", mat.getObject("obj").getClassName());
+    }
+
+    /**
+     * The test file was found in an example model in R2018b, and it demonstrates that the MCOS
+     * version can be 3.  MCOS is undocumented, but perhaps version 3 means:
+     * - reduced header
+     * - only one variable named ""
+     */
+    @Test
+    public void testV3() throws Exception {
+        boolean testRoundTrip = false;
+        boolean reduced = true;
+        Mat5File mat = MatTestUtil.readMat("mcos/R2018b_ex_replace_signalbuilder_simulink_bdmxdata_DataTag0.mxarray", testRoundTrip, reduced);
+        assertEquals(2, mat.getNumEntries());
+        assertNotNull(mat.getSubsystem());
+
+        Iterator<MatFile.Entry> iter = mat.getEntries().iterator();
+        MatFile.Entry first = iter.next();
+        assertEquals("", first.getName());
+        assertEquals(MatlabType.Structure, first.getValue().getType());
+
+        MatFile.Entry second = iter.next();
+        assertEquals("", second.getName());
+        assertSame(mat.getSubsystem(), second.getValue());
     }
 
     @Test
@@ -282,6 +308,4 @@ public class McosTest {
         assertEquals(expected, actual.toString());
 
     }
-
-
 }
