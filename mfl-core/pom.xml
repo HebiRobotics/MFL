@@ -4,7 +4,7 @@
     <parent>
         <groupId>us.hebi.matlab.mat</groupId>
         <artifactId>mfl-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5</version>
     </parent>
 
     <name>MAT File Library / Core</name>
