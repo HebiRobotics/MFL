@@ -4,7 +4,7 @@
     <parent>
         <groupId>us.hebi.matlab</groupId>
         <artifactId>mat-parent</artifactId>
-        <version>0.4.1</version>
+        <version>0.5-SNAPSHOT</version>
     </parent>
 
     <name>Mat-File IO / Core</name>
