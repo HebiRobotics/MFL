@@ -18,7 +18,7 @@ Mat-File IO is in the Maven central repository and can easily be added to Maven,
 <dependency>
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-file-io</artifactId>
-    <version>0.4</version>
+    <version>0.4.1</version>
 </dependency>
 ```
 
@@ -28,7 +28,7 @@ In case you are working with link:http://ejml.org/[EJML] matrix types, you may a
 <dependency>
     <groupId>us.hebi.matlab</groupId>
     <artifactId>mat-ejml</artifactId>
-    <version>0.4</version>
+    <version>0.4.1</version>
 </dependency>
 ```
 
