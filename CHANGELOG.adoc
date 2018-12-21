@@ -3,6 +3,9 @@
 == 0.5-SNAPSHOT
 * TBD
 
+== 0.4.1
+* Added parser support for `v3` MCOS subsystems. (Note: The `v2` parser seems to handle `v3` just fine, but we don't actually know where the differences are). Thanks `@nedtwigg`
+
 == 0.4
 This change breaks backwards compatibility with `0.3` for some corner case use cases.
 
