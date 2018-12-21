@@ -1,4 +1,4 @@
-= MAT File Library - Changelog
+= MFL (MAT File Library)
 
 == 0.5.1-SNAPSHOT
 * Removed resources (changelog, license, etc.) from generated jar to avoid issues with e.g. ProGuard trying to copy them into the uber jar
@@ -6,7 +6,7 @@
 == 0.5
 * Renamed maven coordinates and Jigsaw module names
 
-= Mat-File IO - Changelog (previous name)
+= Mat-File IO (previous name)
 
 == 0.4.1
 * Added parser support for `v3` MCOS subsystems. (Note: The `v2` parser seems to handle `v3` just fine, but we don't actually know where the differences are). Thanks `@nedtwigg`

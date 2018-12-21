@@ -7,7 +7,7 @@
     <version>0.5.1-SNAPSHOT</version>
 
     <name>MAT File Library</name>
-    <url>https://github.com/HebiRobotics/MatFileLib</url>
+    <url>https://github.com/HebiRobotics/MFL</url>
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
     </description>
@@ -31,9 +31,9 @@
 
     <!-- Required: source control information: -->
     <scm>
-        <url>https://github.com/HebiRobotics/MatFileLib</url>
-        <connection>scm:git:git://github.com/HebiRobotics/MatFileLib.git</connection>
-        <developerConnection>scm:git:git@github.com:HebiRobotics/MatFileLib.git</developerConnection>
+        <url>https://github.com/HebiRobotics/MFL</url>
+        <connection>scm:git:git://github.com/HebiRobotics/MFL.git</connection>
+        <developerConnection>scm:git:git@github.com:HebiRobotics/MFL.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 

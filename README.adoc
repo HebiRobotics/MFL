@@ -12,7 +12,7 @@ This library is free, written in 100% Java, and has been released under an Apach
 
 == Maven Central
 
-The MFL is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
+MFL is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
 
 ```XML
 <dependency>
