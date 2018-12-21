@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,9 +60,8 @@ public class McosTest {
 
     /**
      * The test file was found in an example model in R2018b, and it demonstrates that the MCOS
-     * version can be 3.  MCOS is undocumented, but perhaps version 3 means:
-     * - reduced header
-     * - only one variable named ""
+     * version can be 3. MCOS is undocumented, so we don't know what difference there is between
+     * v2 and v3.
      */
     @Test
     public void testV3() throws Exception {
