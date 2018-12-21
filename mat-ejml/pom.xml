@@ -2,25 +2,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>us.hebi.matlab</groupId>
-        <artifactId>mat-parent</artifactId>
+        <groupId>us.hebi.matlab.mat</groupId>
+        <artifactId>mfl-parent</artifactId>
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>Mat-File IO / EJML</name>
+    <name>MAT File Library / EJML</name>
     <artifactId>mat-ejml</artifactId>
     <packaging>jar</packaging>
 
     <properties>
         <javaTarget>1.7</javaTarget> <!-- Required by EJML -->
-        <javaModuleName>us.hebi.matlab.mat.ejml</javaModuleName>
+        <javaModuleName>us.hebi.matlab.mat.mfl-ejml</javaModuleName>
     </properties>
 
     <dependencies>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>mat-file-io</artifactId>
+            <artifactId>mfl-core</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -2,18 +2,18 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>us.hebi.matlab</groupId>
-        <artifactId>mat-parent</artifactId>
+        <groupId>us.hebi.matlab.mat</groupId>
+        <artifactId>mfl-parent</artifactId>
         <version>0.5-SNAPSHOT</version>
     </parent>
 
-    <name>Mat-File IO / Core</name>
-    <artifactId>mat-file-io</artifactId>
+    <name>MAT File Library / Core</name>
+    <artifactId>mfl-core</artifactId>
     <packaging>jar</packaging>
 
     <properties>
         <javaTarget>1.6</javaTarget>  <!-- compatible with MATLAB >2009a -->
-        <javaModuleName>us.hebi.matlab.mat</javaModuleName>
+        <javaModuleName>us.hebi.matlab.mat.mfl-core</javaModuleName>
     </properties>
 
     <dependencies>

@@ -1,12 +1,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>us.hebi.matlab</groupId>
-    <artifactId>mat-parent</artifactId>
+    <groupId>us.hebi.matlab.mat</groupId>
+    <artifactId>mfl-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.5-SNAPSHOT</version>
 
-    <name>Mat-File IO</name>
+    <name>MAT File Library</name>
     <url>https://github.com/HebiRobotics/MatFileIO</url>
     <description>
         Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format
