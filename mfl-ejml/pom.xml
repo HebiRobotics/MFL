@@ -8,7 +8,7 @@
     </parent>
 
     <name>MAT File Library / EJML</name>
-    <artifactId>mat-ejml</artifactId>
+    <artifactId>mfl-ejml</artifactId>
     <packaging>jar</packaging>
 
     <properties>
