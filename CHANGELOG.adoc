@@ -1,10 +1,12 @@
 = MAT File Library - Changelog
 
 == 1.0-SNAPSHOT
+* TBD
+
+== 0.5
 * Renamed maven coordinates and Jigsaw module names
 
-
-= Mat-File-IO - Changelog (previous name)
+= Mat-File IO - Changelog (previous name)
 
 == 0.4.1
 * Added parser support for `v3` MCOS subsystems. (Note: The `v2` parser seems to handle `v3` just fine, but we don't actually know where the differences are). Thanks `@nedtwigg`

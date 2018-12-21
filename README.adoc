@@ -12,30 +12,25 @@ This library is free, written in 100% Java, and has been released under an Apach
 
 == Maven Central
 
-MFL is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
+The MFL is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
 
 ```XML
 <dependency>
-    <groupId>us.hebi.matlab</groupId>
-    <artifactId>mat-file-io</artifactId>
-    <version>0.4.1</version>
+    <groupId>us.hebi.matlab.mat</groupId>
+    <artifactId>mfl-core</artifactId>
+    <version>0.5</version>
 </dependency>
 ```
 
-In case you are working with link:http://ejml.org/[EJML] matrix types, you may also want to include the `mat-ejml` extension.
+In case you are working with link:http://ejml.org/[EJML] matrix types, you may also want to include the `mfl-ejml` extension.
 
 ```XML
 <dependency>
-    <groupId>us.hebi.matlab</groupId>
-    <artifactId>mat-ejml</artifactId>
-    <version>0.4.1</version>
+    <groupId>us.hebi.matlab.mat</groupId>
+    <artifactId>mfl-ejml</artifactId>
+    <version>0.5</version>
 </dependency>
 ```
-
-[NOTE]
-====
-The initial release was done as version `0.x` because we are still considering changing the library name as well maven coordinates and namespaces. However, aside from simple changes to the import statements, we expect `1.x` to be fully compatible.
-====
 
 == Basic Usage
 
