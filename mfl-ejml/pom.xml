@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -35,22 +36,5 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-
-        <!-- Include the README, NOTICE and LICENSE files: -->
-        <resources>
-            <resource>
-                <directory>${project.basedir}/..</directory>
-                <includes>
-                    <include>README*</include>
-                    <include>NOTICE*</include>
-                    <include>LICENSE*</include>
-                    <include>CHANGELOG*</include>
-                </includes>
-            </resource>
-        </resources>
-
-    </build>
 
 </project>
