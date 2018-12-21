@@ -34,7 +34,7 @@ In case you are working with link:http://ejml.org/[EJML] matrix types, you may a
 
 [NOTE]
 ====
-The initial release was done as version 0.x because we are still doing final integration tests. However, it is likely that there won't be any more breaking changes, so 1.0 is expected to be fully compatible and should be released in the near future.
+The initial release was done as version `0.x` because we are still considering changing the library name as well maven coordinates and namespaces. However, aside from simple changes to the import statements, we expect `1.x` to be fully compatible.
 ====
 
 == Basic Usage
