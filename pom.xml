@@ -63,8 +63,8 @@
     </developers>
 
     <modules>
-        <module>mat-file-io</module>
-        <module>mat-ejml</module>
+        <module>mfl-core</module>
+        <module>mfl-ejml</module>
     </modules>
 
     <properties>
