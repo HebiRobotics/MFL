@@ -1,8 +1,8 @@
-= Mat-File IO
+= MAT File Library
 
 == Introduction
 
-Mat-File IO is a Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format.
+The MAT File Library (MFL) is a Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format.
 
 It's overall design goals are; 1) to support working with large amounts of data on heap constrained and allocation limited environments, 2) to allow users to serialize custom data classes without having to convert to temporary objects, 3) to provide a user-friendly API that adheres to MATLAB's semantic behavior.
 
@@ -12,7 +12,7 @@ This library is free, written in 100% Java, and has been released under an Apach
 
 == Maven Central
 
-Mat-File IO is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
+MFL is in the Maven central repository and can easily be added to Maven, Gradle, and similar project managers.
 
 ```XML
 <dependency>

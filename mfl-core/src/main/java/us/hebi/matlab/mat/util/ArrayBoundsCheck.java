@@ -1,6 +1,6 @@
 /*-
  * #%L
- * Mat-File IO
+ * MAT File Library
  * %%
  * Copyright (C) 2018 HEBI Robotics
  * %%

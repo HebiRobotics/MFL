@@ -1,6 +1,6 @@
 /*-
  * #%L
- * Mat-File IO / EJML
+ * MAT File Library / EJML
  * %%
  * Copyright (C) 2018 HEBI Robotics
  * %%
