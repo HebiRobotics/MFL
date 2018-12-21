@@ -75,8 +75,9 @@ class DMatrixSparseCSCWrapper extends AbstractMatrixWrapper<DMatrixSparseCSC> {
 
     DMatrixSparseCSCWrapper(DMatrixSparseCSC matrix) {
         super(matrix);
-        if (!matrix.indicesSorted)
-            throw new IllegalArgumentException("Indices must be sorted!");
+        if (!matrix.indicesSorted){
+            matrix.sortIndices(null);
+        }
     }
 
     private int getNumRowIndices() {
