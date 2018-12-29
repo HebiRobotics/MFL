@@ -38,7 +38,7 @@ class FMatrixSparseCSCWrapper extends AbstractMatrixWrapper<FMatrixSparseCSC> {
     protected int getMat5DataSize() {
         return Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
                 + Mat5Type.Int32.computeSerializedSize(getNumColIndices())
-                + Mat5Type.Single.computeSerializedSize(getNzMax());
+                + Mat5Type.Single.computeSerializedSize(matrix.getNonZeroLength());
     }
 
     @Override
@@ -58,9 +58,9 @@ class FMatrixSparseCSCWrapper extends AbstractMatrixWrapper<FMatrixSparseCSC> {
         Mat5Type.Int32.writePadding(getNumColIndices(), sink);
 
         // Non-zero values
-        Mat5Type.Single.writeTag(getNzMax(), sink);
-        sink.writeFloats(matrix.nz_values, 0, getNzMax());
-        Mat5Type.Single.writePadding(getNzMax(), sink);
+        Mat5Type.Single.writeTag(matrix.getNonZeroLength(), sink);
+        sink.writeFloats(matrix.nz_values, 0, matrix.getNonZeroLength());
+        Mat5Type.Single.writePadding(matrix.getNonZeroLength(), sink);
     }
 
     @Override
@@ -70,18 +70,18 @@ class FMatrixSparseCSCWrapper extends AbstractMatrixWrapper<FMatrixSparseCSC> {
 
     @Override
     public int getNzMax() {
-        return matrix.getNonZeroLength();
+        return Math.max(1, matrix.getNonZeroLength());
     }
 
     FMatrixSparseCSCWrapper(FMatrixSparseCSC matrix) {
         super(matrix);
-        if (!matrix.indicesSorted){
+        if (!matrix.indicesSorted) {
             matrix.sortIndices(null);
         }
     }
 
     private int getNumRowIndices() {
-        return Math.max(1, matrix.getNonZeroLength());
+        return getNzMax();
     }
 
     private int getNumColIndices() {

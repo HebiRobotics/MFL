@@ -161,6 +161,18 @@ public class Mat5EjmlTest {
 
     }
 
+    @Test
+    public void testEmptyDMatrixSparseCSC() throws Exception {
+        DMatrixSparseCSC expected = new DMatrixSparseCSC(10, 10, 0);
+        EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, expected.createLike()), TEST_F64);
+    }
+
+    @Test
+    public void testEmptyFMatrixSparseCSC() throws Exception {
+        FMatrixSparseCSC expected = new FMatrixSparseCSC(10, 10, 0);
+        EjmlUnitTests.assertEquals(expected, saveAndLoad(expected, expected.createLike()), TEST_F32);
+    }
+
     private <T extends org.ejml.data.Matrix> T saveAndLoad(org.ejml.data.Matrix matrix, T result) throws IOException {
         MatFile original = Mat5.newMatFile().addArray("matrix", Mat5Ejml.asArray(matrix));
         return Mat5Ejml.convert(writeReadMat(original).getMatrix("matrix"), result);
