@@ -1,7 +1,9 @@
 = MFL (MAT File Library)
 
-== 0.5.1-SNAPSHOT
+== 0.5.1 (SNAPSHOT)
 * Removed resources (changelog, license, etc.) from generated jar to avoid issues with e.g. ProGuard trying to copy them into the uber jar
+* Fixed an issue when reading empty sparse matrices from `R2018b` due to an undocumented format change
+* Fixed writing empty `MatrixSparseCSC` EJML types
 
 == 0.5
 * Renamed maven coordinates and Jigsaw module names
