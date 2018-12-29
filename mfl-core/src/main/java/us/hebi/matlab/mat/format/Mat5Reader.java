@@ -48,9 +48,9 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Reads MAT 5 files with the format as documented here:
- * @see <a href="http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf">MAT-File Format</a>
  *
  * @author Florian Enner
+ * @see <a href="http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf">MAT-File Format</a>
  * @since 30 Apr 2018
  */
 public final class Mat5Reader {
@@ -467,6 +467,11 @@ public final class Mat5Reader {
 
         // Subfield 4: Row Index (ir)
         NumberStore rowIndices = readAsNumberStore(readTagWithExpectedType(Int32));
+        if (header.getNzMax() == 1 && rowIndices.getNumElements() == 0) {
+            // R2018b stores empty sparse matrices with an empty 'ir' field. We can replace
+            // this with a single number store to match the specified behavior.
+            rowIndices = new UniversalNumberStore(Int32, bufferAllocator.allocate(4), bufferAllocator);
+        }
 
         // Subfield 5: Column Index (jc)
         NumberStore colIndices = readAsNumberStore(readTagWithExpectedType(Int32));

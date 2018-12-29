@@ -37,7 +37,15 @@ package us.hebi.matlab.mat.types;
 public interface Sparse extends Matrix {
 
     /**
-     * @return number of non-zero elements
+     * Returns the maximum number of non-zero elements. Note that this
+     * typically is the same as the actual number of non-zero elements,
+     * but for empty matrices this may be 1.
+     * <p>
+     * NOTE: This behavior is tied to the way empty sparse matrices are
+     * stored in the MAT 5 format, so it may make sense to deprecate this
+     * method and replace it with a `getNumNz()` method.
+     *
+     * @return maximum number of non-zero elements
      */
     int getNzMax();
 
