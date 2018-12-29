@@ -137,7 +137,7 @@ class Mat5TagStreamer {
 
     private void handleMatrixTag(Source source, long position, int numBytes) throws IOException {
         consumer.onMatrixBegin(position, numBytes);
-        long end = position + numBytes;
+        long end = source.getPosition() + numBytes;
         long currentPos = source.getPosition();
         while (currentPos < end) {
             handleTag(Mat5Tag.readTag(source), source, currentPos);
