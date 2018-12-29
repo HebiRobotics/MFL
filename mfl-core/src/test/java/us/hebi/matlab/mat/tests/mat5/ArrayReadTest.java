@@ -28,9 +28,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
-import static us.hebi.matlab.mat.util.Casts.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.tests.mat5.MatTestUtil.*;
+import static us.hebi.matlab.mat.util.Casts.*;
 
 /**
  * Most tests and data copied from JMatIO / MatFileRW
@@ -133,6 +133,25 @@ public class ArrayReadTest {
         assertArrayEquals(new int[]{1000000, 10000000}, sparse.getDimensions());
         assertEquals(1, sparse.getNzMax()); // for some reason nzMax is always >0
         assertEquals(0, sparse.getLong(10000, 18000));
+    }
+
+    /**
+     * There were some undocumented changes in R2018b in the way that empty sparse matrices get stored, i.e.,
+     * the "Row Indices (ir)" field is empty rather than having a single zero value. See issue #35 for more
+     * information.
+     */
+    @Test
+    public void testEmptySparseFile2018b() throws Exception {
+        Sparse sparse2017b = MatTestUtil.readMat("arrays/emptysparse2017b.mat", false).getSparse("EmptySparse");
+        Sparse sparse2018b = MatTestUtil.readMat("arrays/emptysparse2018b.mat", false).getSparse("EmptySparse");
+        sparse2018b.forEach((row, col, real, imaginary) -> {
+            fail("Expected Matrix to be empty");
+        });
+        sparse2017b.forEach((row, col, real, imaginary) -> {
+            fail("Expected Matrix to be empty");
+        });
+        assertEquals(1, sparse2018b.getNzMax());
+        assertEquals(sparse2017b, sparse2018b);
     }
 
     @Test
