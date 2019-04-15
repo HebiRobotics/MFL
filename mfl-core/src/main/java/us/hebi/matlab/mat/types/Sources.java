@@ -23,6 +23,7 @@ package us.hebi.matlab.mat.types;
 import us.hebi.matlab.mat.util.Unsafe9R;
 
 import java.io.*;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -186,6 +187,72 @@ public class Sources {
         private ByteBufferSource(ByteBuffer buffer, int bufferSize) {
             super(bufferSize);
             this.buffer = buffer;
+        }
+
+        @Override
+        public AbstractSource order(ByteOrder byteOrder) {
+            super.order(byteOrder);
+            buffer.order(byteOrder);
+            return this;
+        }
+
+        @Override
+        public ByteOrder order() {
+            return buffer.order();
+        }
+
+        @Override
+        public byte readByte() throws IOException {
+            try {
+                return buffer.get();
+            } catch (BufferUnderflowException underflow) {
+                throw new EOFException();
+            }
+        }
+
+        @Override
+        public short readShort() throws IOException {
+            try {
+                return buffer.getShort();
+            } catch (BufferUnderflowException underflow) {
+                throw new EOFException();
+            }
+        }
+
+        @Override
+        public int readInt() throws IOException {
+            try {
+                return buffer.getInt();
+            } catch (BufferUnderflowException underflow) {
+                throw new EOFException();
+            }
+        }
+
+        @Override
+        public long readLong() throws IOException {
+            try {
+                return buffer.getLong();
+            } catch (BufferUnderflowException underflow) {
+                throw new EOFException();
+            }
+        }
+
+        @Override
+        public float readFloat() throws IOException {
+            try {
+                return buffer.getFloat();
+            } catch (BufferUnderflowException underflow) {
+                throw new EOFException();
+            }
+        }
+
+        @Override
+        public double readDouble() throws IOException {
+            try {
+                return buffer.getDouble();
+            } catch (BufferUnderflowException underflow) {
+                throw new EOFException();
+            }
         }
 
         @Override

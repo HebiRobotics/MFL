@@ -271,6 +271,36 @@ public class Sinks {
         }
 
         @Override
+        public void writeByte(byte value) throws IOException {
+            out.put(value);
+        }
+
+        @Override
+        public void writeShort(short value) throws IOException {
+            out.putShort(value);
+        }
+
+        @Override
+        public void writeInt(int value) throws IOException {
+            out.putInt(value);
+        }
+
+        @Override
+        public void writeLong(long value) throws IOException {
+            out.putLong(value);
+        }
+
+        @Override
+        public void writeFloat(float value) throws IOException {
+            out.putFloat(value);
+        }
+
+        @Override
+        public void writeDouble(double value) throws IOException {
+            out.putDouble(value);
+        }
+
+        @Override
         public void close() throws IOException {
 
         }
