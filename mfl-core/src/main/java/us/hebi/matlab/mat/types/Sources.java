@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
+import static us.hebi.matlab.mat.types.Sinks.*;
 import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
@@ -42,14 +43,13 @@ public class Sources {
     }
 
     public static Source openFile(File file) throws IOException {
-        checkNotNull(file);
-        checkArgument(file.exists() && file.isFile(), "must be an existing file");
+        checkArgument(checkNotNull(file).exists() && file.isFile(), "must be an existing file");
 
         // File is larger than the max capacity (2 GB) of a buffer, so we use an InputStream instead.
         // Unfortunately, this limits us to read a very large file using a single thread :( At some point
         // we could build more complex logic that can map to more than a single buffer.
         if (file.length() > Integer.MAX_VALUE) {
-            return wrapInputStream(new FileInputStream(file));
+            return openStreamingFile(file);
         }
 
         // File is small enough to be memory-mapped into a single buffer
@@ -71,6 +71,11 @@ public class Sources {
 
     }
 
+    public static Source openStreamingFile(File file) throws IOException {
+        checkArgument(checkNotNull(file).exists() && file.isFile(), "must be an existing file");
+        return new BufferedFileSource(file);
+    }
+
     public static Source wrap(byte[] bytes) {
         return wrap(ByteBuffer.wrap(bytes));
     }
@@ -85,6 +90,95 @@ public class Sources {
 
     public static Source wrapInputStream(InputStream inputStream, int bufferSize) {
         return new InputStreamSource(checkNotNull(inputStream), bufferSize);
+    }
+
+    private static class BufferedFileSource extends AbstractSource {
+        protected BufferedFileSource(File file) throws IOException {
+            super(512);
+            this.fileChannel = new RandomAccessFile(file, "rw").getChannel();
+            this.directBuffer.limit(0); // don't pre-fetch data yet
+        }
+
+        @Override
+        protected InputStream readBytesAsStream(long numBytes) throws IOException {
+            return new SourceInputStream(this, numBytes);
+        }
+
+        @Override
+        public long getPosition() {
+            return fileChannelPosition + directBuffer.position();
+        }
+
+        @Override
+        public void readByteBuffer(ByteBuffer buffer) throws IOException {
+            // (1) Non-heap (non read-only) buffer -> copy via byte[] array
+            if (buffer.hasArray()) {
+                super.readByteBuffer(buffer);
+                return;
+            }
+
+            // (2) Copy whatever data is available in the read buffer
+            if (directBuffer.remaining() > 0) {
+
+                // Lower limit to max what fits inside the buffer to prevent overflow
+                int oldLimit = directBuffer.limit();
+                int limit = Math.min(oldLimit, directBuffer.position() + buffer.remaining());
+
+                // Reset limit after
+                directBuffer.limit(limit);
+                buffer.put(directBuffer);
+                directBuffer.limit(oldLimit);
+            }
+
+            // (3) Copy directly in case more data is needed
+            if (buffer.hasRemaining()) {
+                checkState(!directBuffer.hasRemaining(), "Read buffer was not fully emptied");
+
+                int numBytes = fileChannel.read(buffer);
+                fileChannelPosition += Math.max(0, numBytes);
+                if (buffer.hasRemaining())
+                    throw new EOFException();
+            }
+
+        }
+
+        @Override
+        public void readBytes(final byte[] buffer, int offset, int length) throws IOException {
+            while (length > 0) {
+
+                // Make sure buffer isn't empty
+                if (directBuffer.remaining() == 0) {
+                    fileChannelPosition += directBuffer.position();
+                    directBuffer.clear();
+                    if (fileChannel.read(directBuffer) == -1)
+                        throw new EOFException();
+                    directBuffer.flip();
+                }
+
+                // Copy as many bytes as are available
+                final int n = Math.min(directBuffer.remaining(), length);
+                directBuffer.get(buffer, offset, n);
+                offset += n;
+                length -= n;
+
+            }
+        }
+
+        @Override
+        public boolean isMutatedByChildren() {
+            return true;
+        }
+
+        @Override
+        public void close() throws IOException {
+            Unsafe9R.invokeCleaner(directBuffer);
+            fileChannel.close();
+        }
+
+        private final ByteBuffer directBuffer = ByteBuffer.allocateDirect(DISK_IO_BUFFER_SIZE);
+        private final FileChannel fileChannel;
+        private long fileChannelPosition = 0;
+
     }
 
     private static class ByteBufferSource extends AbstractSource {

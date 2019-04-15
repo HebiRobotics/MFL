@@ -70,7 +70,7 @@ public class Sinks {
 
         // Open channel
         final FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
-        final ByteBuffer directBuffer = ByteBuffer.allocateDirect(8 * defaultCopyBufferSize);
+        final ByteBuffer directBuffer = ByteBuffer.allocateDirect(DISK_IO_BUFFER_SIZE);
         if (append) {
             channel.position(file.length());
         }
@@ -189,8 +189,6 @@ public class Sinks {
         return new OutputStreamSink(outputStream, copyBufferSize);
     }
 
-    private static final int defaultCopyBufferSize = 4096;
-
     private static void deleteFileIfExists(File file) throws IOException {
         if (checkNotNull(file).exists() && !file.delete())
             throw new IOException("Failed to overwrite " + file.getAbsolutePath());
@@ -301,5 +299,11 @@ public class Sinks {
 
     private Sinks() {
     }
+
+    // Buffer sizes may be system and OS dependent. These numbers were experimentally
+    // determined on Windows on a NUC i7 w/ NVMe disk in. Going larger only provided
+    // negligible benefits. TODO: verify this on other OS and systems without SSD
+    static final int DISK_IO_BUFFER_SIZE = 32 * 1024;
+    private static final int defaultCopyBufferSize = 4 * 1024;
 
 }

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,6 +23,8 @@ package us.hebi.matlab.mat.types;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.EOFException;
+import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Random;
 
@@ -105,6 +107,36 @@ public class SourceTest {
         asSource(bb).readByteBuffer(actual);
         assertArrayEquals(bb.array(), actual.array());
     }
+
+    @Test
+    public void testStreamingSource() throws Exception {
+        // Test case that writes/reads native buffers directly to
+        // go into code paths that aren't used by any other
+        File testFile = new File("SourceTest.streaming.tmp");
+        try {
+            try (Sink sink = Sinks.newStreamingFile(testFile)) {
+                sink.writeByteBuffer(bb);
+                bb.rewind();
+            }
+            try (Source source = Sources.openStreamingFile(testFile)) {
+                ByteBuffer buf = ByteBuffer.allocateDirect(bb.capacity());
+                source.readByteBuffer(buf);
+                assertFalse(buf.hasRemaining());
+                buf.flip();
+                assertEquals("buffer contents", 0, bb.compareTo(buf));
+                try{
+                    source.readByte();
+                    fail("expected to be at EOF");
+                }catch (EOFException eof){
+                    // expected
+                }
+            }
+        } finally {
+            assertTrue("delete temp file", testFile.delete());
+        }
+
+    }
+
 
     private Source asSource(ByteBuffer bb) {
         return Sources.wrap(bb.duplicate()).order(bb.order());
