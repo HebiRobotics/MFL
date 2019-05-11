@@ -13,7 +13,7 @@
 
     <properties>
         <javaTarget>1.6</javaTarget>  <!-- compatible with MATLAB >2009a -->
-        <javaModuleName>us.hebi.matlab.mat.mfl-core</javaModuleName>
+        <javaModuleName>us.hebi.matlab.mat.mfl.core</javaModuleName>
     </properties>
 
     <dependencies>

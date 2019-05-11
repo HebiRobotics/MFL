@@ -13,7 +13,7 @@
 
     <properties>
         <javaTarget>1.7</javaTarget> <!-- Required by EJML -->
-        <javaModuleName>us.hebi.matlab.mat.mfl-ejml</javaModuleName>
+        <javaModuleName>us.hebi.matlab.mat.mfl.ejml</javaModuleName>
     </properties>
 
     <dependencies>
