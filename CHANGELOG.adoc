@@ -4,6 +4,7 @@
 
 * Improved streaming source fallback for files that are larger than 2GB and can't be memory mapped. The `FileInputStream` wrapper was changed to using buffered IO via `FileChannel / ByteBuffer`.
 * Removed hyphens from Jigsaw module name. Thanks @stffnjng
+* Added convenience methods to `Mat5` for reading from and writing to disk
 
 == 0.5.1
 * Removed resources (changelog, license, etc.) from generated jar to avoid issues with e.g. ProGuard trying to copy them into the uber jar
