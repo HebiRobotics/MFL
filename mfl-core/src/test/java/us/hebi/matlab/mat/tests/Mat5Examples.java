@@ -186,17 +186,10 @@ public class Mat5Examples {
         MatFile matFile = Mat5.newMatFile().addArray("root", struct);
 
         // Write/Read to file
-        File file = new File("./temp-test-file.mat");
-        try (Sink sink = Sinks.newStreamingFile(file)) {
-            matFile.writeTo(sink);
-        }
+        File tmpFile = Mat5.writeToFile(matFile, "./temp-test-file.mat");
+        MatFile result = Mat5.readFromFile(tmpFile);
 
-        final MatFile result;
-        try (Source source = Sources.openFile(file)) {
-            result = Mat5.newReader(source).readMat();
-        }
-
-        assertTrue("Could not delete temporary file", file.delete());
+        assertTrue("Could not delete temporary file", tmpFile.delete());
 
         // Access content. Nested classes have overloads to avoid boiler plate casting
         String actual = result.getStruct("root").getChar("name").getString();

@@ -20,14 +20,18 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.mat.util.Unsafe9R;
 import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.util.Casts;
+import us.hebi.matlab.mat.util.Unsafe9R;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 
 import static us.hebi.matlab.mat.types.AbstractArray.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Utility methods for creating Matlab classes that are compatible with
@@ -38,7 +42,47 @@ import static us.hebi.matlab.mat.types.AbstractArray.*;
  */
 public class Mat5 {
 
-    // ------------------------- User-facing Factory API
+    public static Mat5File readFromFile(String fileName) throws IOException {
+        return readFromFile(new File(checkNotNull(fileName, "File can't be empty")));
+    }
+
+    public static Mat5File readFromFile(File file) throws IOException {
+        checkNotNull(file, "Input file can't be empty");
+        Source source = Sources.openFile(file);
+        try {
+            return Mat5.newReader(source).readMat();
+        } finally {
+            source.close();
+        }
+    }
+
+    public static File writeToFile(MatFile mat, String fileName) throws IOException {
+        return writeToFile(mat, new File(checkNotNull(fileName, "File can't be empty")));
+    }
+
+    public static File writeToFile(MatFile mat, File file) throws IOException {
+        checkNotNull(mat, "MatFile can't be empty");
+        checkNotNull(file, "Output file can't be empty");
+
+        // Default to use memory-mapped files if possible
+        final Sink sink;
+        long maxExpectedSize = mat.getUncompressedSerializedSize();
+        long minMappingSize = 128 * 1024; // don't map very small files
+        if (maxExpectedSize >= minMappingSize && maxExpectedSize <= Integer.MAX_VALUE) {
+            sink = Sinks.newMappedFile(file, Casts.sint32(maxExpectedSize));
+        } else {
+            sink = Sinks.newStreamingFile(file);
+        }
+
+        // Write to disk
+        try {
+            mat.writeTo(sink);
+            return file;
+        } finally {
+            sink.close();
+        }
+
+    }
 
     public static Mat5File newMatFile() {
         return new Mat5File();
