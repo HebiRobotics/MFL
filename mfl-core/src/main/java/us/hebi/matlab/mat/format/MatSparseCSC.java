@@ -57,7 +57,7 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
             throw new IllegalArgumentException("Expected (numCols + 1) column indices");
         if (rowIndices.getNumElements() != nzMax)
             throw new IllegalArgumentException("Expected nzMax row indices");
-        if (!(real.getNumElements() == nzMax || (nzMax == 1 && real.getNumElements() == 0))) // empty matrices have nzMax = 1
+        if (!(real.getNumElements() <= nzMax || (nzMax == 1 && real.getNumElements() == 0))) // empty matrices have nzMax = 1
             throw new IllegalArgumentException("Expected data with " + nzMax + " elements");
 
         this.real = checkNotNull(real);
