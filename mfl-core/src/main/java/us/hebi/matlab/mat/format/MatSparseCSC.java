@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,16 +20,16 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.types.AbstractSparse;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Sparse;
+import us.hebi.matlab.mat.util.Casts;
 
 import java.io.IOException;
 
-import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * The lookup is implemented as a compressed column (CC) sparse
@@ -57,8 +57,8 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
             throw new IllegalArgumentException("Expected (numCols + 1) column indices");
         if (rowIndices.getNumElements() != nzMax)
             throw new IllegalArgumentException("Expected nzMax row indices");
-        if (!(real.getNumElements() <= nzMax || (nzMax == 1 && real.getNumElements() == 0))) // empty matrices have nzMax = 1
-            throw new IllegalArgumentException("Expected data with " + nzMax + " elements");
+        if (!(real.getNumElements() <= nzMax)) // e.g. empty matrices have nzMax = 1
+            throw new IllegalArgumentException("Expected data with fewer than " + nzMax + " elements");
 
         this.real = checkNotNull(real);
         this.imaginary = imaginary;
@@ -225,7 +225,7 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
     protected boolean subEqualsGuaranteedSameClass(Object otherGuaranteedSameClass) {
         MatSparseCSC other = (MatSparseCSC) otherGuaranteedSameClass;
         // all the primitive fields have to match before we bother looking at the data
-        return other.nzMax == nzMax && 
+        return other.nzMax == nzMax && // TODO: is it ok if nzMax does not match, but the contained data does?
                 other.logical == logical &&
                 other.complex == complex &&
                 UniversalNumberStore.equalForType(other.imaginary, imaginary, logical, MatlabType.Double) &&

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -26,6 +26,7 @@ import us.hebi.matlab.mat.types.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
@@ -327,6 +328,37 @@ public class ArrayReadTest {
         ObjectStruct object = matFile.getArray("X");
         assertEquals("inline", object.getClassName());
         assertTrue(object.getFieldNames().contains("expr"));
+    }
+
+    @Test
+    public void testSparseWithLowerNzMax() throws Exception {
+        // Reported issue #40 by @mephenor. There are cases where
+        // nzMax is lower than the number of elements. iIJ478.mat
+        // contains example data
+        Struct data = readMat("arrays/iIJ478.mat").getStruct("iIJ478");
+
+        Sparse S = data.getSparse("S");
+        assertEquals(2852, S.getNzMax());
+        assertEquals(2844, getNumSparseElements(S));
+
+        Sparse rxnGeneMat = data.getSparse("rxnGeneMat");
+        assertEquals(931, rxnGeneMat.getNzMax());
+        assertEquals(928, getNumSparseElements(rxnGeneMat));
+
+    }
+
+    /**
+     * Helper function to determine actual number of non-zero elements, given
+     * that nzMax may not always be the same.
+     * TODO: The API should expose this directly
+     *
+     * @param sparse
+     * @return
+     */
+    private static int getNumSparseElements(Sparse sparse) {
+        AtomicInteger count = new AtomicInteger(0);
+        sparse.forEach((row, col, real, imaginary) -> count.incrementAndGet());
+        return count.get();
     }
 
     @Test
