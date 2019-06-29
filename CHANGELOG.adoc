@@ -1,6 +1,9 @@
 = MFL (MAT File Library)
 
-== 0.5.2 (SNAPSHOT)
+== 0.5.3 (SNAPSHOT)
+* Fixed a bug that caused some sparse matrices to fail (nzMax > numNz). Thanks @mephenor
+
+== 0.5.2
 
 * Improved streaming source fallback for files that are larger than 2GB and can't be memory mapped. The `FileInputStream` wrapper was changed to using buffered IO via `FileChannel / ByteBuffer`.
 * Removed hyphens from Jigsaw module name. Thanks @stffnjng
