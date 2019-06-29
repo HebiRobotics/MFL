@@ -333,17 +333,17 @@ public class ArrayReadTest {
     @Test
     public void testSparseWithLowerNzMax() throws Exception {
         // Reported issue #40 by @mephenor. There are cases where
-        // nzMax is lower than the number of elements. iIJ478.mat
+        // nzMax is lower than the number of elements. iHN637.mat
         // contains example data
-        Struct data = readMat("arrays/iIJ478.mat").getStruct("iIJ478");
+        Struct data = readMat("arrays/iHN637.mat").getStruct("iHN637");
 
         Sparse S = data.getSparse("S");
-        assertEquals(2852, S.getNzMax());
-        assertEquals(2844, getNumSparseElements(S));
+        assertEquals(3363, S.getNzMax());
+        assertEquals(3363, getNumSparseElements(S));
 
         Sparse rxnGeneMat = data.getSparse("rxnGeneMat");
-        assertEquals(931, rxnGeneMat.getNzMax());
-        assertEquals(928, getNumSparseElements(rxnGeneMat));
+        assertEquals(961, rxnGeneMat.getNzMax());
+        assertEquals(954, getNumSparseElements(rxnGeneMat));
 
     }
 
