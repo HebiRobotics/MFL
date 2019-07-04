@@ -26,7 +26,6 @@ import us.hebi.matlab.mat.types.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
@@ -133,6 +132,7 @@ public class ArrayReadTest {
         Sparse sparse = matFile.getSparse("s");
         assertArrayEquals(new int[]{1000000, 10000000}, sparse.getDimensions());
         assertEquals(1, sparse.getNzMax()); // for some reason nzMax is always >0
+        assertEquals(0, sparse.getNumNonZero());
         assertEquals(0, sparse.getLong(10000, 18000));
     }
 
@@ -152,6 +152,7 @@ public class ArrayReadTest {
             fail("Expected Matrix to be empty");
         });
         assertEquals(1, sparse2018b.getNzMax());
+        assertEquals(0, sparse2018b.getNumNonZero());
         assertEquals(sparse2017b, sparse2018b);
     }
 
@@ -339,26 +340,12 @@ public class ArrayReadTest {
 
         Sparse S = data.getSparse("S");
         assertEquals(3363, S.getNzMax());
-        assertEquals(3363, getNumSparseElements(S));
+        assertEquals(3363, S.getNumNonZero());
 
         Sparse rxnGeneMat = data.getSparse("rxnGeneMat");
         assertEquals(961, rxnGeneMat.getNzMax());
-        assertEquals(954, getNumSparseElements(rxnGeneMat));
+        assertEquals(954, rxnGeneMat.getNumNonZero());
 
-    }
-
-    /**
-     * Helper function to determine actual number of non-zero elements, given
-     * that nzMax may not always be the same.
-     * TODO: The API should expose this directly
-     *
-     * @param sparse
-     * @return
-     */
-    private static int getNumSparseElements(Sparse sparse) {
-        AtomicInteger count = new AtomicInteger(0);
-        sparse.forEach((row, col, real, imaginary) -> count.incrementAndGet());
-        return count.get();
     }
 
     @Test

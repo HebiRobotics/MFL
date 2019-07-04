@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -41,15 +41,21 @@ public interface Sparse extends Matrix {
      * typically the same as the actual number of non-zero elements,
      * but this not always the case.
      * <p>
-     * NOTE: This behavior is tied to the way empty sparse matrices are
-     * stored in the MAT 5 format, so it may make sense to deprecate this
-     * method and replace it with a `getNumNz()` method. It doesn't seem
-     * particularly useful to expose a value that may be an arbitrary amount
-     * larger than necessary.
+     * NOTE: This value is an implementation detail of how the MAT 5 format
+     * stores sparse matrices and will be removed from this API in future
+     * versions. For most cases you should use getNumNonZero() instead.
      *
-     * @return maximum number of non-zero elements
+     * @return a value equal or larger than the number of non-zero elements
      */
+    @Deprecated // use getNumNonZero() instead
     int getNzMax();
+
+    /**
+     * Number of non zero matrix elements. Equivalent to 'nnz(sparse)' in MATLAB.
+     *
+     * @return the number of non-zero elements
+     */
+    int getNumNonZero();
 
     double getDefaultValue();
 

@@ -2,6 +2,7 @@
 
 == 0.5.3 (SNAPSHOT)
 * Fixed a bug that caused some sparse matrices to fail (nzMax > numNz). Thanks @mephenor
+* Added `getNumNonZero()` to sparse interface and deprecated `getNzMax()`. This is equivalent to MATLAB's `nnz`.
 
 == 0.5.2
 

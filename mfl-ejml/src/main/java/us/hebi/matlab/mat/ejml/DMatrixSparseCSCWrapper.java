@@ -22,7 +22,6 @@ package us.hebi.matlab.mat.ejml;
 
 import org.ejml.data.DMatrixSparseCSC;
 import us.hebi.matlab.mat.format.Mat5Type;
-import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
@@ -32,31 +31,15 @@ import java.io.IOException;
  *
  * @author Florian Enner
  */
-class DMatrixSparseCSCWrapper extends AbstractMatrixWrapper<DMatrixSparseCSC> {
+class DMatrixSparseCSCWrapper extends AbstractSparseWrapper<DMatrixSparseCSC> {
 
     @Override
-    protected int getMat5DataSize() {
-        return Mat5Type.Int32.computeSerializedSize(getNumRowIndices())
-                + Mat5Type.Int32.computeSerializedSize(getNumColIndices())
-                + Mat5Type.Double.computeSerializedSize(matrix.getNonZeroLength());
+    protected int getMat5SparseNonZeroDataSize() {
+        return Mat5Type.Double.computeSerializedSize(matrix.getNonZeroLength());
     }
 
     @Override
-    protected void writeMat5Data(Sink sink) throws IOException {
-        // Row indices (MATLAB requires at least 1 entry)
-        Mat5Type.Int32.writeTag(getNumRowIndices(), sink);
-        if (matrix.getNonZeroLength() == 0) {
-            sink.writeInt(0);
-        } else {
-            sink.writeInts(matrix.nz_rows, 0, getNumRowIndices());
-        }
-        Mat5Type.Int32.writePadding(getNumRowIndices(), sink);
-
-        // Column indices
-        Mat5Type.Int32.writeTag(getNumColIndices(), sink);
-        sink.writeInts(matrix.col_idx, 0, getNumColIndices());
-        Mat5Type.Int32.writePadding(getNumColIndices(), sink);
-
+    protected void writeMat5SparseNonZeroData(Sink sink) throws IOException {
         // Non-zero values
         Mat5Type.Double.writeTag(matrix.getNonZeroLength(), sink);
         sink.writeDoubles(matrix.nz_values, 0, matrix.getNonZeroLength());
@@ -64,13 +47,13 @@ class DMatrixSparseCSCWrapper extends AbstractMatrixWrapper<DMatrixSparseCSC> {
     }
 
     @Override
-    public MatlabType getType() {
-        return MatlabType.Sparse;
+    protected int[] getRowIndices() {
+        return matrix.nz_rows;
     }
 
     @Override
-    public int getNzMax() {
-        return Math.max(1, matrix.getNonZeroLength());
+    protected int[] getColIndices() {
+        return matrix.col_idx;
     }
 
     DMatrixSparseCSCWrapper(DMatrixSparseCSC matrix) {
@@ -78,14 +61,6 @@ class DMatrixSparseCSCWrapper extends AbstractMatrixWrapper<DMatrixSparseCSC> {
         if (!matrix.indicesSorted) {
             matrix.sortIndices(null);
         }
-    }
-
-    private int getNumRowIndices() {
-        return getNzMax();
-    }
-
-    private int getNumColIndices() {
-        return matrix.getNumCols() + 1;
     }
 
 }
