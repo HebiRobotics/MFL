@@ -23,6 +23,8 @@ package us.hebi.matlab.mat.format;
 import us.hebi.matlab.mat.format.Mat5Serializable.Mat5Attributes;
 import us.hebi.matlab.mat.types.*;
 
+import static us.hebi.matlab.mat.util.Preconditions.*;
+
 /**
  * Utilities to deal with the int[2] array flags that are
  * at the beginning of each array.
@@ -37,10 +39,11 @@ class Mat5ArrayFlags {
             Mat5Attributes attr = ((Mat5Attributes) array);
             return create(array.getType(), global, attr.isLogical(), attr.isComplex(), attr.getNzMax());
         }
+        checkArgument(!(array instanceof Sparse), "Sparse matrices must implement Mat5Attributes");
+
         boolean logical = array instanceof Matrix && ((Matrix) array).isLogical();
         boolean complex = array instanceof Matrix && ((Matrix) array).isComplex();
-        int nzMax = array instanceof Sparse ? ((Sparse) array).getNzMax() : 0;
-        return Mat5ArrayFlags.create(array.getType(), global, logical, complex, nzMax);
+        return Mat5ArrayFlags.create(array.getType(), global, logical, complex, 0);
     }
 
     /**

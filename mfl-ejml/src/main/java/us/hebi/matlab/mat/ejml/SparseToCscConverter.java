@@ -56,7 +56,7 @@ abstract class SparseToCscConverter implements Sparse.SparseConsumer {
     static class SparseToFCscConverter extends SparseToCscConverter {
 
         void convertToFSparseCSC(Sparse input, FMatrixSparseCSC output) {
-            output.reshape(input.getNumRows(), input.getNumCols(), input.getNzMax());
+            output.reshape(input.getNumRows(), input.getNumCols(), input.getNumNonZero());
             initializeConversion(output.col_idx, output.nz_rows, output.nz_values, null);
             input.forEach(this);
             finishConversion(output.getNumCols());
@@ -73,7 +73,7 @@ abstract class SparseToCscConverter implements Sparse.SparseConsumer {
     static class SparseToDCscConverter extends SparseToCscConverter {
 
         void convertToDSparseCSC(Sparse input, DMatrixSparseCSC output) {
-            output.reshape(input.getNumRows(), input.getNumCols(), input.getNzMax());
+            output.reshape(input.getNumRows(), input.getNumCols(), input.getNumNonZero());
             initializeConversion(output.col_idx, output.nz_rows, null, output.nz_values);
             input.forEach(this);
             finishConversion(output.getNumCols());

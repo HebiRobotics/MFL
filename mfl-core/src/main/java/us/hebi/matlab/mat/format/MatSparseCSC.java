@@ -44,7 +44,7 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  * @author Florian Enner
  * @since 29 Aug 2018
  */
-class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
+class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable, Mat5Serializable.Mat5Attributes {
 
     MatSparseCSC(int[] dims, boolean logical, int nzMax,
                  NumberStore real,
@@ -157,6 +157,11 @@ class MatSparseCSC extends AbstractSparse implements Sparse, Mat5Serializable {
     @Override
     public int getNzMax() {
         return nzMax;
+    }
+
+    @Override
+    public int getNumNonZero() {
+        return real.getNumElements();
     }
 
     @Override
