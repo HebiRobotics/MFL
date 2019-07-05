@@ -1,6 +1,9 @@
 = MFL (MAT File Library)
 
-== 0.5.3 (SNAPSHOT)
+== 0.5.4-SNAPSHOT
+* TBD
+
+== 0.5.3
 * Fixed a bug that caused some sparse matrices to fail (nzMax > numNz). Thanks @mephenor
 * Added `getNumNonZero()` to sparse interface and deprecated `getNzMax()`. This is equivalent to MATLAB's `nnz`.
 
