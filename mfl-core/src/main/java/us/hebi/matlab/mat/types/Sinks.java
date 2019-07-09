@@ -63,6 +63,8 @@ public class Sinks {
      * @throws IOException if file can't be opened
      */
     public static Sink newStreamingFile(final File file, boolean append) throws IOException {
+        checkOutputNotNull(file);
+
         // Make sure file exists
         if (!append)
             deleteFileIfExists(file);
@@ -129,11 +131,11 @@ public class Sinks {
     }
 
     public static Sink newStreamingFile(String file) throws IOException {
-        return newStreamingFile(new File(file));
+        return newStreamingFile(new File(checkOutputNotNull(file)));
     }
 
     public static Sink newStreamingFile(String file, boolean append) throws IOException {
-        return newStreamingFile(new File(file), append);
+        return newStreamingFile(new File(checkOutputNotNull(file)), append);
     }
 
     /**
@@ -147,6 +149,7 @@ public class Sinks {
      * @throws IOException if file can't be opened
      */
     public static Sink newMappedFile(File file, int maxExpectedSize) throws IOException {
+        checkOutputNotNull(file);
         deleteFileIfExists(file);
         createParentDirs(file);
 
@@ -186,7 +189,13 @@ public class Sinks {
     }
 
     public static Sink wrapNonSeeking(OutputStream outputStream, int copyBufferSize) {
-        return new OutputStreamSink(outputStream, copyBufferSize);
+        return new OutputStreamSink(checkOutputNotNull(outputStream), copyBufferSize);
+    }
+
+    private static <T> T checkOutputNotNull(T output) {
+        if (output == null)
+            throw new NullPointerException("output must not be null");
+        return output;
     }
 
     private static void deleteFileIfExists(File file) throws IOException {

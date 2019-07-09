@@ -40,11 +40,11 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
 public class Sources {
 
     public static Source openFile(String file) throws IOException {
-        return openFile(new File((file)));
+        return openFile(new File((checkInputNotNull(file))));
     }
 
     public static Source openFile(File file) throws IOException {
-        checkArgument(checkNotNull(file).exists() && file.isFile(), "must be an existing file");
+        checkFileExists(file);
 
         // File is larger than the max capacity (2 GB) of a buffer, so we use an InputStream instead.
         // Unfortunately, this limits us to read a very large file using a single thread :( At some point
@@ -73,16 +73,15 @@ public class Sources {
     }
 
     public static Source openStreamingFile(File file) throws IOException {
-        checkArgument(checkNotNull(file).exists() && file.isFile(), "must be an existing file");
-        return new BufferedFileSource(file);
+        return new BufferedFileSource(checkFileExists(file));
     }
 
     public static Source wrap(byte[] bytes) {
-        return wrap(ByteBuffer.wrap(bytes));
+        return wrap(ByteBuffer.wrap(checkInputNotNull(bytes)));
     }
 
     public static Source wrap(ByteBuffer buffer) {
-        return new ByteBufferSource(buffer, 128);
+        return new ByteBufferSource(checkInputNotNull(buffer), 128);
     }
 
     public static Source wrapInputStream(InputStream inputStream) {
@@ -90,7 +89,23 @@ public class Sources {
     }
 
     public static Source wrapInputStream(InputStream inputStream, int bufferSize) {
-        return new InputStreamSource(checkNotNull(inputStream), bufferSize);
+        return new InputStreamSource(checkInputNotNull(inputStream), bufferSize);
+    }
+
+    private static <T> T checkInputNotNull(T input) {
+        if (input == null)
+            throw new NullPointerException("input must not be null");
+        return input;
+    }
+
+    private static File checkFileExists(File file) {
+        if (file == null)
+            throw new NullPointerException("input file must not be null");
+        if (!file.exists())
+            throw new IllegalArgumentException("input file does not exist: " + file.getPath());
+        if (!file.isFile())
+            throw new IllegalArgumentException("input path is not a valid file: " + file.getPath());
+        return file;
     }
 
     private static class BufferedFileSource extends AbstractSource {
