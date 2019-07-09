@@ -137,6 +137,22 @@ class StringHelper {
             return;
         }
 
+        // Add content of function handles
+        if (array instanceof FunctionHandle) {
+            out.append(getDimString(array)).append("function_handle");
+            out.indent().append("\ncontent: ");
+            append(((FunctionHandle) array).getContent(), out);
+            out.unindent();
+            return;
+        }
+
+        // Add meta info for Opaque fields
+        if (array instanceof JavaObject) {
+            JavaObject javaObj = (JavaObject) array;
+            out.append(getDimString(array)).append(javaObj.getClassName()).append(" (Java)");
+            return;
+        }
+
         // Generic fallback
         appendGenericString(array, out);
 
