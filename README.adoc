@@ -52,22 +52,31 @@ MatFile matFile = Mat5.newMatFile()
     .addArray("var3", Mat5.newStruct().set("x", Mat5.newScalar(42)))
 ```
 
-The created `MatFile` can be written to a data `Sink`. Sinks for various outputs (e.g. buffer, stream, or file) can be created via the `Sinks` factory or by extending `AbstractSink`.
+The simplest way to write a `MatFile` to disk is to use the built-in convenience functions.
 
 ```Java
-// Serialize to streaming file using default configuration
+// Serialize to disk using default configurations
+Mat5.writeToFile(matFile, "data.mat");
+```
+
+More complex use cases can leverage the `Sink` interface to write the `MatFile` to arbitrary data outputs. Sinks for various outputs (e.g. buffer, stream, or file) can be created via the `Sinks` factory or by extending `AbstractSink`.
+
+```Java
+// Serialize to a straming file sink using the default configuration
 try(Sink sink = Sinks.newStreamingFile("data.mat")){
     matFile.writeTo(sink);
 }
 ```
 
-The `MatFile` can also be written to disk using a memory-mapped file. We can initialize the file with the maximum expected size, and then automatically truncate it once the `Sink` is closed.
+Buffers and other sinks that need to be pre-allocated ahead of time can use `MatFile::getUncompressedSerializedSize()` to calculate the maximum expected size beforehand. Note that `compressed` data should always be smaller, but there are some corner cases where very small entries such as scalars can actually increase by a few bytes.
+
+The `Writer` API provides further degrees of customization for writing the data. For example, the `MatFile` can be written to a memory-mapped file using a custom `Deflate` (compression algorithm) level. We can initialize the file with the maximum expected size, and then automatically truncate it once the `Sink` is closed.
 
 ```Java
 // Serialize to memory-mapped file w/ custom deflate level
 int safetySize = 256; // some (small) arrays may become larger when compressed
 long maxExpectedSize = matFile.getUncompressedSerializedSize() + safetySize;
-try(Sink sink = Sinks.newMappedFile("data.mat", (int) maxExpectedSize)){
+try(Sink sink = Sinks.newMappedFile("data.mat", Casts.sint32(maxExpectedSize))){
     Mat5.newWriter(sink)
         .setDeflateLevel(Deflater.BEST_SPEED)
         .writeMat(matFile);
@@ -76,15 +85,25 @@ try(Sink sink = Sinks.newMappedFile("data.mat", (int) maxExpectedSize)){
 
 === Reading MAT Files
 
-A `MatFile` can be read from a `Source`. Similar to `Sink`, a `Source` can represent various types of data inputs. The read API is setup such that users can navigate through known file structures without requiring casts or temporary variables.
+There are also convenience wrappers for reading from files. The read API is setup such that users can navigate through known file structures without requiring casts or temporary variables.
 
 ```Java
 // Read scalar from nested struct
+double value = Mat5.readFromFile("data.mat")
+    .getStruct("var3")
+    .getMatrix("x")
+    .getDouble(0);
+```
+
+A `MatFile` can also be read from a `Source`. Similar to `Sink`, a `Source` can represent various types of data inputs. `MatFile::getEntries()` can be used to iterate all variables inside a mat file.
+
+```Java
+// Iterate over all entries in the mat file
 try(Source source = Sources.openFile("data.mat"){
-    double value = Mat5.newReader(source).readFile()
-        .getStruct("var3")
-        .getMatrix("x")
-        .getDouble(0);
+    MatFile mat = Mat5.newReader(source).readFile();
+    for (MatFile.Entry entry : mat.getEntries()) {
+        System.out.println(entry);
+    }
 }
 ```
 
