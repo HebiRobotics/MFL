@@ -4,7 +4,7 @@
 
 The MAT File Library (MFL) is a Java library for reading and writing MAT Files that are compatible with MATLAB's MAT-File Format.
 
-It's overall design goals are; 1) to support working with large amounts of data on heap constrained and allocation limited environments, 2) to allow users to serialize custom data classes without having to convert to temporary objects, 3) to provide a user-friendly API that adheres to MATLAB's semantic behavior.
+It's overall design goals are; 1) to provide a user-friendly API that adheres to MATLAB's semantic behavior, 2) to support working with large amounts of data in heap constrained or allocation limited environments, 3) to allow users to serialize custom data classes without having to convert to temporary objects.
 
 This library currently supports the https://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf[Level 5 MAT-File Format] which has been the default for `.mat` and `.fig` files since https://en.wikipedia.org/wiki/MATLAB#Release_history[MATLAB 5.0 (R8)] in 1996. This includes `save` flags `-v6` and `-v7`, but not `-v4` or `-v7.3`. See MAT-File https://de.mathworks.com/help/matlab/import_export/mat-file-versions.html[Versions] for more info.
 
@@ -62,13 +62,13 @@ Mat5.writeToFile(matFile, "data.mat");
 More complex use cases can leverage the `Sink` interface to write the `MatFile` to arbitrary data outputs. Sinks for various outputs (e.g. buffer, stream, or file) can be created via the `Sinks` factory or by extending `AbstractSink`.
 
 ```Java
-// Serialize to a straming file sink using the default configuration
+// Serialize to a streaming file sink using the default configuration
 try(Sink sink = Sinks.newStreamingFile("data.mat")){
     matFile.writeTo(sink);
 }
 ```
 
-Buffers and other sinks that need to be pre-allocated ahead of time can use `MatFile::getUncompressedSerializedSize()` to calculate the maximum expected size beforehand. Note that `compressed` data should always be smaller, but there are some corner cases where very small entries such as scalars can actually increase by a few bytes.
+Buffers and other sinks that need to be pre-allocated ahead of time can use `MatFile::getUncompressedSerializedSize()` to calculate the maximum expected size beforehand. Note that `compressed` data should always be smaller, but there are some corner cases where very small entries such as scalars can actually increase the result by a few bytes.
 
 The `Writer` API provides further degrees of customization for writing the data. For example, the `MatFile` can be written to a memory-mapped file using a custom `Deflate` (compression algorithm) level. We can initialize the file with the maximum expected size, and then automatically truncate it once the `Sink` is closed.
 
@@ -85,7 +85,7 @@ try(Sink sink = Sinks.newMappedFile("data.mat", Casts.sint32(maxExpectedSize))){
 
 === Reading MAT Files
 
-There are also convenience wrappers for reading from files. The read API is setup such that users can navigate through known file structures without requiring casts or temporary variables.
+There are convenience wrappers for reading from files as well. The read API is setup such that users can navigate through known file structures without requiring casts or temporary variables.
 
 ```Java
 // Read scalar from nested struct
