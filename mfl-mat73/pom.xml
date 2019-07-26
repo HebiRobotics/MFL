@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>us.hebi.matlab.mat</groupId>
+        <artifactId>mfl-parent</artifactId>
+        <version>0.5.4-SNAPSHOT</version>
+    </parent>
+
+    <name>MAT File Library / Mat73</name>
+    <artifactId>mfl-mat73</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <javaTarget>1.6</javaTarget> <!-- compatible with MATLAB >2009a -->
+        <javaModuleName>us.hebi.matlab.mat.mfl.mat73</javaModuleName>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>mfl-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>ncsa.hdf</groupId>
+            <artifactId>lib-hdf</artifactId>
+            <version>2.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

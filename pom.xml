@@ -65,6 +65,7 @@
     <modules>
         <module>mfl-core</module>
         <module>mfl-ejml</module>
+        <module>mfl-mat73</module>
     </modules>
 
     <properties>
