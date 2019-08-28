@@ -220,9 +220,9 @@ public final class Mat5Writer {
             }
         }
         // Lastly, update subsystem offset in the (non-reduced) header
-        if (headerStart >= 0 && subsysLocation >= -1) {
+        if (headerStart >= 0 && subsysLocation > 0) {
             Mat5File.updateSubsysOffset(headerStart, subsysLocation, sink);
-            subsysLocation = -1;
+            subsysLocation = 0;
         }
         return this;
     }
@@ -238,7 +238,7 @@ public final class Mat5Writer {
     protected final Sink sink;
     protected int deflateLevel = Deflater.BEST_SPEED;
     private long headerStart = -1;
-    private long subsysLocation = -1;
+    private long subsysLocation = 0; // matlab uses zeros for missing subsystems
     private ExecutorService executorService = null;
     private BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
     private final List<Future<FlushAction>> flushActions = new ArrayList<Future<FlushAction>>(16);

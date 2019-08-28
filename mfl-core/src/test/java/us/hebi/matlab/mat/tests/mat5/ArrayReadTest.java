@@ -21,9 +21,13 @@
 package us.hebi.matlab.mat.tests.mat5;
 
 import org.junit.Test;
+import us.hebi.matlab.mat.format.Mat5;
+import us.hebi.matlab.mat.format.Mat5File;
 import us.hebi.matlab.mat.types.*;
 
 import java.io.File;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -450,6 +454,17 @@ public class ArrayReadTest {
         assertEquals(1, uint8(matFile.getMatrix(0).getByte(0)));
         assertEquals(2, uint8(matFile.getMatrix(1).getByte(0)));
         assertEquals(3, uint8(matFile.getMatrix(2).getByte(0)));
+    }
+
+    @Test
+    public void testEmptySubsystem() throws Exception {
+        MatFile out = Mat5.newMatFile()
+                .addArray("var1", Mat5.newScalar(7));
+        ByteBuffer bytes = MatTestUtil.toBinaryForm(out, ByteOrder.nativeOrder());
+        bytes.flip();
+        Mat5File in = MatTestUtil.fromBinaryForm(bytes);
+        assertEquals(out, in);
+        assertEquals(0, in.getSubsysOffset());
     }
 
 }
