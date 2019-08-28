@@ -2,6 +2,7 @@
 
 == 0.5.4-SNAPSHOT
 * Improved string display for function handles and Java objects
+* Fixed a subsys-related bug that caused issues when reading mat files in Octave. Thanks @grabarczyk-t
 
 == 0.5.3
 * Fixed a bug that caused some sparse matrices to fail (nzMax > numNz). Thanks @mephenor
