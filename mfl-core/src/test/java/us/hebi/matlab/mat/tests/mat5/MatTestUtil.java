@@ -44,6 +44,21 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  */
 public class MatTestUtil {
 
+    public static ByteBuffer toBinaryForm(MatFile matFile, ByteOrder order) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate((int) matFile.getUncompressedSerializedSize());
+        buffer.order(order);
+        try (Sink sink = Sinks.wrap(buffer)) {
+            matFile.writeTo(sink);
+        }
+        return buffer;
+    }
+
+    public static Mat5File fromBinaryForm(ByteBuffer buffer) throws IOException {
+        try (Source source = Sources.wrap(buffer)) {
+            return Mat5.newReader(source).readMat();
+        }
+    }
+
     public static Mat5File readMat(String name) throws IOException {
         return readMat(name, testRoundTrip);
     }
