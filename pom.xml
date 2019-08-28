@@ -4,7 +4,7 @@
     <groupId>us.hebi.matlab.mat</groupId>
     <artifactId>mfl-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.5.4</version>
+    <version>0.5.5-SNAPSHOT</version>
 
     <name>MAT File Library</name>
     <url>https://github.com/HebiRobotics/MFL</url>
@@ -34,7 +34,7 @@
         <url>https://github.com/HebiRobotics/MFL</url>
         <connection>scm:git:git://github.com/HebiRobotics/MFL.git</connection>
         <developerConnection>scm:git:git@github.com:HebiRobotics/MFL.git</developerConnection>
-        <tag>mfl-parent-0.5.4</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Maven Central Distribution -->
