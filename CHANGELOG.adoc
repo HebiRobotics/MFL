@@ -1,6 +1,9 @@
 = MFL (MAT File Library)
 
-== 0.5.4-SNAPSHOT
+== 0.5.5-SNAPSHOT
+* TBD
+
+== 0.5.4
 * Improved string display for function handles and Java objects
 * Fixed a subsys-related bug that caused issues when reading mat files in Octave. Thanks @grabarczyk-t
 
