@@ -1,4 +1,4 @@
-[![](https://jitci.com/gh/HebiRobotics/MFL/svg)](https://jitci.com/gh/HebiRobotics/MFL)
+image:https://jitci.com/gh/HebiRobotics/MFL/svg[Build Status Badge,link=https://jitci.com/gh/HebiRobotics/MFL]
 
 = MAT File Library
 
