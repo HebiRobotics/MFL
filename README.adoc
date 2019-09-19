@@ -1,3 +1,4 @@
+image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[link=https://opensource.org/licenses/Apache-2.0]
 image:https://jitci.com/gh/HebiRobotics/MFL/svg[Build Status Badge,link=https://jitci.com/gh/HebiRobotics/MFL]
 
 = MAT File Library
