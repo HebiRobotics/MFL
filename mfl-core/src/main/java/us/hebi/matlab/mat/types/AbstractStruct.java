@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,7 +52,17 @@ public abstract class AbstractStruct extends AbstractStructBase {
         if (fieldIndex == null)
             throw new IllegalArgumentException("A field named '" + field + "' doesn't exist.");
         fields.remove((int) fieldIndex);
-        return values.remove((int) fieldIndex);
+        Array[] removed = values.remove((int) fieldIndex);
+        rebuildIndexMap();
+        return removed;
+    }
+
+    private void rebuildIndexMap() {
+        indexMap.clear();
+        int i = 0;
+        for (String field : fields) {
+            indexMap.put(field, i++);
+        }
     }
 
     @Override
