@@ -245,7 +245,7 @@ public class Mat5 {
 
     private static NumberStore createStore(MatlabType type, int[] dims, BufferAllocator bufferAllocator) {
         Mat5Type tagType = Mat5Type.fromNumericalType(type);
-        int numBytes = getNumElements(dims) * tagType.bytes();
+        int numBytes = Casts.sint32((getNumElementsLong(dims) * tagType.bytes()));
         ByteBuffer buffer = bufferAllocator.allocate(numBytes);
         return new UniversalNumberStore(tagType, buffer, bufferAllocator);
     }

@@ -66,6 +66,18 @@ public abstract class AbstractArray implements Array {
         return count;
     }
 
+    /**
+     * Same as {@link #getNumElements()} but returning a long to prevent
+     * Integer overflow
+     */
+    public static long getNumElementsLong(int[] dimensions) {
+        long count = dimensions[0];
+        for (int i = 1; i < dimensions.length; i++) {
+            count *= dimensions[i];
+        }
+        return count;
+    }
+
     protected static int[] calculateColMajorStrides(int[] dimensions) {
         int[] dimStrides = new int[dimensions.length];
         dimStrides[0] = 1;

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -81,7 +81,7 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
         final int numFields = fieldNames.size();
 
         // Common fields
-        int size = MATRIX_TAG_SIZE;
+        long size = MATRIX_TAG_SIZE;
         size += computeArrayHeaderSize(name, this);
 
         // Subfield -/4: Object only. Not struct
@@ -104,7 +104,10 @@ class MatStruct extends AbstractStruct implements Mat5Serializable {
             }
         }
 
-        return size;
+        if (size < 0 || size > Integer.MAX_VALUE) {
+            throw new IllegalStateException("Struct contents are larger than the 2GB variable limit of MAT5 files.");
+        }
+        return (int) size;
     }
 
     @Override
