@@ -38,4 +38,13 @@ class Compat {
         return (a == b) || (a != null && a.equals(b));
     }
 
+    static int hashDouble(final double value) {
+        long bits = Double.doubleToLongBits(value);
+        return (int) (bits ^ (bits >>> 32));
+    }
+
+    static int hashLong(final long value) {
+        return (int) (value ^ (value >>> 32));
+    }
+
 }

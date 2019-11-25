@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,10 +20,10 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.mat.util.Bytes;
-import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Sink;
+import us.hebi.matlab.mat.util.Bytes;
+import us.hebi.matlab.mat.util.Casts;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -230,11 +230,11 @@ class UniversalNumberStore implements NumberStore {
         } else {
             if (type == MatlabType.Single || type == MatlabType.Double) {
                 for (int i = 0; i < store.getNumElements(); ++i) {
-                    hash = 31 * hash + Double.hashCode(store.getDouble(i));
+                    hash = 31 * hash + Compat.hashDouble(store.getDouble(i));
                 }
             } else {
                 for (int i = 0; i < store.getNumElements(); ++i) {
-                    hash = 31 * hash + Long.hashCode(store.getLong(i));
+                    hash = 31 * hash + Compat.hashLong(store.getLong(i));
                 }
             }
         }
