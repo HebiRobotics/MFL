@@ -1,7 +1,12 @@
 = MFL (MAT File Library)
 
-== 0.5.5-SNAPSHOT
+== 0.5.6-SNAPSHOT
 * TBD
+
+== 0.5.5
+* Fixed bug that caused the struct index map to be wrong after field removal (fixes #53, thanks @ryanlb1000)
+* Added size checks to prevent variables >2GB from being serialized. (fixes #55, thanks @syr)
+* Removed Java8 hash methods. (fixes #51)
 
 == 0.5.4
 * Improved string display for function handles and Java objects
