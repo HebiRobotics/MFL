@@ -3,3 +3,4 @@
 /.idea
 settings.xml
 target/
+*.versionsBackup
