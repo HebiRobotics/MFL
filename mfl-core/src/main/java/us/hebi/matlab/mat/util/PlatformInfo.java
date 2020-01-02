@@ -71,7 +71,7 @@ public final class PlatformInfo {
     private static final boolean IS_UNIX = OS.contains("nix") || OS.contains("nux") || OS.indexOf("aix") > 0;
     private static final boolean IS_SOLARIS = OS.contains("sunos");
 
-    private static final boolean IS_ANDROID = "Dalvik".equals(System.getProperty("java.vm.name"));
+    private static final boolean IS_ANDROID = "0.9".equals(System.getProperty("java.specification.version"));
     private static final boolean IS_MATLAB = isMatlab0();
     private static final int JAVA_VERSION = getMajorJavaVersion0();
 

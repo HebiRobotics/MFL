@@ -76,7 +76,8 @@ public class Unsafe9R {
 
         // Get Java version
         String version = System.getProperty("java.specification.version", "6");
-        String majorVersion = version.startsWith("1.") ? version.substring(2) : version;
+        String majorVersion = version.equals("0.9") /* Android */ ? "6" :
+                version.startsWith("1.") ? version.substring(2) : version;
         useJava9 = Integer.parseInt(majorVersion) >= 9;
 
     }
