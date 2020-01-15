@@ -158,6 +158,7 @@ public class Sinks {
         final ByteBuffer buffer = channel
                 .map(FileChannel.MapMode.READ_WRITE, 0, maxExpectedSize)
                 .load();
+        buffer.order(ByteOrder.nativeOrder());
 
         // Unmap buffer and truncate file to actual size
         return new BufferSink(buffer, defaultCopyBufferSize) {
