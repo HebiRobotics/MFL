@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -43,6 +43,10 @@ class UnsafeAccess {
         return UNSAFE != null;
     }
 
+    public static boolean allowUnalignedAccess() {
+        return !IS_ARM;
+    }
+
     static {
         Unsafe unsafe = null;
         long baseOffset = 0;
@@ -71,5 +75,9 @@ class UnsafeAccess {
     final static ByteOrder NATIVE_ORDER = ByteOrder.nativeOrder();
     final static Unsafe UNSAFE;
     final static long BYTE_ARRAY_OFFSET;
+
+    private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm")
+            || System.getProperty("os.arch", "N/A").startsWith("arm")
+            || System.getProperty("os.arch", "N/A").startsWith("aarch");
 
 }

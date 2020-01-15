@@ -174,6 +174,16 @@ public class Sinks {
 
     }
 
+    /**
+     * Writes an existing byte buffer. Note that the endianness of the sink
+     * matches the byte buffer, so this may not match the default nativeOrder()
+     * of the other sinks.
+     *
+     * Closing the sink wrapper has no effect.
+     *
+     * @param buffer buffer
+     * @return sink wrapping the buffer
+     */
     public static Sink wrap(final ByteBuffer buffer) {
         return new BufferSink(buffer, Math.min(buffer.remaining(), defaultCopyBufferSize));
     }
