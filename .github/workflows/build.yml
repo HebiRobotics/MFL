@@ -2,25 +2,24 @@ name: Maven Build
 
 on:
   push:
-    branches: 
-    - '**'
+    branches: [master, develop]
   pull_request:
-    branches: 
-    - 'master'
-    - 'develop'
+    branches: [master, develop]
 
 jobs:
-  build:
+  package:
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        jdk: [1.8, 11]
 
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v2
-    
-    - name: Setup JDK 1.8
+    - name: Setup JDK
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
-
-    - name: Build JDK 1.8
+        java-version: ${{ matrix.jdk }}
+    - name: Run Maven
       run: mvn clean verify
