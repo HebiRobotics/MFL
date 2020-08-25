@@ -1,5 +1,5 @@
 image:https://img.shields.io/badge/License-Apache%202.0-blue.svg[link=https://opensource.org/licenses/Apache-2.0]
-image:https://jitci.com/gh/HebiRobotics/MFL/svg[Build Status Badge,link=https://jitci.com/gh/HebiRobotics/MFL]
+image:https://github.com/HebiRobotics/MFL/workflows/Maven%20Build/badge.svg[Maven Build]
 
 = MAT File Library
 
