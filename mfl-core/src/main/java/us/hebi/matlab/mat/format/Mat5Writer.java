@@ -101,6 +101,9 @@ public final class Mat5Writer {
         for (MatFile.Entry entry : matFile.getEntries()) {
             writeEntry(entry);
         }
+        if(matFile.getSubsystem() != null){
+            writeEntry(matFile.getSubsystem());
+        }
         flush();
         return this;
     }

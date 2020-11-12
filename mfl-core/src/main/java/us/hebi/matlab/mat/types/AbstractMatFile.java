@@ -75,7 +75,11 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
 
     @Override
     public String toString() {
-        return StringHelper.toString(entries);
+        String content = StringHelper.toString(entries);
+        if (subsystem != null) {
+            content += "\n== subsystem ==\n" + subsystem;
+        }
+        return content;
     }
 
     /**
@@ -88,6 +92,13 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
         for (Entry entry : entries) {
             try {
                 entry.getValue().close();
+            } catch (IOException ioe) {
+                lastError = ioe;
+            }
+        }
+        if (subsystem != null) {
+            try {
+                subsystem.getValue().close();
             } catch (IOException ioe) {
                 lastError = ioe;
             }
@@ -107,14 +118,22 @@ public abstract class AbstractMatFile extends AbstractMatFileBase {
         return entries.size();
     }
 
+
+    @Override
+    public Entry getSubsystem() {
+        return subsystem;
+    }
+
     @Override
     public void clear() {
         lookup.clear();
         entries.clear();
+        subsystem = null;
     }
 
     protected final HashMap<String, Array> lookup = new HashMap<String, Array>();
     protected final List<Entry> entries = new ArrayList<Entry>();
+    protected Entry subsystem = null;
 
     @Override
     public final int hashCode() {

@@ -1,7 +1,7 @@
 = MFL (MAT File Library)
 
 == 0.5.7-SNAPSHOT
-* TBD
+* Removed the special subsystem entry from the content list to avoid confusing users
 
 == 0.5.6
 * Fixed default endian-ness for writing to memory mapped files (fixes #58)

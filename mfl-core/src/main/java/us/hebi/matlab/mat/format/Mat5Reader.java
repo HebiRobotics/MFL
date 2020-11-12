@@ -200,7 +200,7 @@ public final class Mat5Reader {
 
             // Process references
             if (matFile.getSubsystem() != null && processSubsystem)
-                matFile.getSubsystem().processReferences(mcos);
+                ((Mat5Subsystem) matFile.getSubsystem().getValue()).processReferences(mcos);
 
             return matFile;
 

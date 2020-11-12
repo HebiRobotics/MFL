@@ -78,6 +78,23 @@ public interface MatFile extends Closeable {
     Iterable<Entry> getEntries();
 
     /**
+     * The subsystem is a special unnamed entry that contains meta data needed
+     * to parse reference types (e.g. table, string, handle, etc.) and various other
+     * stuff (e.g. figures) that is not covered by the official documentation. The
+     * subsystem gets parsed immediately when reading a file, so most users will never
+     * need to access it directly. The main reason to keep it around is to be able to
+     * re-serialize the data without breaking anything.
+     *
+     * Notes on MAT5 format:
+     * The format is undocumented, but it has been reverse engineered enough to
+     * make it possible to parse all currently known mat files. Changing and re-serializing
+     * a parsed mat file will not pick up changes to handle types.
+     *
+     * @return the subsystem entry, or null if not available
+     */
+    Entry getSubsystem();
+
+    /**
      * Clears the contained entries (without closing them)
      */
     void clear();

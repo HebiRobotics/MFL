@@ -20,16 +20,19 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.types.AbstractMatFile;
+import us.hebi.matlab.mat.types.Sink;
+import us.hebi.matlab.mat.types.Source;
 
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Date;
 
-import static us.hebi.matlab.mat.util.Bytes.*;
 import static us.hebi.matlab.mat.format.Mat5.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
+import static us.hebi.matlab.mat.util.Bytes.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * --- Level 5 MAT-File Header Format ---
@@ -156,7 +159,7 @@ public class Mat5File extends AbstractMatFile {
         }
 
         // 2 byte version. Note that this should be a constant '1', but
-        // always seems to be written as 256.
+        // always seems to be written as '256'.
         sink.writeShort(Short.reverseBytes(getVersion()));
 
         // 2 byte endian indicator
@@ -255,6 +258,9 @@ public class Mat5File extends AbstractMatFile {
         for (Entry entry : entries) {
             size += computeArraySize(entry.getName(), entry.getValue());
         }
+        if (getSubsystem() != null) {
+            size += computeArraySize(subsystem.getName(), subsystem.getValue());
+        }
         return size;
     }
 
@@ -264,28 +270,19 @@ public class Mat5File extends AbstractMatFile {
         return this;
     }
 
-    public Mat5Subsystem getSubsystem() {
-        Array last = getLast();
-        return last instanceof Mat5Subsystem ? (Mat5Subsystem) last : null;
-    }
-
     public Mat5File addEntry(Entry entry) {
         if (reduced && getNumEntries() >= 2)
             throw new IllegalStateException("Reduced MAT 5 files may not contain more than 2 entries");
 
-        // Make sure that the optional subsystem is
-        // located at the end of the file
-        if (getLast() instanceof Mat5Subsystem) {
-            entries.add(getNumEntries() - 1, entry);
+        // Hide the optional subsystem from the entry list
+        if (entry.getValue() instanceof Mat5Subsystem) {
+            checkState(subsystem == null, "mat file already contains a subsystem");
+            subsystem = entry;
         } else {
             entries.add(entry);
         }
         lookup.put(entry.getName(), entry.getValue());
         return this;
-    }
-
-    private Array getLast() {
-        return getNumEntries() == 0 ? null : entries.get(getNumEntries() - 1).getValue();
     }
 
     private final String description;
