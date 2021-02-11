@@ -52,7 +52,7 @@ A `MatFile` is a data structure that contains a collection of named `Array` vari
 MatFile matFile = Mat5.newMatFile()
     .addArray("var1", Mat5.newString("Test"))
     .addArray("var2", Mat5.newScalar(7))
-    .addArray("var3", Mat5.newStruct().set("x", Mat5.newScalar(42)))
+    .addArray("var3", Mat5.newStruct().set("x", Mat5.newScalar(42)));
 ```
 
 The simplest way to write a `MatFile` to disk is to use the built-in convenience functions.
@@ -79,7 +79,7 @@ The `Writer` API provides further degrees of customization for writing the data.
 // Serialize to memory-mapped file w/ custom deflate level
 int safetySize = 256; // some (small) arrays may become larger when compressed
 long maxExpectedSize = matFile.getUncompressedSerializedSize() + safetySize;
-try(Sink sink = Sinks.newMappedFile("data.mat", Casts.sint32(maxExpectedSize))){
+try(Sink sink = Sinks.newMappedFile(new File("data.mat"), Casts.sint32(maxExpectedSize))){
     Mat5.newWriter(sink)
         .setDeflateLevel(Deflater.BEST_SPEED)
         .writeMat(matFile);
@@ -102,8 +102,8 @@ A `MatFile` can also be read from a `Source`. Similar to `Sink`, a `Source` can 
 
 ```Java
 // Iterate over all entries in the mat file
-try(Source source = Sources.openFile("data.mat"){
-    MatFile mat = Mat5.newReader(source).readFile();
+try(Source source = Sources.openFile("data.mat")){
+    MatFile mat = Mat5.newReader(source).readMat();
     for (MatFile.Entry entry : mat.getEntries()) {
         System.out.println(entry);
     }
@@ -116,10 +116,10 @@ In cases where users are only interested in reading a subset of entries, unwante
 
 ```Java
 // Filter arrays that follow some criteria based on the name, type, dimension, or global/logical flags
-try(Source source = Sources.openFile("data.mat"){
+try(Source source = Sources.openFile("data.mat")){
     MatFile mat = Mat5.newReader(source)
         .setEntryFilter(header -> header.isGlobal())
-        .readFile();
+        .readMat();
 }
 ```
 
@@ -134,10 +134,10 @@ Users can enable concurrent reading by passing an executor service into the read
 ```Java
 // Concurrent Decompression
 ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-try(Source source = Sources.openFile("data.mat"){
+try(Source source = Sources.openFile("data.mat")){
     MatFile mat = Mat5.newReader(source)
         .enableConcurrentDecompression(executor)
-        .readFile()
+        .readMat();
 } finally {
     executor.shutdown();
 }
@@ -147,11 +147,14 @@ Concurrent writing unfortunately requires a temporary buffer for each root entry
 
 ```Java
 // Concurrent Compression
+ExecutorService executor = Executors.newFixedThreadPool(numThreads);
 try(Sink sink = Sinks.newStreamingFile("data.mat")){
     Mat5.newWriter(sink)
-        .enableConcurrentCompression(executorService)
+        .enableConcurrentCompression(executor)
         .setDeflateLevel(Deflater.BEST_SPEED)
         .writeMat(mat);
+} finally {
+    executor.shutdown();
 }
 ```
 
@@ -186,7 +189,7 @@ The serialization wrappers are very light and serialize the contained data into 
 ```Java
 // Add single EJML matrix to root level
 MatFile mat = Mat5.newMatFile();
-mat.addArray("DMatrix", Mat5Ejml.asArray(new DMatrixRMaj(rows, cols)))
+mat.addArray("DMatrix", Mat5Ejml.asArray(new DMatrixRMaj(rows, cols)));
 
 // Add multiple EJML matrices to sub-structure
 MatFile mat = Mat5.newMatFile().addArray("struct", Mat5.newStruct()
