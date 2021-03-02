@@ -1,5 +1,9 @@
 = MFL (MAT File Library)
 
+== 0.5.8-SNAPSHOT
+
+* TBD
+
 == 0.5.7
 * Removed the special subsystem entry from the content list to avoid confusing users
 * Changed EJML Scope to `provided`
