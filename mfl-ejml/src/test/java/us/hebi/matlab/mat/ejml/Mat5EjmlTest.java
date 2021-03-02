@@ -52,6 +52,8 @@ public class Mat5EjmlTest {
 
         // Save EJML Matrices
         MatFile mat = Mat5.newMatFile()
+                .addArray("FSCC", Mat5Ejml.asArray(new FMatrixSparseCSC(rows, cols)))
+                .addArray("DSCC", Mat5Ejml.asArray(new DMatrixSparseCSC(rows, cols)))
                 .addArray("F", Mat5Ejml.asArray(new FMatrixRMaj(rows, cols)))
                 .addArray("D", Mat5Ejml.asArray(new DMatrixRMaj(rows, cols)))
                 .addArray("C", Mat5Ejml.asArray(new CMatrixRMaj(rows, cols)))
@@ -60,12 +62,23 @@ public class Mat5EjmlTest {
 
         MatFile result = writeReadMat(mat);
 
-        // Load EJML Matrices
+        // Load EJML Matrices w/ specified type
+        FMatrixSparseCSC fsccMatrix = Mat5Ejml.convert(result.getArray("FSCC"), new FMatrixSparseCSC(rows, cols));
+        DMatrixSparseCSC dsccMatrix = Mat5Ejml.convert(result.getArray("DSCC"), new DMatrixSparseCSC(rows, cols));
         FMatrixRMaj fMatrix = Mat5Ejml.convert(result.getArray("F"), new FMatrixRMaj(0, 0));
         DMatrixRMaj dMatrix = Mat5Ejml.convert(result.getArray("D"), new DMatrixRMaj(0, 0));
         CMatrixRMaj cMatrix = Mat5Ejml.convert(result.getArray("C"), new CMatrixRMaj(0, 0));
         ZMatrixRMaj zMatrix = Mat5Ejml.convert(result.getArray("Z"), new ZMatrixRMaj(0, 0));
         BMatrixRMaj bMatrix = Mat5Ejml.convert(result.getArray("B"), new BMatrixRMaj(0, 0));
+
+        // Load EJML Matrices w/ unspecified type
+        dsccMatrix = Mat5Ejml.convert(result.getArray("FSCC")); // FSCC -> DSCC (no matching type)
+        dsccMatrix = Mat5Ejml.convert(result.getArray("DSCC"));
+        fMatrix = Mat5Ejml.convert(result.getArray("F"));
+        dMatrix = Mat5Ejml.convert(result.getArray("D"));
+        cMatrix = Mat5Ejml.convert(result.getArray("C"));
+        zMatrix = Mat5Ejml.convert(result.getArray("Z"));
+        bMatrix = Mat5Ejml.convert(result.getArray("B"));
 
     }
 

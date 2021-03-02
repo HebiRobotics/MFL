@@ -62,7 +62,7 @@ class CMatrixWrapper extends AbstractMatrixWrapper<CMatrix> {
 
     @Override
     public MatlabType getType() {
-        return MatlabType.Double;
+        return MatlabType.Single;
     }
 
     CMatrixWrapper(CMatrix matrix) {

@@ -77,23 +77,47 @@ public class Mat5Ejml {
     }
 
     /**
+     * Converts {@link Array} into {@link org.ejml.data.Matrix}. The best fitting
+     * EJML data type is determined automatically. MAT types that do not have a matching
+     * EJML type will throw an error.
+     *
+     * @param input Input Array of Matrix type. Not modified.
+     * @param <T>   Converted output object.
+     * @throws IllegalArgumentException if the MAT array does not fit an EJML type
+     */
+    public static <T extends org.ejml.data.Matrix> T convert(Array input) {
+        return (T) convert(input, (T) null);
+
+    }
+
+    /**
      * Converts {@link Array} into {@link org.ejml.data.Matrix}. The output
      * matrix will be reshaped as needed.
      * <p>
      * Note that the there are no checks whether the output type is appropriate
      * for the data, e.g., a sparse complex double array may convert to a dense
      * float matrix without throwing an error.
+     * <p>
+     * If the output is unspecified (null), it will automatically allocate the
+     * matching type or throw an {@link IllegalArgumentException} if there is no match.
      *
      * @param input  Input Array of Matrix type. Not modified.
-     * @param output Output Matrix. Modified.
+     * @param output Output Matrix. Automatically matched if null. Modified.
      * @param <T>    Desired output object.
      * @return Converted matrix
      */
     public static <T extends org.ejml.data.Matrix> T convert(Array input, T output) {
-        checkNotNull(input, "Input array can't be null");
-        checkNotNull(output, "Output matrix can't be null");
-        checkArgument(input instanceof Matrix, "Input Array is not a Matrix type");
+        checkNotNull(input, "Conversion error: Input Array can't be null");
+        checkArgument(input instanceof Matrix, "Conversion error: Input Array is not a Matrix type");
         final Matrix array = (Matrix) input;
+
+        // Nothing specified -> find the closest type automatically
+
+        if (output == null) {
+            @SuppressWarnings("unchecked")
+            T match = (T) allocateMatchingType(array);
+            output = match;
+        }
 
         // Make sure dimensions match
         reshapeOutputSize(array, output);
@@ -146,6 +170,45 @@ public class Mat5Ejml {
 
         return output;
 
+    }
+
+    private static org.ejml.data.Matrix allocateMatchingType(Matrix array) {
+        checkArgument(array.getNumDimensions() <= 2, "Unsupported type: dimensionality");
+        if (array instanceof Sparse) {
+            checkArgument(!array.isComplex(), "Unsupported type: sparse complex");
+            checkArgument(!array.isLogical(), "Unsupported type: sparse logical");
+
+            // Note: MATLAB's sparse matrices are always double, so there is no direct match to FMatrixSparse
+            return new DMatrixSparseCSC(array.getNumRows(), array.getNumCols(), ((Sparse) array).getNumNonZero());
+
+        } else if (array.isComplex()) {
+
+            switch (array.getType()) {
+                case Double:
+                    return new ZMatrixRMaj(array.getNumRows(), array.getNumCols());
+                case Single:
+                    return new CMatrixRMaj(array.getNumRows(), array.getNumCols());
+                default:
+                    throw new IllegalArgumentException("Unsupported type: Complex " + array.getType().name());
+            }
+
+        } else if (array.isLogical()) {
+
+            return new BMatrixRMaj(array.getNumRows(), array.getNumCols());
+
+        } else {
+
+            switch (array.getType()) {
+
+                case Double:
+                    return new DMatrixRMaj(array.getNumRows(), array.getNumCols());
+                case Single:
+                    return new FMatrixRMaj(array.getNumRows(), array.getNumCols());
+                default:
+                    throw new IllegalArgumentException("Unsupported type: Dense " + array.getType().name());
+            }
+
+        }
     }
 
     private static void reshapeOutputSize(Matrix input, org.ejml.data.Matrix output) {
