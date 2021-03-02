@@ -102,6 +102,7 @@
                 <groupId>org.ejml</groupId>
                 <artifactId>ejml-core</artifactId>
                 <version>0.37</version>
+                <scope>provided</scope> <!-- Supplied by user -->
             </dependency>
 
             <dependency> <!-- Unit Tests -->
