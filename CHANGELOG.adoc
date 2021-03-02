@@ -1,7 +1,10 @@
 = MFL (MAT File Library)
 
-== 0.5.7-SNAPSHOT
+== 0.5.7
 * Removed the special subsystem entry from the content list to avoid confusing users
+* Changed EJML Scope to `provided`
+* Fixed a bug where EJML's `CMatrixRmaj` was stored as `ZMatrixRmaj`
+* Added functionality to automatically determine EJML matrix based on data type
 
 == 0.5.6
 * Fixed default endian-ness for writing to memory mapped files (fixes #58)
