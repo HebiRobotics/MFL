@@ -88,7 +88,7 @@ public class Mat5Examples {
         // reduce the result so we can pre-allocate a buffer.
         int maxExpectedSize = sint32(matFile.getUncompressedSerializedSize());
         ByteBuffer buffer = ByteBuffer.allocate(maxExpectedSize);
-        try (Sink sink = Sinks.wrap(buffer)) {
+        try (Sink sink = Sinks.wrap(buffer).nativeOrder()) {
 
             // Write file w/ header and content
             matFile.writeTo(sink);
