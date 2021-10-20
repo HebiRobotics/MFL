@@ -20,11 +20,12 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.mat.types.*;
 import us.hebi.matlab.mat.types.Cell;
 import us.hebi.matlab.mat.types.Matrix;
 import us.hebi.matlab.mat.types.Opaque;
 import us.hebi.matlab.mat.types.Sparse;
+import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.util.Tasks;
 import us.hebi.matlab.mat.util.Tasks.IoTask;
 
@@ -34,15 +35,16 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
-import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.format.Mat5Type.Int32;
 import static us.hebi.matlab.mat.format.Mat5Type.Int8;
 import static us.hebi.matlab.mat.format.Mat5Type.UInt32;
 import static us.hebi.matlab.mat.format.Mat5Type.UInt8;
+import static us.hebi.matlab.mat.format.Mat5Type.*;
 import static us.hebi.matlab.mat.types.MatlabType.*;
 import static us.hebi.matlab.mat.util.Preconditions.*;
 
@@ -95,6 +97,18 @@ public final class Mat5Reader {
             this.type = type;
             this.dimensions = dimensions;
             this.name = name;
+        }
+
+        @Override
+        public String toString() {
+            return "EntryHeader{" +
+                    "name='" + name + '\'' +
+                    ", type=" + type +
+                    ", dimensions=" + Arrays.toString(dimensions) +
+                    (isGlobal() ? ", global" : "") +
+                    (isLogical() ? ", logical" : "") +
+                    (isComplex() ? ", complex" : "") +
+                    '}';
         }
 
         final int[] arrayFlags;
@@ -338,6 +352,24 @@ public final class Mat5Reader {
     }
 
     private MatFile.Entry readEntryWithoutTag(Mat5Tag tag) throws IOException {
+        // MATLAB defines a limit of <2GB per entry, but Octave apparently treats
+        // the size as a uint32 and allows <4GB entries. Interestingly, MATLAB 2021a
+        // is able to load these entries, but is unable to re-save them.
+        //
+        // This case was encountered in issue #64 where a root level struct contains
+        // multiple <2GB variables and reaches a total >2GB size.
+        //
+        // In order to match MATLAB behavior, we allow >2GB entries here and fail at a
+        // later stage if we encounter a numerical matrix that is out of the Java
+        // limits. Note that we do not have to worry about computing padding of a negative
+        // number because entries are already aligned and always have zero padding.
+        final long expectedBytes = Casts.uint32(tag.getNumBytes());
+        if (expectedBytes > Integer.MAX_VALUE) {
+            String warning = String.format("[MFL] encountered illegal entry larger than 2GB: %.1fGB.",
+                    expectedBytes / 1024d / 1024d / 1024d);
+            System.err.println(warning);
+        }
+
         long start = source.getPosition();
         MatFile.Entry value = readEntryWithoutTag();
         long numBytes = source.getPosition() - start;
@@ -346,7 +378,7 @@ public final class Mat5Reader {
         // Note that we don't skip to the end as we may be
         // reading from a deflated source that is expensive
         // to skip.
-        if (tag.getNumBytes() == numBytes || value == null)
+        if (expectedBytes == numBytes || value == null)
             return value;
 
         throw readError("Specified matrix tag does not match content size. Tag: %d, Content: %d", tag.getNumBytes(), numBytes);
