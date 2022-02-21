@@ -280,7 +280,10 @@ public final class Mat5Reader {
             if (tag.getType() == Compressed) {
 
                 // Create an independent Source for the decompressed data
-                int bufferSize = Math.min(tag.getNumBytes() * 2, maxInflateBufferSize);
+                int bufferSize = tag.getNumBytes() * 2;
+                if (bufferSize > maxInflateBufferSize || bufferSize < 0 /* overflow >1 GB */) {
+                    bufferSize = maxInflateBufferSize;
+                }
                 final Source inflated = source.readInflated(tag.getNumBytes(), bufferSize);
 
                 // Read array in a task
