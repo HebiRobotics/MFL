@@ -293,11 +293,19 @@ public class Mat5File extends AbstractMatFile {
 
     private static void checkMat5Identifier(String description) {
         if (!description.startsWith(MAT5_IDENTIFIER)) {
-            throw new IllegalArgumentException("This is not a valid MATLAB 5.0 MAT-file description.");
+            if (description.startsWith(MAT73_IDENTIFIER)) {
+                throw new IllegalArgumentException("This file was saved using the unsupported MATLAB 7.3 MAT-file version ('-v7.3' flag). Only files saved with the '-v7' version flag can be loaded.");
+            } else if (description.startsWith(MATLAB_IDENTIFIER)) {
+                throw new IllegalArgumentException("This file was saved using an unknown MAT-file format. Only files saved with the '-v7' version flag can be loaded.");
+            } else {
+                throw new IllegalArgumentException("The input is not a valid MATLAB 5.0 MAT-file.");
+            }
         }
     }
 
+    private static final String MATLAB_IDENTIFIER = "MATLAB";
     private static final String MAT5_IDENTIFIER = "MATLAB 5.0 MAT-file";
+    private static final String MAT73_IDENTIFIER = "MATLAB 7.3 MAT-file";
 
     @Override
     protected int subHashCode() {
