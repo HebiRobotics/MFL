@@ -1,8 +1,10 @@
 = MFL (MAT File Library)
 
-== 0.5.9-SNAPSHOT
+== 0.6.0-SNAPSHOT
 
-* TBD
+== 0.5.9
+
+* Improved error message for v7.3 files
 
 == 0.5.8
 
