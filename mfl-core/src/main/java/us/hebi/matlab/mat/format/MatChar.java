@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,15 +20,15 @@
 
 package us.hebi.matlab.mat.format;
 
+import us.hebi.matlab.mat.format.CharEncoding.CloseableCharBuffer;
 import us.hebi.matlab.mat.types.AbstractCharBase;
 import us.hebi.matlab.mat.types.Sink;
 
 import java.io.IOException;
 import java.nio.CharBuffer;
-import java.util.Arrays;
 
-import static us.hebi.matlab.mat.util.Preconditions.*;
 import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
+import static us.hebi.matlab.mat.util.Preconditions.*;
 
 /**
  * Default char array implementation backed by a char buffer
@@ -38,16 +38,16 @@ import static us.hebi.matlab.mat.format.Mat5WriteUtil.*;
  */
 class MatChar extends AbstractCharBase implements Mat5Serializable {
 
-    MatChar(int[] dims, CharEncoding encoding) {
-        this(dims, encoding, CharBuffer.allocate(getNumElements(dims)));
-        Arrays.fill(buffer.array(), ' ');
+    MatChar(int[] dims, CharEncoding encoding, BufferAllocator bufferAllocator) {
+        this(dims, encoding, CloseableCharBuffer.allocate(bufferAllocator, getNumElements(dims), ' '));
     }
 
-    MatChar(int[] dims, CharEncoding encoding, CharBuffer buffer) {
+    MatChar(int[] dims, CharEncoding encoding, CloseableCharBuffer buffer) {
         super(dims);
-        checkArgument(buffer.remaining() == getNumElements(), "Unexpected number of elements");
-        this.buffer = checkNotNull(buffer);
+        this.buffer = checkNotNull(buffer.chars);
         this.encoding = checkNotNull(encoding);
+        this.resource = buffer;
+        checkArgument(buffer.chars.remaining() == getNumElements(), "Unexpected number of elements");
     }
 
     @Override
@@ -67,6 +67,7 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
 
     @Override
     public void close() {
+        resource.close();
     }
 
     @Override
@@ -87,6 +88,7 @@ class MatChar extends AbstractCharBase implements Mat5Serializable {
 
     protected final CharBuffer buffer;
     protected final CharEncoding encoding;
+    protected final CloseableCharBuffer resource;
 
     @Override
     protected int subHashCode() {

@@ -7,9 +7,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,18 +20,16 @@
 
 package us.hebi.matlab.mat.format;
 
-import us.hebi.matlab.mat.util.Bytes;
 import us.hebi.matlab.mat.types.Sink;
 import us.hebi.matlab.mat.types.Source;
+import us.hebi.matlab.mat.util.Bytes;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.CharBuffer;
-import java.nio.charset.Charset;
-import java.nio.charset.CharsetEncoder;
-import java.nio.charset.CoderResult;
-import java.nio.charset.CodingErrorAction;
+import java.nio.charset.*;
 
 import static java.nio.ByteOrder.*;
 import static us.hebi.matlab.mat.util.Bytes.*;
@@ -53,8 +51,6 @@ public enum CharEncoding {
     CharEncoding(Charset charsetLE, Charset charsetBE) {
         this.charsetLE = charsetLE;
         this.charsetBE = charsetBE;
-        encoderLE = newEncoder(charsetLE);
-        encoderBE = newEncoder(charsetBE);
     }
 
     static String parseAsciiString(byte[] buffer) {
@@ -74,35 +70,112 @@ public enum CharEncoding {
         return length == 0 ? "" : new String(buffer, offset, length, Charsets.US_ASCII);
     }
 
-    CharBuffer readCharBuffer(Source source, int numBytes) throws IOException {
+    static class CloseableCharBuffer implements Closeable {
 
+        static CloseableCharBuffer wrap(String value) {
+            return new CloseableCharBuffer(CharBuffer.wrap(value), null, null);
+        }
+
+        static CloseableCharBuffer allocate(BufferAllocator bufferAllocator, int numChars) {
+            ByteBuffer bytes = bufferAllocator.allocate(numChars * SIZEOF_CHAR);
+            bytes.order(ByteOrder.nativeOrder());
+            CharBuffer chars = bytes.asCharBuffer();
+            checkState(chars.remaining() == numChars, "invalid buffer size");
+            return new CloseableCharBuffer(chars, bytes, bufferAllocator);
+        }
+
+        static CloseableCharBuffer allocate(BufferAllocator bufferAllocator, int numChars, char fillChar) {
+            return allocate(bufferAllocator, numChars).fill(fillChar);
+        }
+
+        CloseableCharBuffer fill(final char c) {
+            for (int i = 0; i < chars.limit(); i++) {
+                chars.put(i, c);
+            }
+            return this;
+        }
+
+        private CloseableCharBuffer(CharBuffer chars, ByteBuffer bytes, BufferAllocator bufferAllocator) {
+            this.chars = chars;
+            this.bytes = bytes;
+            this.bufferAllocator = bufferAllocator;
+        }
+
+        @Override
+        public void close() {
+            if (bytes != null && bufferAllocator != null) {
+                bufferAllocator.release(bytes);
+            }
+        }
+
+        final CharBuffer chars;
+        final ByteBuffer bytes;
+        final BufferAllocator bufferAllocator;
+
+    }
+
+    CloseableCharBuffer readCharBuffer(Source source, int numBytes, BufferAllocator bufferAllocator) throws IOException {
         if (this == UInt16) {
 
-            // UInt16 encoded ascii (read individually)
-            int numElements = checkedDivide(numBytes, SIZEOF_SHORT);
-            CharBuffer charBuffer = CharBuffer.allocate(numElements);
-            for (int i = 0; i < numElements; i++) {
-                charBuffer.append((char) source.readShort());
-            }
-            charBuffer.rewind();
-            return charBuffer;
+            // UInt16 encoded ascii (map buffer directly)
+            int numChars = checkedDivide(numBytes, SIZEOF_CHAR);
+            CloseableCharBuffer buffer = CloseableCharBuffer.allocate(bufferAllocator, numChars);
+            ByteBuffer bytes = buffer.bytes;
+            bytes.order(source.order());
+            source.readByteBuffer(bytes);
+            checkState(!bytes.hasRemaining(), "read incorrect number of bytes");
+            bytes.rewind();
+            return buffer;
 
         } else {
 
             // UTF encoded bytes (copy byte-wise)
-            BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
-            ByteBuffer tmpBuffer = bufferAllocator.allocate(numBytes);
+            ByteBuffer tmp = numBytes > TMP_BUFFER_SIZE ? bufferAllocator.allocate(numBytes) : buffer.get();
             try {
                 // Read data into temporary buffer
-                source.readByteBuffer(tmpBuffer);
-                tmpBuffer.rewind();
+                tmp.position(0);
+                tmp.limit(numBytes);
+                source.readByteBuffer(tmp);
+                checkState(!tmp.hasRemaining(), "read incorrect number of bytes");
+                tmp.rewind();
 
-                // Convert to char buffer
-                return getCharset(source.order()).decode(tmpBuffer);
+                // Count number of characters
+                CharBuffer tmpChars = charBuffer.get();
+                CharsetDecoder decoder = newDecoder(source.order());
+
+                int numChars = 0;
+                do {
+                    tmpChars.clear();
+                    CoderResult status = decoder.decode(tmp, tmpChars, true);
+                    if (status.isError()) status.throwException();
+                    numChars += tmpChars.position();
+                }
+                while (tmp.hasRemaining());
+
+                // Allocate appropriately sized buffer
+                CloseableCharBuffer buffer = CloseableCharBuffer.allocate(bufferAllocator, numChars);
+                CharBuffer chars = buffer.chars;
+
+                if (numChars == tmpChars.position()) {
+                    // We already have all decoded chars -> copy
+                    tmpChars.flip();
+                    chars.put(tmpChars);
+                } else {
+                    // Decode all over again
+                    tmp.rewind();
+                    CoderResult status = decoder.decode(tmp, chars, true);
+                    if (status.isError()) status.throwException();
+                }
+
+                checkState(!chars.hasRemaining(), "did not read expected number of characters");
+                chars.flip();
+                return buffer;
 
             } finally {
                 // Release temporary buffer
-                bufferAllocator.release(tmpBuffer);
+                if (numBytes > TMP_BUFFER_SIZE) {
+                    bufferAllocator.release(tmp);
+                }
             }
 
         }
@@ -149,7 +222,7 @@ public enum CharEncoding {
         // reuse cached encoder. not thread-safe, so synchronized. If this
         // ever becomes a problem, we could do some thread-local magic.
         final ByteOrder order = (sink == null) ? ByteOrder.nativeOrder() : sink.order();
-        final CharsetEncoder encoder = getEncoder(order);
+        final CharsetEncoder encoder = newEncoder(order);
         final ByteBuffer tmp = buffer.get();
 
         try {
@@ -195,28 +268,31 @@ public enum CharEncoding {
         return charset;
     }
 
-    private CharsetEncoder getEncoder(ByteOrder order) {
-        CharsetEncoder encoder = order == BIG_ENDIAN ? encoderBE : encoderLE;
-        if (encoder == null)
-            throw new AssertionError("Charset '" + this + "' is not supported on this platform");
-        return encoder;
+    private CharsetEncoder newEncoder(ByteOrder order) {
+        return getCharset(order).newEncoder()
+                .onMalformedInput(CodingErrorAction.REPLACE)
+                .onUnmappableCharacter(CodingErrorAction.REPLACE);
     }
 
-    private static CharsetEncoder newEncoder(Charset charset) {
-        if (charset == null) return null;
-        return charset.newEncoder()
+    private CharsetDecoder newDecoder(ByteOrder order) {
+        return getCharset(order).newDecoder()
                 .onMalformedInput(CodingErrorAction.REPLACE)
                 .onUnmappableCharacter(CodingErrorAction.REPLACE);
     }
 
     private final Charset charsetLE;
     private final Charset charsetBE;
-    private final CharsetEncoder encoderLE;
-    private final CharsetEncoder encoderBE;
+    private static final int TMP_BUFFER_SIZE = 8 * 1024;
     private static final ThreadLocal<ByteBuffer> buffer = new ThreadLocal<ByteBuffer>() {
         @Override
         protected ByteBuffer initialValue() {
-            return ByteBuffer.allocate(8 * 1024);
+            return ByteBuffer.allocate(TMP_BUFFER_SIZE);
+        }
+    };
+    private static final ThreadLocal<CharBuffer> charBuffer = new ThreadLocal<CharBuffer>() {
+        @Override
+        protected CharBuffer initialValue() {
+            return CharBuffer.allocate(TMP_BUFFER_SIZE / SIZEOF_CHAR);
         }
     };
 

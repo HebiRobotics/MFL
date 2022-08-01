@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.CharBuffer;
 
 import static us.hebi.matlab.mat.types.AbstractArray.*;
 import static us.hebi.matlab.mat.util.Preconditions.*;
@@ -141,7 +140,7 @@ public class Mat5 {
     }
 
     public static Char newChar(int rows, int cols, CharEncoding encoding) {
-        return new MatChar(dims(rows, cols), encoding);
+        return new MatChar(dims(rows, cols), encoding, getDefaultBufferAllocator());
     }
 
     public static Char newChar(int[] dims) {
@@ -149,7 +148,7 @@ public class Mat5 {
     }
 
     public static Char newChar(int[] dims, CharEncoding encoding) {
-        return new MatChar(dims, encoding);
+        return new MatChar(dims, encoding, getDefaultBufferAllocator());
     }
 
     /**
@@ -164,9 +163,8 @@ public class Mat5 {
     }
 
     public static Char newString(String value, CharEncoding encoding) {
-        return new MatChar(new int[]{1, value.length()}, encoding, CharBuffer.wrap(value));
+        return new MatChar(new int[]{1, value.length()}, encoding, CharEncoding.CloseableCharBuffer.wrap(value));
     }
-
 
     public static Matrix newLogicalScalar(boolean value) {
         Matrix logical = newLogical(1, 1);

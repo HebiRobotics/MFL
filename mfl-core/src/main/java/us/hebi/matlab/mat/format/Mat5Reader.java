@@ -20,6 +20,7 @@
 
 package us.hebi.matlab.mat.format;
 
+import us.hebi.matlab.mat.format.CharEncoding.CloseableCharBuffer;
 import us.hebi.matlab.mat.types.Cell;
 import us.hebi.matlab.mat.types.Matrix;
 import us.hebi.matlab.mat.types.Opaque;
@@ -33,7 +34,6 @@ import java.io.IOException;
 import java.lang.Object;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -252,7 +252,6 @@ public final class Mat5Reader {
     private Future<MatFile.Entry> readEntry(Mat5Tag tag) throws IOException {
         checkArgument(tag.getNumBytes() != 0, "Root element contains no data");
         long expectedEnd = source.getPosition() + tag.getNumBytes() + tag.getPadding();
-
 
         final boolean atSubsys;
         if (!reducedHeader) {
@@ -529,7 +528,7 @@ public final class Mat5Reader {
         // Subfield 4: Data
         Mat5Tag tag = readTag();
         CharEncoding encoding = tag.getType().getCharEncoding();
-        CharBuffer buffer = encoding.readCharBuffer(source, tag.getNumBytes());
+        CloseableCharBuffer buffer = encoding.readCharBuffer(source, tag.getNumBytes(), bufferAllocator);
         source.skip(tag.getPadding());
         return createChar(header.getDimensions(), encoding, buffer);
 
@@ -665,7 +664,7 @@ public final class Mat5Reader {
         return new MatSparseCSC(dimensions, logical, nzMax, real, imaginary, rowIndices, colIndices);
     }
 
-    private Char createChar(int[] dims, CharEncoding encoding, CharBuffer buffer) {
+    private Char createChar(int[] dims, CharEncoding encoding, CloseableCharBuffer buffer) {
         return new MatChar(dims, encoding, buffer);
     }
 
