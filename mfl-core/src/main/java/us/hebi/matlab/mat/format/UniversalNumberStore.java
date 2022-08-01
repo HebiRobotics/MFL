@@ -51,7 +51,7 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  * @author Florian Enner
  * @since 03 May 2018
  */
-class UniversalNumberStore implements NumberStore {
+public class UniversalNumberStore implements NumberStore {
 
     /**
      * The buffer will go into the life cycle of this store (i.e. close()),

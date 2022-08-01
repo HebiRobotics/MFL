@@ -32,7 +32,7 @@ import java.io.IOException;
  * @author Florian Enner
  * @since 03 May 2018
  */
-interface NumberStore extends Closeable {
+public interface NumberStore extends Closeable {
 
     int getNumElements();
 

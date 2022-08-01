@@ -7,6 +7,7 @@ import io.jhdf.api.Group;
 import io.jhdf.api.Node;
 import org.junit.Test;
 import us.hebi.matlab.mat.format.Mat5;
+import us.hebi.matlab.mat.format7.Mat7Reader;
 import us.hebi.matlab.mat.types.MatFile;
 import us.hebi.matlab.mat.util.IndentingAppendable;
 
@@ -23,11 +24,24 @@ public class Mat73Test {
     File baseDir = new File("..");
     File base50 = new File(baseDir, "/mfl-core/src/test/resources/us/hebi/matlab/mat/tests/mat5/arrays");
     File base73 = new File(baseDir, "/mfl-mat73/src/test/resources/us/hebi/matlab/mat/tests/mat73/arrays");
+    String fileName = "multiDimMatrix.mat";
 
     @Test
-    public void loadFile() throws IOException {
-        String fileName = "sparse.mat";
+    public void testReader() throws IOException {
+        try (MatFile matFile = Mat5.readFromFile(new File(base50, fileName))) {
+            System.out.println(matFile);
+        }
 
+        System.out.println(" ===================== ");
+
+        try (Mat7Reader reader = new Mat7Reader(new HdfFile(new File(base73, fileName)))) {
+            System.out.println(reader.readMat());
+        }
+
+    }
+
+    @Test
+    public void readRecursiveFile() throws IOException {
         try (MatFile matFile = Mat5.readFromFile(new File(base50, fileName))) {
             System.out.println(matFile);
         }
