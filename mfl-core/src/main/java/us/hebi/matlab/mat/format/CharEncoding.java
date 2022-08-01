@@ -163,6 +163,7 @@ public enum CharEncoding {
                 } else {
                     // Decode all over again
                     tmp.rewind();
+                    decoder.reset();
                     CoderResult status = decoder.decode(tmp, chars, true);
                     if (status.isError()) status.throwException();
                 }
