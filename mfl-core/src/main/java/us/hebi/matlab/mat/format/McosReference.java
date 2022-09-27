@@ -75,9 +75,9 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
         if ("FileWrapper__".equals(className))
             throw new IllegalArgumentException("Only for references. Not for FileWrapper__ class");
-
-        // Check that dimensions and type match expected
-        if (!"MCOS".equals(objectType) || !isMcosReference(content))
+        if (!"MCOS".equals(objectType))
+            throw new IllegalArgumentException("Expected objectType to be MCOS, was " + objectType);
+        if (!isMcosReference(content))
             throw new IllegalArgumentException("Unexpected MCOS object reference data type: " + content);
 
         // Get Dimensions
