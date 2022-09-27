@@ -83,6 +83,25 @@ public class McosTest {
     }
 
     @Test
+    public void testV4() throws Exception {
+        boolean testRoundTrip = false;
+        boolean reduced = true;
+        Mat5File mat = MatTestUtil.readMat("mcos/enumdef_mcos4.mxarray", testRoundTrip, reduced);
+        assertEquals(1, mat.getNumEntries());
+        assertNotNull(mat.getSubsystem());
+
+        Iterator<MatFile.Entry> iter = mat.getEntries().iterator();
+        MatFile.Entry first = iter.next();
+        assertEquals("", first.getName());
+        assertEquals(MatlabType.Structure, first.getValue().getType());
+
+        // subsystem is hidden from main entry list
+        assertFalse(iter.hasNext());
+        MatFile.Entry second = mat.getSubsystem();
+        assertEquals("", second.getName());
+    }
+
+    @Test
     public void testParsingMultipleSimpleEmptyMCOS() throws IOException {
         Mat5File mat = MatTestUtil.readMat("mcos/simpleempty_multiple.mat");
         assertEquals(2, mat.getNumEntries());
