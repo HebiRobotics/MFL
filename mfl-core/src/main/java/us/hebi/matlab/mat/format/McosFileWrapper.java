@@ -75,8 +75,8 @@ class McosFileWrapper extends MatOpaque {
 
         // Version
         version = buffer.getInt();
-        if (version != 2 && version != 3)
-            throw readError("MAT file's MCOS data has an unknown version. Expected: 2 or 3, Found %d", version);
+        if (version < 2 || version > 4)
+            throw readError("MAT file's MCOS data has an unknown version. Expected: 2 through 4, Found %d", version);
 
         // String count
         int numStrings = buffer.getInt();

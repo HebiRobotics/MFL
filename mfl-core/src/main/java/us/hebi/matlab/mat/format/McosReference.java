@@ -75,13 +75,23 @@ class McosReference extends AbstractStructBase implements ObjectStruct, Opaque, 
 
         if ("FileWrapper__".equals(className))
             throw new IllegalArgumentException("Only for references. Not for FileWrapper__ class");
-
-        // Check that dimensions and type match expected
-        if (!"MCOS".equals(objectType) || !isMcosReference(content))
-            throw new IllegalArgumentException("Unexpected MCOS object reference data type: " + content);
+        if (!"MCOS".equals(objectType))
+            throw new IllegalArgumentException("Expected objectType to be MCOS, was " + objectType);
 
         // Get Dimensions
-        Matrix data = (Matrix) content;
+        Matrix data;
+        if (isMcosReference(content)) {
+            data = (Matrix) content;
+        } else if (content.getType() == MatlabType.Structure) {
+            Cell values = ((MatStruct) content).get("Values");
+            if (values.getNumElements() != 1) {
+                throw new IllegalArgumentException("Expected values to be a 1x1 cell array, was " + values);
+            }
+            data = values.get(0);
+        } else {
+            throw new IllegalArgumentException("Unexpected MCOS object reference data type: " + content);
+        }
+
         int[] dims = new int[2];
         dims[0] = data.getInt(2); // rows
         dims[1] = data.getInt(3); // cols
