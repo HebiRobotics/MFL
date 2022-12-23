@@ -2,6 +2,10 @@
 
 // == 0.6.0-SNAPSHOT
 
+== 0.5.12
+
+* added support for mcos version 5 introduced in R2022b (thanks @nedtwigg)
+
 == 0.5.11
 
 * added support for mcos version 4 introduced in R2022b (thanks @nedtwigg)
