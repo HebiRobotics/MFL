@@ -21,17 +21,23 @@
 package us.hebi.matlab.mat.format;
 
 import us.hebi.matlab.mat.format.CharEncoding.CloseableCharBuffer;
+import us.hebi.matlab.mat.types.AbstractArray;
+import us.hebi.matlab.mat.types.Array;
 import us.hebi.matlab.mat.types.Cell;
+import us.hebi.matlab.mat.types.Char;
+import us.hebi.matlab.mat.types.MatFile;
+import us.hebi.matlab.mat.types.MatlabType;
 import us.hebi.matlab.mat.types.Matrix;
+import us.hebi.matlab.mat.types.ObjectStruct;
 import us.hebi.matlab.mat.types.Opaque;
+import us.hebi.matlab.mat.types.Source;
 import us.hebi.matlab.mat.types.Sparse;
-import us.hebi.matlab.mat.types.*;
+import us.hebi.matlab.mat.types.Struct;
 import us.hebi.matlab.mat.util.Casts;
 import us.hebi.matlab.mat.util.Tasks;
 import us.hebi.matlab.mat.util.Tasks.IoTask;
 
 import java.io.IOException;
-import java.lang.Object;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -40,13 +46,15 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
+import static us.hebi.matlab.mat.format.Mat5Type.Compressed;
 import static us.hebi.matlab.mat.format.Mat5Type.Int32;
 import static us.hebi.matlab.mat.format.Mat5Type.Int8;
+import static us.hebi.matlab.mat.format.Mat5Type.Matrix;
 import static us.hebi.matlab.mat.format.Mat5Type.UInt32;
 import static us.hebi.matlab.mat.format.Mat5Type.UInt8;
-import static us.hebi.matlab.mat.format.Mat5Type.*;
-import static us.hebi.matlab.mat.types.MatlabType.*;
-import static us.hebi.matlab.mat.util.Preconditions.*;
+import static us.hebi.matlab.mat.types.MatlabType.Opaque;
+import static us.hebi.matlab.mat.util.Preconditions.checkArgument;
+import static us.hebi.matlab.mat.util.Preconditions.checkNotNull;
 
 /**
  * Reads MAT 5 files with the format as documented here:
@@ -134,6 +142,54 @@ public final class Mat5Reader {
     public Mat5Reader setEntryFilter(EntryFilter filter) {
         this.filter = checkNotNull(filter);
         return this;
+    }
+
+    /**
+     * Allows filtering structures that are nested inside other structures (they are not on the file root level).
+     */
+    public interface NestedStructFilter {
+
+        /**
+         * @return true if the given field from matlab file structure should be read, false if it should be skipped
+         * (probably to save memory)
+         */
+        // FIXME catalogColumnType is related to our custom matlab file structure. It would not be useful when reading
+        //  generic matlab files
+        boolean isAccepted(String fieldName, int rowNumber, Array catalogColumnType);
+    }
+
+    /**
+     * Sets {@link NestedStructFilter}.
+     */
+    public Mat5Reader setNestedStructFilter(NestedStructFilter nestedStructFilter) {
+        this.nestedStructFilter = checkNotNull(nestedStructFilter);
+        return this;
+    }
+
+    /**
+     * Allows extracting only selected cells from matlab file. Useful when reading partially large matlab files that
+     * contain arrays of cells. E.g. it helps to read partially files where string column is stored as array of cells
+     */
+    public interface CellFilter {
+
+        /**
+         * @return list of cell indexes that are accepted and should be read. Only cells with indexes in
+         * `acceptedIndexes` list are read and returned. Other cells will be skipped (probably to save memory)
+         */
+        List<Integer> getAcceptedCellIndexes();
+    }
+
+    public Mat5Reader setCellFilter(CellFilter cellFilter) {
+        this.cellFilter = checkNotNull(cellFilter);
+        return this;
+    }
+
+    /**
+     * @return size of the array that is currently processed
+     */
+    private long getArraySizeInBytes() throws IOException {
+        Mat5Tag tag = this.readTagWithExpectedType(Mat5Type.Matrix);
+        return Casts.uint32(tag.getNumBytes());
     }
 
     /**
@@ -535,14 +591,23 @@ public final class Mat5Reader {
     }
 
     private Array readCell(EntryHeader header) throws IOException {
+        List<Integer> acceptedIndexes = cellFilter == null ? null : cellFilter.getAcceptedCellIndexes();
 
         // Subfield 4: Array of Cells Subelements. Stored in column major order
-        final Array[] contents = new Array[header.getNumElements()];
-        for (int i = 0; i < contents.length; i++) {
-            contents[i] = readNestedArray();
-        }
+        int arraySize = acceptedIndexes == null ? header.getNumElements() : acceptedIndexes.size();
 
-        return createCell(header.getDimensions(), contents);
+        int[] dimensions = acceptedIndexes == null ? header.getDimensions() : new int[] { acceptedIndexes.size(), 1 };
+        final Array[] contents = new Array[arraySize];
+        for (int readCellIdx = 0, acceptedCellIdx = 0; readCellIdx < header.getNumElements(); readCellIdx++) {
+            if (acceptedIndexes == null || acceptedIndexes.contains(readCellIdx)) {
+                contents[acceptedCellIdx++] = readNestedArray();
+            } else {
+                // Skip ignored cell
+                long arraySizeInBytes = this.getArraySizeInBytes();
+                source.skip(arraySizeInBytes);
+            }
+        }
+        return createCell(dimensions, contents);
     }
 
     private Array readStruct(EntryHeader header) throws IOException {
@@ -577,7 +642,15 @@ public final class Mat5Reader {
         final Array[][] values = new Array[numFields][numElements];
         for (int i = 0; i < numElements; i++) {
             for (int field = 0; field < numFields; field++) {
-                values[field][i] = readNestedArray();
+                boolean isFieldAccepted = nestedStructFilter == null || nestedStructFilter.isAccepted(names[field], i,
+                        values[1][i]);
+                if (isFieldAccepted) {
+                    values[field][i] = this.readNestedArray();
+                } else {
+                    // Ship unwanted array
+                    long arraySizeInBytes = this.getArraySizeInBytes();
+                    source.skip(arraySizeInBytes);
+                }
             }
         }
 
@@ -651,6 +724,8 @@ public final class Mat5Reader {
     private Mat5Reader createChildReader(Source source) {
         Mat5Reader reader = new Mat5Reader(source);
         reader.filter = this.filter;
+        reader.nestedStructFilter = this.nestedStructFilter;
+        reader.cellFilter = this.cellFilter;
         reader.mcos = this.mcos;
         reader.bufferAllocator = this.bufferAllocator;
         return reader;
@@ -700,7 +775,7 @@ public final class Mat5Reader {
         return new MatOpaque(objectType, className, content);
     }
 
-    Mat5Reader(Source source) {
+    public Mat5Reader(Source source) {
         this.source = checkNotNull(source, "Source can't be empty");
     }
 
@@ -712,6 +787,8 @@ public final class Mat5Reader {
     private boolean mayFilterNext = false;
     private boolean reducedHeader = false;
     private EntryFilter filter = null;
+    private NestedStructFilter nestedStructFilter = null;
+    private CellFilter cellFilter = null;
     private ExecutorService executorService = null;
     private boolean processSubsystem = true;
     private int maxInflateBufferSize = 2048;
