@@ -55,7 +55,7 @@ import static us.hebi.matlab.mat.util.Preconditions.*;
  * @see <a href="http://www.mathworks.com/help/pdf_doc/matlab/matfile_format.pdf">MAT-File Format</a>
  * @since 30 Apr 2018
  */
-public final class Mat5Reader {
+public class Mat5Reader {
 
     public static class EntryHeader {
 
@@ -340,7 +340,7 @@ public final class Mat5Reader {
         }
     }
 
-    private Array readNestedArray() throws IOException {
+    protected Array readNestedArray() throws IOException {
         return readEntry().getValue();
     }
 
@@ -534,7 +534,7 @@ public final class Mat5Reader {
 
     }
 
-    private Array readCell(EntryHeader header) throws IOException {
+    protected Array readCell(EntryHeader header) throws IOException {
 
         // Subfield 4: Array of Cells Subelements. Stored in column major order
         final Array[] contents = new Array[header.getNumElements()];
@@ -573,6 +573,15 @@ public final class Mat5Reader {
         }
 
         // Subfield 6/7: Fields ([f f f f ...] * cols * rows)
+        final Array[][] values = readValues(header, numFields, names);
+
+        if (objectClassName == null)
+            return createStruct(header.getDimensions(), names, values);
+        return createObject(header.getDimensions(), objectClassName, names, values);
+    }
+
+    protected Array[][] readValues(EntryHeader header, int numFields, String[] names) throws IOException {
+        // Subfield 6/7: Fields ([f f f f ...] * cols * rows)
         int numElements = header.getNumElements();
         final Array[][] values = new Array[numFields][numElements];
         for (int i = 0; i < numElements; i++) {
@@ -580,10 +589,7 @@ public final class Mat5Reader {
                 values[field][i] = readNestedArray();
             }
         }
-
-        if (objectClassName == null)
-            return createStruct(header.getDimensions(), names, values);
-        return createObject(header.getDimensions(), objectClassName, names, values);
+        return values;
     }
 
     private Array readFunctionHandle(EntryHeader header) throws IOException {
@@ -635,7 +641,7 @@ public final class Mat5Reader {
         return buffer;
     }
 
-    private Mat5Tag readTagWithExpectedType(Mat5Type expected) throws IOException {
+    protected Mat5Tag readTagWithExpectedType(Mat5Type expected) throws IOException {
         Mat5Tag tag = readTag();
         if (tag.getType() != expected)
             throw readError("Encountered unexpected tag. Expected %s, Found %s", expected, tag.getType());
@@ -648,7 +654,7 @@ public final class Mat5Reader {
 
     // ------------------------- Factory methods
 
-    private Mat5Reader createChildReader(Source source) {
+    protected Mat5Reader createChildReader(Source source) {
         Mat5Reader reader = new Mat5Reader(source);
         reader.filter = this.filter;
         reader.mcos = this.mcos;
@@ -668,7 +674,7 @@ public final class Mat5Reader {
         return new MatChar(dims, encoding, buffer);
     }
 
-    private Cell createCell(int[] dims, Array[] contents) {
+    protected Cell createCell(int[] dims, Array[] contents) {
         return new MatCell(dims, contents);
     }
 
@@ -700,22 +706,22 @@ public final class Mat5Reader {
         return new MatOpaque(objectType, className, content);
     }
 
-    Mat5Reader(Source source) {
+    protected Mat5Reader(Source source) {
         this.source = checkNotNull(source, "Source can't be empty");
     }
 
-    private final Source source;
+    protected final Source source;
 
     private int numEntries = 0;
     private long subsysPosition = Long.MIN_VALUE;
     private boolean nextIsSubsys = false;
     private boolean mayFilterNext = false;
     private boolean reducedHeader = false;
-    private EntryFilter filter = null;
+    protected EntryFilter filter = null;
     private ExecutorService executorService = null;
     private boolean processSubsystem = true;
     private int maxInflateBufferSize = 2048;
-    private McosRegistry mcos = new McosRegistry();
-    private BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
+    protected McosRegistry mcos = new McosRegistry();
+    protected BufferAllocator bufferAllocator = Mat5.getDefaultBufferAllocator();
 
 }
