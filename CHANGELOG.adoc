@@ -2,6 +2,10 @@
 
 // == 0.6.0-SNAPSHOT
 
+== 0.5.13
+
+* added extension support for `Mat5Reader` (thanks @MieszkoMakuch)
+
 == 0.5.12
 
 * added support for mcos version 5 introduced in R2022b (thanks @nedtwigg)

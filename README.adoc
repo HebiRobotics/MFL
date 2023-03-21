@@ -21,7 +21,7 @@ MFL is in the Maven central repository and can easily be added to Maven, Gradle,
 <dependency>
     <groupId>us.hebi.matlab.mat</groupId>
     <artifactId>mfl-core</artifactId>
-    <version>0.5.12</version>
+    <version>0.5.13</version>
 </dependency>
 ```
 
@@ -31,7 +31,7 @@ In case you are working with link:http://ejml.org/[EJML] matrix types, you may a
 <dependency>
     <groupId>us.hebi.matlab.mat</groupId>
     <artifactId>mfl-ejml</artifactId>
-    <version>0.5.12</version>
+    <version>0.5.13</version>
 </dependency>
 ```
 
