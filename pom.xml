@@ -4,7 +4,7 @@
     <groupId>us.hebi.matlab.mat</groupId>
     <artifactId>mfl-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.5.14</version>
+    <version>0.5.15-SNAPSHOT</version>
 
     <name>MAT File Library</name>
     <url>https://github.com/HebiRobotics/MFL</url>
