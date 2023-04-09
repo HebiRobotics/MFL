@@ -528,7 +528,13 @@ public class Mat5Reader {
         // Subfield 4: Data
         Mat5Tag tag = readTag();
         CharEncoding encoding = tag.getType().getCharEncoding();
-        CloseableCharBuffer buffer = encoding.readCharBuffer(source, tag.getNumBytes(), bufferAllocator);
+
+        // At least one implementation creates invalid empty char tags. MATLAB
+        // deals with this by creating a default char array filled with spaces.
+        CloseableCharBuffer buffer = tag.getNumBytes() > 0
+                ? encoding.readCharBuffer(source, tag.getNumBytes(), bufferAllocator)
+                : CloseableCharBuffer.allocate(bufferAllocator, header.getNumElements(), ' ');
+
         source.skip(tag.getPadding());
         return createChar(header.getDimensions(), encoding, buffer);
 
