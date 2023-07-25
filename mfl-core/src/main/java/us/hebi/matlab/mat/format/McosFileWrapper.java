@@ -81,18 +81,27 @@ class McosFileWrapper extends MatOpaque {
         // String count
         int numStrings = buffer.getInt();
 
-        // Get indices into the 5 segments
-        segmentIndices = new int[6];
+        // Get indices into the 6 segments
+        segmentIndices = new int[8];
         for (int i = 0; i < segmentIndices.length; i++) {
             segmentIndices[i] = buffer.getInt();
         }
 
-        // Make sure that last index ends at buffer end
-        if (segmentIndices[5] != buffer.limit())
-            throw readError("Unexpected end of segment 5. Expected: %d, Found: %d", buffer.limit(), segmentIndices[5]);
-
-        // There should be 8 zero bytes. Make sure this is the case to avoid object format changes
-        checkUnknown(buffer.getLong(), 0);
+        // usually the last segment is all zeroes
+        if (segmentIndices[5] == buffer.limit()) {
+            // There should be 8 zero bytes. Make sure this is the case to avoid object format changes
+            checkUnknown(segmentIndices[6], 0);
+            checkUnknown(segmentIndices[7], 0);
+        } else if (segmentIndices[7] == buffer.limit()) {
+            // this means there was data in the super-unknown segment6
+            // files like this first appear in Matlab R2023b, examples are:
+            //   toolbox/simulink/blocks/library/simgens.slx!bdmxdata/SigBuilderData_18_2.mxarray
+            //   toolbox/simulink/blocks/library/simulink.slx!bdmxdata/UserData_232.mxarray
+            //   toolbox/simulink/blocks/library/simulink.slx!bdmxdata/OutDataTypeStr_359.mxarray
+            //   (others)
+        } else {
+            throw readError("Unexpected end of segments. Expected: %d, Found: %s", buffer.limit(), Arrays.asList(segmentIndices));
+        }
 
         // Finally, read in each string.
         strings = parseStrings(buffer, numStrings);
@@ -108,6 +117,7 @@ class McosFileWrapper extends MatOpaque {
         segment2Properties = parseSegment2(buffer);
         segment4Properties = parseSegment4(buffer);
         // parseSegment5(buffer); // Unknown what's in there
+        // parseSegment6(buffer); // Unknown what's in there too, see segmentIndices[7] above
 
         return createObjects();
     }
