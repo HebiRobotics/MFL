@@ -2,6 +2,10 @@
 
 // == 0.6.0-SNAPSHOT
 
+== 0.5.15
+
+* added support for ignoring undocumented sections introduced by R2023b (thanks @nedtwigg)
+
 == 0.5.14
 
 * added a workaround for reading faulty char arrays
